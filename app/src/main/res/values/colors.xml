@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="home_background">#F1FBF4</color>
+    <color name="text_title">#000000</color>
+    <color name="text_subtitle">#666666</color>
+    <color name="progress_bar">#00C853</color>
+    <color name="card_bg">#FFFFFF</color>
+    <color name="icon_green_bg">#E8F5E9</color>
+    <color name="icon_blue_bg">#E3F2FD</color>
+    <color name="icon_yellow_bg">#FFF8E1</color>
+    <color name="nav_active">#5DAE4A</color>
+    <color name="nav_inactive">#999999</color>
+</resources>

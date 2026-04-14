@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "659919013976",
+    "firebase_url": "https://database-pmo3-default-rtdb.firebaseio.com",
+    "project_id": "database-pmo3",
+    "storage_bucket": "database-pmo3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:659919013976:android:f056fdfa54bf2b0b24a22d",
+        "android_client_info": {
+          "package_name": "com.faiz.terraviva"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "659919013976-qdstpk4qc8d22b65o5fvf7ssj9tg5t7m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.faiz.terraviva",
+            "certificate_hash": "831791d080558ff61a06c96b156ad898b9e90908"
+          }
+        },
+        {
+          "client_id": "659919013976-m7bpkvvmcd7ruu4nfrfhgqklv9shmfij.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA0GLUIgiy3TL3guxhFeCZlOJUpYxXvLsc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "659919013976-m7bpkvvmcd7ruu4nfrfhgqklv9shmfij.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
