@@ -14,16 +14,17 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.faiz.terraviva.ui.login.LoginActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import java.util.Locale
-import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class HomeScreen : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -59,6 +60,7 @@ class HomeScreen : AppCompatActivity() {
 
         val tvGreeting = findViewById<TextView>(R.id.tvGreeting)
         val ivProfile = findViewById<ImageView>(R.id.ivProfile)
+        val btnEdukasi = findViewById<CardView>(R.id.btnEdukasi)
 
         // Fungsi untuk memperbarui tampilan nama
         fun updateUserName(user: FirebaseUser?) {
@@ -130,6 +132,12 @@ class HomeScreen : AppCompatActivity() {
                 popupMenu.show()
             }
         }
+
+        btnEdukasi.setOnClickListener {
+            val intent = Intent(this, EdukasiActivity::class.java)
+            startActivity(intent)
+        }
+
         // Tampilkan nama awal dari cache session
         updateUserName(currentUser)
 
