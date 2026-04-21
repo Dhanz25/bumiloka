@@ -137,6 +137,7 @@ class HomeScreen : AppCompatActivity() {
             startActivity(intent)
         }
 
+
         // Tampilkan nama awal dari cache session
         updateUserName(currentUser)
 

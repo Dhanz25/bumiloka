@@ -57,4 +57,35 @@
     <string name="hello_placeholder">Halo, %1$s! \uD83C\uDF0D</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- Quiz Selesai strings -->
+    <string name="back_button_desc">Kembali</string>
+    <string name="quiz_header">Quiz Utama</string>
+    <string name="tab_all">Semua</string>
+    <string name="tab_finished">Selesai</string>
+    <string name="tab_not_finished">Belum Selesai</string>
+    <string name="quiz_history">Riwayat Quiz</string>
+    <string name="materi_1">Materi 1</string>
+    <string name="materi_2">Materi 2</string>
+    <string name="materi_3">Materi 3</string>
+    <string name="skor_90_100">Skor : 90/100</string>
+    <string name="status_selesai">Status : Selesai</string>
+    <string name="status_belum_dikerjakan">Status : Belum dikerjakan</string>
+    <string name="tanggal_10_juni_2026">Tanggal : 10 Juni 2026</string>
+    <string name="kerjakan_lagi">Kerjakan Lagi</string>
+    <string name="lihat_detail">Lihat detail</string>
+    <string name="kerjakan">Kerjakan</string>
+
+    <!-- Quiz Soal Strings -->
+    <string name="quiz_title">Kuis Materi 1</string>
+    <string name="quiz_question_placeholder">Apa yang harus kita lakukan untuk menjaga lingkungan?</string>
+    <string name="quiz_btn_next">Lanjut</string>
+
+    <!-- Missing Strings -->
+    <string name="materi_icon_desc">Ikon Materi</string>
+    <string name="materi_1_title">Materi 1: Pengenalan</string>
+    <string name="quiz_finished_title">Kuis Selesai!</string>
+    <string name="quiz_result_desc">Terima kasih telah menyelesaikan kuis ini.</string>
+    <string name="btn_retake">Ulangi Kuis</string>
+    <string name="btn_ok">OK</string>
 </resources>
