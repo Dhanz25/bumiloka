@@ -23,11 +23,11 @@ dependencies {
     // https://firebase.google.com/docs/android/setup#available-libraries
 }
 android {
-    namespace = "com.faiz.terraviva"
+    namespace = "com.faiz.bumiloka"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.faiz.terraviva"
+        applicationId = "com.faiz.bumiloka"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

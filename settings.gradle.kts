@@ -22,6 +22,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "TerraViva"
+rootProject.name = "BumiLoka"
 include(":app")
  

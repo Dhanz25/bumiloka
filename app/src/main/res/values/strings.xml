@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">TerraViva</string>
+    <string name="app_name">BumiLoka</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
@@ -55,4 +55,6 @@
     <string name="login_failed">"Login failed"</string>
     <string name="default_web_client_id" translatable="false">836208037380-q5sh18p66k9v500cbe9i4atd7l09sh00.apps.googleusercontent.com</string>
     <string name="hello_placeholder">Halo, %1$s! \uD83C\uDF0D</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
