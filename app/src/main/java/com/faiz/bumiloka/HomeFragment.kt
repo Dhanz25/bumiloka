@@ -32,7 +32,6 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_home, container, false)
     }
 
@@ -42,7 +41,6 @@ class HomeFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
 
-        // Cek Session: Jika tidak ada user yang login, arahkan ke LoginActivity
         if (currentUser == null) {
             val intent = Intent(requireContext(), LoginActivity::class.java)
             startActivity(intent)
@@ -58,8 +56,8 @@ class HomeFragment : Fragment() {
         val tvGreeting = view.findViewById<TextView>(R.id.tvGreeting)
         val ivProfile = view.findViewById<ImageView>(R.id.ivProfile)
         val btnEdukasi = view.findViewById<CardView>(R.id.btnEdukasi)
+        val btnMisi = view.findViewById<CardView>(R.id.btnMisi) // ✅ TAMBAHAN
 
-        // Fungsi untuk memperbarui tampilan nama
         fun updateUserName(user: FirebaseUser?) {
             val rawName = when {
                 !user?.displayName.isNullOrBlank() -> user?.displayName
@@ -67,18 +65,18 @@ class HomeFragment : Fragment() {
                 else -> "Bumi Lover"
             }
 
-            // Capitalize: Mengubah huruf pertama setiap kata menjadi huruf besar
             val nameToShow = rawName?.split(" ")?.joinToString(" ") { word ->
-                word.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+                word.replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(Locale.getDefault())
+                    else it.toString()
+                }
             } ?: ""
 
             tvGreeting.text = getString(R.string.hello_placeholder, nameToShow)
 
-            // Setup listener profil dengan nama terbaru
             ivProfile.setOnClickListener { profileView ->
                 val popupMenu = PopupMenu(requireContext(), profileView)
 
-                // Membuat username menjadi BOLD menggunakan SpannableString
                 val spannableName = SpannableString(nameToShow)
                 spannableName.setSpan(
                     StyleSpan(Typeface.BOLD),
@@ -87,7 +85,6 @@ class HomeFragment : Fragment() {
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
 
-                // Menyamakan ID Menu dengan ID di Listener
                 popupMenu.menu.add(0, 1, 0, spannableName)
                 popupMenu.menu.add(0, 2, 1, "Pengaturan Profil")
                 popupMenu.menu.add(0, 3, 2, "Logout")
@@ -104,12 +101,10 @@ class HomeFragment : Fragment() {
                             true
                         }
                         3 -> {
-                            // Konfirmasi Logout
                             AlertDialog.Builder(requireContext())
                                 .setTitle("Konfirmasi Logout")
                                 .setMessage("Apakah Anda yakin ingin keluar?")
                                 .setPositiveButton("Ya") { _, _ ->
-                                    // Proses Logout
                                     auth.signOut()
                                     googleSignInClient.signOut().addOnCompleteListener {
                                         Toast.makeText(requireContext(), "Berhasil Logout", Toast.LENGTH_SHORT).show()
@@ -135,10 +130,16 @@ class HomeFragment : Fragment() {
             startActivity(intent)
         }
 
-        // Tampilkan nama awal dari cache session
+        // ✅ TAMBAHAN NAVIGASI KE MISI (TANPA MERUBAH YANG LAIN)
+        btnMisi.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, MisiFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
         updateUserName(currentUser)
 
-        // Reload data dari server Firebase untuk memastikan Nama muncul (sinkronisasi)
         currentUser.reload().addOnCompleteListener {
             if (it.isSuccessful) {
                 updateUserName(auth.currentUser)
