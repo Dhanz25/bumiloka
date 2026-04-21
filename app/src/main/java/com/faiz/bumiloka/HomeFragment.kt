@@ -58,7 +58,6 @@ class HomeFragment : Fragment() {
         val tvGreeting = view.findViewById<TextView>(R.id.tvGreeting)
         val ivProfile = view.findViewById<ImageView>(R.id.ivProfile)
         val btnEdukasi = view.findViewById<CardView>(R.id.btnEdukasi)
-        val btnKuis = view.findViewById<CardView>(R.id.btnKuis)
 
         // Fungsi untuk memperbarui tampilan nama
         fun updateUserName(user: FirebaseUser?) {
@@ -70,7 +69,7 @@ class HomeFragment : Fragment() {
 
             // Capitalize: Mengubah huruf pertama setiap kata menjadi huruf besar
             val nameToShow = rawName?.split(" ")?.joinToString(" ") { word ->
-                word.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.titlecase(Locale.getDefault()) }
+                word.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
             } ?: ""
 
             tvGreeting.text = getString(R.string.hello_placeholder, nameToShow)
@@ -133,11 +132,6 @@ class HomeFragment : Fragment() {
 
         btnEdukasi.setOnClickListener {
             val intent = Intent(requireContext(), EdukasiActivity::class.java)
-            startActivity(intent)
-        }
-
-        btnKuis.setOnClickListener {
-            val intent = Intent(requireContext(), quizutama::class.java)
             startActivity(intent)
         }
 

@@ -14,53 +14,35 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TerraViva">
         <activity
-            android:name=".quizmenang2"
+            android:name="com.faiz.bumiloka.PengaturanActivity"
             android:exported="false" />
         <activity
-            android:name=".quizmenang1"
+            android:name="com.faiz.bumiloka.EdukasiActivity"
             android:exported="false" />
         <activity
-            android:name=".quizsoal"
+            android:name="com.faiz.bumiloka.ProfilActivity"
             android:exported="false" />
         <activity
-            android:name=".quizbelum"
+            android:name="com.faiz.bumiloka.TipsActivity"
             android:exported="false" />
         <activity
-            android:name=".quizselesai"
+            android:name="com.faiz.bumiloka.AktivitasActivity"
             android:exported="false" />
         <activity
-            android:name=".quizutama"
+            android:name="com.faiz.bumiloka.HomeScreen"
             android:exported="false" />
         <activity
-            android:name=".PengaturanActivity"
+            android:name="com.faiz.bumiloka.ForgotPasswordActivity"
             android:exported="false" />
         <activity
-            android:name=".EdukasiActivity"
+            android:name="com.faiz.bumiloka.RegisterActivity"
             android:exported="false" />
         <activity
-            android:name=".ProfilActivity"
-            android:exported="false" />
-        <activity
-            android:name=".TipsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".AktivitasActivity"
-            android:exported="false" />
-        <activity
-            android:name=".HomeScreen"
-            android:exported="false" />
-        <activity
-            android:name=".ForgotPasswordActivity"
-            android:exported="false" />
-        <activity
-            android:name=".RegisterActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.login.LoginActivity"
+            android:name="com.faiz.bumiloka.ui.login.LoginActivity"
             android:exported="false"
             android:label="@string/title_activity_login" />
         <activity
-            android:name=".SplashActivity"
+            android:name="com.faiz.bumiloka.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -69,7 +51,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name="com.faiz.bumiloka.MainActivity"
             android:exported="false"
             android:theme="@style/Theme.TerraViva" />
     </application>
