@@ -55,6 +55,7 @@ android {
 }
 
 dependencies {
+    implementation("com.google.firebase:firebase-database-ktx:20.3.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
