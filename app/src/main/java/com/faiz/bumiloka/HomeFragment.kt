@@ -58,6 +58,9 @@ class HomeFragment : Fragment() {
         val tvGreeting = view.findViewById<TextView>(R.id.tvGreeting)
         val ivProfile = view.findViewById<ImageView>(R.id.ivProfile)
         val btnEdukasi = view.findViewById<CardView>(R.id.btnEdukasi)
+        val btnMisi = view.findViewById<CardView>(R.id.btnMisi)
+        val btnTantangan = view.findViewById<CardView>(R.id.btnTantangan)
+        val btnKuis = view.findViewById<CardView>(R.id.btnKuis)
 
         // Fungsi untuk memperbarui tampilan nama
         fun updateUserName(user: FirebaseUser?) {
@@ -132,6 +135,21 @@ class HomeFragment : Fragment() {
 
         btnEdukasi.setOnClickListener {
             val intent = Intent(requireContext(), EdukasiActivity::class.java)
+            startActivity(intent)
+        }
+
+        btnMisi.setOnClickListener {
+            val intent = Intent(requireContext(), MisiFragment::class.java)
+            startActivity(intent)
+        }
+
+        btnTantangan.setOnClickListener {
+            val intent = Intent(requireContext(), tantangan::class.java)
+            startActivity(intent)
+        }
+
+        btnKuis.setOnClickListener {
+            val intent = Intent(requireContext(), quizutama::class.java)
             startActivity(intent)
         }
 

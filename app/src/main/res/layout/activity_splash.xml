@@ -29,7 +29,7 @@
         <ImageView
             android:layout_width="220dp"
             android:layout_height="220dp"
-            android:src="@drawable/loogo"
+            android:src="@drawable/logo_bumiloka"
             android:layout_marginBottom="45dp"/>
 
     </LinearLayout>

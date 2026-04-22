@@ -227,6 +227,7 @@
 
                 <!-- TANTANGAN -->
                 <androidx.cardview.widget.CardView
+                    android:id="@+id/btnTantangan"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"

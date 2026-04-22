@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.navigation_tips -> {
                     // Assuming TipsFragment exists or create it
-                    replaceFragment(HomeFragment()) // Placeholder
+                    replaceFragment(AktivitasFragment()) // Placeholder
                     true
                 }
                 R.id.navigation_profile -> {
