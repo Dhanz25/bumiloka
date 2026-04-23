@@ -20,7 +20,7 @@ class JelajahiMateriFragment : Fragment(R.layout.fragment_jelajahi_materi) {
         btnLanjut.text = "Tunggu..."
 
         // ⏳ countdown 5 menit (300000 ms)
-        object : CountDownTimer(300000, 1000) {
+        object : CountDownTimer(10000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 val menit = millisUntilFinished / 1000 / 60
                 val detik = (millisUntilFinished / 1000) % 60

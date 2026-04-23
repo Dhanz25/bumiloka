@@ -19,7 +19,6 @@ import androidx.core.graphics.toColorInt
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.faiz.bumiloka.ForgotPasswordActivity
-import com.faiz.bumiloka.HomeScreen
 import com.faiz.bumiloka.MainActivity
 import com.faiz.bumiloka.R
 import com.faiz.bumiloka.RegisterActivity

@@ -102,7 +102,7 @@ class HomeFragment : Fragment() {
                             true
                         }
                         2 -> {
-                            val intent = Intent(requireContext(), ProfilActivity::class.java)
+                            val intent = Intent(requireContext(), ProfileFragment::class.java)
                             startActivity(intent)
                             true
                         }
