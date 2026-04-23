@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_splash"
-    android:fitsSystemWindows="true"
     android:fillViewport="true">
 
     <LinearLayout
@@ -59,6 +58,7 @@
 
         <!-- Card 1: Explore Materials -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardMateri"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
@@ -75,6 +75,7 @@
                 android:padding="16dp">
 
                 <ImageView
+                    android:id="@+id/iconMateri"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:layout_marginEnd="16dp"
@@ -128,6 +129,7 @@
 
         <!-- Card 2: Self Challenge -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardTantangan"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
@@ -136,6 +138,7 @@
             app:strokeWidth="0dp">
 
             <LinearLayout
+                android:id="@+id/layoutTantangan"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="#C8E6C9"
@@ -144,6 +147,7 @@
                 android:padding="16dp">
 
                 <ImageView
+                    android:id="@+id/iconTantangan"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:layout_marginEnd="16dp"
@@ -183,6 +187,7 @@
                 </LinearLayout>
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTantangan"
                     style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -196,6 +201,7 @@
 
         <!-- Card 3: Achieve Minimum Score -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardSkor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
@@ -204,6 +210,7 @@
             app:strokeWidth="0dp">
 
             <LinearLayout
+                android:id="@+id/layoutSkor"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="#A5D6A7"
@@ -212,6 +219,7 @@
                 android:padding="16dp">
 
                 <ImageView
+                    android:id="@+id/iconSkor"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:layout_marginEnd="16dp"
@@ -251,6 +259,7 @@
                 </LinearLayout>
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSkor"
                     style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
