@@ -134,23 +134,31 @@ class HomeFragment : Fragment() {
         }
 
         btnEdukasi.setOnClickListener {
-            val intent = Intent(requireContext(), EdukasiActivity::class.java)
-            startActivity(intent)
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, EdukasiFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
         btnMisi.setOnClickListener {
-            val intent = Intent(requireContext(), MisiFragment::class.java)
-            startActivity(intent)
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, MisiFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
         btnTantangan.setOnClickListener {
-            val intent = Intent(requireContext(), tantangan::class.java)
-            startActivity(intent)
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, TantanganFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
         btnKuis.setOnClickListener {
-            val intent = Intent(requireContext(), quizutama::class.java)
-            startActivity(intent)
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, QuizUtamaFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
         // Tampilkan nama awal dari cache session

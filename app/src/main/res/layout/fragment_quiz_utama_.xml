@@ -5,7 +5,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_main_gradient">
+    android:background="@drawable/bg_splash"
+    android:fitsSystemWindows="true">
 
     <!-- 1. HEADER -->
     <RelativeLayout

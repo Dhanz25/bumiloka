@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_main_gradient"
-    tools:context=".kerjainkuisselesai2">
+    tools:context=".QuizSelesaiFragment">
 
     <!-- Header Section -->
     <RelativeLayout

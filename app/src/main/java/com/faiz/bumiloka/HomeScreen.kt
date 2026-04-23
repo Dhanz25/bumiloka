@@ -133,8 +133,10 @@ class HomeScreen : AppCompatActivity() {
         }
 
         btnEdukasi.setOnClickListener {
-            val intent = Intent(this, EdukasiActivity::class.java)
-            startActivity(intent)
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, EdukasiFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
 

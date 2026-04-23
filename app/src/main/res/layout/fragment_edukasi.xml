@@ -5,8 +5,9 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#DFF5E1"
-    tools:context=".EdukasiActivity">
+    android:background="@drawable/bg_splash"
+    android:fitsSystemWindows="true"
+    tools:context=".EdukasiFragment">
 
     <!-- HEADER -->
     <LinearLayout
@@ -85,7 +86,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="150dp"
                         android:scaleType="centerCrop"
-                        android:src="@drawable/bg_utama"
+                        android:src="@drawable/lingkungan"
                         android:contentDescription="Gambar Edukasi 1" />
 
                     <TextView
@@ -115,7 +116,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="150dp"
                         android:scaleType="centerCrop"
-                        android:src="@drawable/bg_utama"
+                        android:src="@drawable/tumpukansampah"
                         android:contentDescription="Gambar Edukasi 2" />
 
                     <TextView
@@ -145,7 +146,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="150dp"
                         android:scaleType="centerCrop"
-                        android:src="@drawable/bg_utama"
+                        android:src="@drawable/hematair"
                         android:contentDescription="Gambar Edukasi 3" />
 
                     <TextView
