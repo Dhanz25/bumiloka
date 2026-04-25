@@ -1,10 +1,12 @@
 package com.faiz.bumiloka
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 
 class JelajahiMateriFragment : Fragment(R.layout.fragment_jelajahi_materi) {
@@ -15,21 +17,24 @@ class JelajahiMateriFragment : Fragment(R.layout.fragment_jelajahi_materi) {
         val btnBack = view.findViewById<ImageView>(R.id.btnBack)
         val btnLanjut = view.findViewById<Button>(R.id.btnLanjut)
 
-        // 🔒 tombol awal tidak bisa diklik
+        // 🔒 awal: disable + abu-abu
         btnLanjut.isEnabled = false
         btnLanjut.text = "Tunggu..."
+        btnLanjut.backgroundTintList = ColorStateList.valueOf(
+            ContextCompat.getColor(requireContext(), android.R.color.darker_gray)
+        )
 
-        // ⏳ countdown 5 menit (300000 ms)
+        // ⏳ timer (10 detik)
         object : CountDownTimer(10000, 1000) {
-            override fun onTick(millisUntilFinished: Long) {
-                val menit = millisUntilFinished / 1000 / 60
-                val detik = (millisUntilFinished / 1000) % 60
-                btnLanjut.text = "Tunggu ${menit}:${detik.toString().padStart(2,'0')}"
-            }
+            override fun onTick(millisUntilFinished: Long) {}
 
             override fun onFinish() {
+                // ✅ aktif + hijau
                 btnLanjut.isEnabled = true
                 btnLanjut.text = "Lanjut"
+                btnLanjut.backgroundTintList = ColorStateList.valueOf(
+                    ContextCompat.getColor(requireContext(), R.color.nav_active)
+                )
             }
         }.start()
 

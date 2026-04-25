@@ -3,6 +3,7 @@ package com.faiz.bumiloka
 import android.app.AlertDialog
 import android.os.Bundle
 import android.view.View
+import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.ImageView
@@ -18,31 +19,67 @@ class Jelajahi_MateriDetail : Fragment(R.layout.fragment_jelajahi__materi_detail
         val checkSelesai = view.findViewById<CheckBox>(R.id.checkSelesai)
         val btnSelesai = view.findViewById<Button>(R.id.btnSelesai)
 
+        // tombol kembali
         btnBack.setOnClickListener {
             requireActivity().supportFragmentManager.popBackStack()
         }
 
+        // awal: tombol disable
+        btnSelesai.isEnabled = false
+
+        // checkbox logic
         checkSelesai.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                btnSelesai.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.nav_active))
+                btnSelesai.setBackgroundColor(
+                    ContextCompat.getColor(requireContext(), R.color.nav_active)
+                )
                 btnSelesai.isEnabled = true
             } else {
-                btnSelesai.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.darker_gray))
+                btnSelesai.setBackgroundColor(
+                    ContextCompat.getColor(requireContext(), android.R.color.darker_gray)
+                )
                 btnSelesai.isEnabled = false
             }
         }
 
-        btnSelesai.isEnabled = false
-
+        // klik selesai
         btnSelesai.setOnClickListener {
-            AlertDialog.Builder(requireContext())
-                .setTitle("Misi Selesai")
-                .setMessage("Selamat Anda telah menyelesaikan Misi")
+
+            // simpan status misi selesai
+            val sharedPref = requireActivity().getSharedPreferences("MISI", 0)
+            sharedPref.edit().putBoolean("misi1_selesai", true).apply()
+
+            // 🔥 pakai custom dialog
+            val viewDialog = layoutInflater.inflate(R.layout.pop_up_misiselesai, null)
+
+            val dialog = AlertDialog.Builder(requireContext())
+                .setView(viewDialog)
                 .setCancelable(false)
-                .setPositiveButton("Lanjutkan") { _, _ ->
-                    requireActivity().supportFragmentManager.popBackStack()
-                }
-                .show()
+                .create()
+
+            dialog.show()
+
+            // background transparan & dim
+            dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+            dialog.window?.setDimAmount(0.6f)
+
+            // 🎬 animasi popup
+            val anim = AnimationUtils.loadAnimation(requireContext(), R.anim.pop_up_scale)
+            viewDialog.startAnimation(anim)
+
+            // tombol lanjut di popup
+            val btnLanjutPopup = viewDialog.findViewById<Button>(R.id.btnLanjutPopup)
+
+            btnLanjutPopup.setOnClickListener {
+
+                dialog.dismiss()
+
+                val fm = requireActivity().supportFragmentManager
+
+                // balik ke MisiFragment
+                fm.popBackStack()
+                fm.popBackStack()
+            }
         }
     }
 }
