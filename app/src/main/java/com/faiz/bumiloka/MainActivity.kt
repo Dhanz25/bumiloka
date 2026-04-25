@@ -1,6 +1,5 @@
 package com.faiz.bumiloka
 
-import com.google.firebase.database.FirebaseDatabase
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -12,20 +11,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val db = FirebaseDatabase.getInstance().reference
-
-        val data = mapOf(
-            "users" to "",
-            "materi" to "",
-            "kuis" to "",
-            "progress" to "",
-            "tantangan" to "",
-            "user_tantangan" to ""
-        )
-        db.updateChildren(data)
-
-        // 🔥 BONUS (BIAR KELIHATAN MASUK)
-        db.child("users").child("test_user").setValue("berhasil")
+        // KODE db.updateChildren(...) SUDAH DIHAPUS DARI SINI!
+        // Jangan pernah mereset database di MainActivity ya!
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 

@@ -46,8 +46,10 @@ class ProfileFragment : Fragment() {
         }
 
         btnPengaturan.setOnClickListener {
-            val intent = Intent(requireContext(), PengaturanActivity::class.java)
-            startActivity(intent)
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, PengaturanFragment())
+                .addToBackStack(null)
+                .commit()
         }
     }
 }

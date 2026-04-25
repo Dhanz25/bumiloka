@@ -23,6 +23,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import java.util.Locale
+import android.util.Log
 
 class HomeFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
@@ -134,31 +135,39 @@ class HomeFragment : Fragment() {
         }
 
         btnEdukasi.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, EdukasiFragment())
-                .addToBackStack(null)
-                .commit()
+            requireProfile {
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, EdukasiFragment())
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
 
         btnMisi.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, MisiFragment())
-                .addToBackStack(null)
-                .commit()
+            requireProfile {
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, MisiFragment())
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
 
         btnTantangan.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, TantanganFragment())
-                .addToBackStack(null)
-                .commit()
+            requireProfile {
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, TantanganFragment())
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
 
         btnKuis.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, QuizUtamaFragment())
-                .addToBackStack(null)
-                .commit()
+            requireProfile {
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, QuizUtamaFragment())
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
 
         // Tampilkan nama awal dari cache session
@@ -170,5 +179,57 @@ class HomeFragment : Fragment() {
                 updateUserName(auth.currentUser)
             }
         }
+        checkProfileOnce()
+    }
+    private fun checkProfileOnce() {
+        val user = auth.currentUser ?: return
+        val userId = user.uid
+        val db = com.google.firebase.database.FirebaseDatabase.getInstance().reference
+
+        // Pastikan path-nya benar: users -> userId
+        db.child("users").child(userId).get().addOnSuccessListener { snapshot ->
+            // Ambil status profil secara akurat
+            val isComplete = snapshot.child("isProfileComplete").getValue(Boolean::class.java) ?: false
+
+            Log.d("BUMILOKA_DEBUG", "Cek profil UID: $userId | Status: $isComplete")
+
+            if (!isComplete) {
+                showLengkapiProfilDialog()
+            }
+        }.addOnFailureListener {
+            Log.e("BUMILOKA_DEBUG", "Gagal koneksi Firebase: ${it.message}")
+        }
+    }
+
+    private fun requireProfile(action: () -> Unit) {
+        val user = auth.currentUser ?: return
+        val userId = user.uid
+        val db = com.google.firebase.database.FirebaseDatabase.getInstance().reference
+
+        db.child("users").child(userId).get().addOnSuccessListener { snapshot ->
+            val isComplete = snapshot.child("isProfileComplete").getValue(Boolean::class.java) ?: false
+
+            if (isComplete) {
+                action()
+            } else {
+                showLengkapiProfilDialog()
+            }
+        }
+    }
+
+    // Fungsi pembantu agar tidak menulis ulang dialog berkali-kali
+    private fun showLengkapiProfilDialog() {
+        if (!isAdded) return
+        AlertDialog.Builder(requireContext())
+            .setTitle("Lengkapi Profil")
+            .setMessage("Silakan lengkapi profil terlebih dahulu agar dapat mengakses semua fitur.")
+            .setCancelable(false)
+            .setPositiveButton("Lengkapi") { _, _ ->
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, PengaturanFragment())
+                    .addToBackStack(null)
+                    .commit()
+            }
+            .show()
     }
 }
