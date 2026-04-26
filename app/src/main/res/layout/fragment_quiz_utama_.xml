@@ -175,6 +175,21 @@
                         android:textSize="12sp"
                         android:textStyle="bold"
                         app:cornerRadius="8dp" />
+
+                    <Button
+                        android:id="@+id/btnTips1"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_below="@id/btn_detail_materi1"
+                        android:layout_marginTop="6dp"
+                        android:text="Tips"
+                        android:textAllCaps="false"
+                        android:textSize="12sp"
+                        android:visibility="gone"
+                        app:cornerRadius="8dp"/>
+
                 </RelativeLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -243,6 +258,23 @@
                         android:textSize="12sp"
                         android:textStyle="bold"
                         app:cornerRadius="8dp" />
+
+                    <Button
+                        android:id="@+id/btnTips2"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_below="@id/btn_kerjakan_materi2"
+                        android:layout_marginTop="6dp"
+                        android:text="Tips"
+                        android:textAllCaps="false"
+                        android:textSize="12sp"
+                        android:visibility="gone"
+                        app:cornerRadius="8dp"/>
+
+
+
                 </RelativeLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -311,6 +343,22 @@
                         android:textSize="12sp"
                         android:textStyle="bold"
                         app:cornerRadius="8dp" />
+
+                    <Button
+                        android:id="@+id/btnTips3"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_below="@id/btn_kerjakan_materi3"
+                        android:layout_marginTop="6dp"
+                        android:text="Tips"
+                        android:textAllCaps="false"
+                        android:textSize="12sp"
+                        android:visibility="gone"
+                        app:cornerRadius="8dp"/>
+
+
                 </RelativeLayout>
             </com.google.android.material.card.MaterialCardView>
 

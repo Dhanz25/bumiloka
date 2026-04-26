@@ -1,59 +1,59 @@
 package com.faiz.bumiloka
 
+import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import android.widget.TextView
+import androidx.fragment.app.Fragment
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+class TipsFragment : Fragment(R.layout.fragment_tips) {
 
-/**
- * A simple [Fragment] subclass.
- * Use the [TipsFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class TipsFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+        val pref = requireActivity().getSharedPreferences("KUIS", Context.MODE_PRIVATE)
+
+        val tips1 = pref.getBoolean("tips_materi1", false)
+        val tips2 = pref.getBoolean("tips_materi2", false)
+        val tips3 = pref.getBoolean("tips_materi3", false)
+
+        val card1 = view.findViewById<View>(R.id.cardTips1)
+        val card2 = view.findViewById<View>(R.id.cardTips2)
+        val card3 = view.findViewById<View>(R.id.cardTips3)
+        val tvEmpty = view.findViewById<TextView>(R.id.tvEmpty)
+
+        // tampil / sembunyi
+        card1.visibility = if (tips1) View.VISIBLE else View.GONE
+        card2.visibility = if (tips2) View.VISIBLE else View.GONE
+        card3.visibility = if (tips3) View.VISIBLE else View.GONE
+
+        // empty state
+        if (!tips1 && !tips2 && !tips3) {
+            tvEmpty.visibility = View.VISIBLE
+        } else {
+            tvEmpty.visibility = View.GONE
         }
-    }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_tips, container, false)
-    }
+        // klik card
+        card1.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, TipsPeduliFragment())
+                .addToBackStack(null)
+                .commit()
+        }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment TipsFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            TipsFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+        card2.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, TipsSampahFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        card3.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, TipsFragment())
+                .addToBackStack(null)
+                .commit()
+        }
     }
 }

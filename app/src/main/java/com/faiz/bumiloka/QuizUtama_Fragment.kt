@@ -19,9 +19,16 @@ class QuizUtamaFragment : Fragment(R.layout.fragment_quiz_utama_) {
     private lateinit var btnMateri3: Button
     private lateinit var tvStatus3: TextView
 
+    private lateinit var btnTips1: Button
+    private lateinit var btnTips2: Button
+    private lateinit var btnTips3: Button
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val bottomNav = requireActivity().findViewById<View>(R.id.bottom_navigation)
+        bottomNav.visibility = View.GONE
 
         val ivBack = view.findViewById<ImageView>(R.id.ivBack)
         btnMateri1 = view.findViewById(R.id.btn_detail_materi1)
@@ -30,6 +37,9 @@ class QuizUtamaFragment : Fragment(R.layout.fragment_quiz_utama_) {
         tvStatus2 = view.findViewById(R.id.tvStatus2)
         btnMateri3 = view.findViewById(R.id.btn_kerjakan_materi3)
         tvStatus3 = view.findViewById(R.id.tvStatus3)
+        btnTips1 = view.findViewById(R.id.btnTips1)
+        btnTips2 = view.findViewById(R.id.btnTips2)
+        btnTips3 = view.findViewById(R.id.btnTips3)
 
         val tabAll = view.findViewById<TextView>(R.id.tab_all)
         val tabSelesai = view.findViewById<TextView>(R.id.tab_selesai)
@@ -85,6 +95,13 @@ class QuizUtamaFragment : Fragment(R.layout.fragment_quiz_utama_) {
         super.onResume()
         loadUI()
     }
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        // 🔺 Tampilkan kembali Bottom Navigation saat keluar fragment
+        val bottomNav = requireActivity().findViewById<View>(R.id.bottom_navigation)
+        bottomNav.visibility = View.VISIBLE
+    }
 
     private fun loadUI() {
         val pref = requireActivity().getSharedPreferences("KUIS", Context.MODE_PRIVATE)
@@ -92,6 +109,7 @@ class QuizUtamaFragment : Fragment(R.layout.fragment_quiz_utama_) {
         // --- Materi 1 ---
         val s1 = pref.getBoolean("materi1_selesai", false)
         val n1 = pref.getInt("nilai_materi1", 0)
+
         if (s1) {
             tvStatus1.text = "Status: Selesai (Skor: $n1)"
             btnMateri1.text = "Lihat Hasil"
@@ -112,26 +130,68 @@ class QuizUtamaFragment : Fragment(R.layout.fragment_quiz_utama_) {
                     .addToBackStack(null)
                     .commit()
             }
+
+            // ✅ TAMBAHAN TIPS
+            if (n1 == 100) {
+                btnTips1.visibility = View.VISIBLE
+                btnTips1.setOnClickListener {
+                    val pref = requireActivity().getSharedPreferences("KUIS", Context.MODE_PRIVATE)
+                    pref.edit().putBoolean("tips_materi1", true).apply()
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, TipsPeduliFragment())
+                        .addToBackStack(null)
+                        .commit()
+                }
+            } else {
+                btnTips1.visibility = View.GONE
+            }
         }
 
         // --- Materi 2 ---
         val s2 = pref.getBoolean("quiz2_selesai", false)
         val n2 = pref.getInt("quiz2_nilai", 0)
+
         if (s2) {
             tvStatus2.text = "Status: Selesai (Skor: $n2)"
             btnMateri2.text = "Lihat Hasil"
+
             btnMateri2.setOnClickListener {
                 val frag = if (n2 == 100) QuizMenang2Fragment() else QuizMenang1Fragment()
-                parentFragmentManager.beginTransaction().replace(R.id.fragment_container, frag).addToBackStack(null).commit()
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, frag)
+                    .addToBackStack(null)
+                    .commit()
             }
+
+            // ✅ TAMBAHAN TIPS
+            if (n2 == 100) {
+                btnTips2.visibility = View.VISIBLE
+                btnTips2.setOnClickListener {
+                    val pref = requireActivity().getSharedPreferences("KUIS", Context.MODE_PRIVATE)
+                    pref.edit().putBoolean("tips_materi2", true).apply()
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, TipsSampahFragment())
+                        .addToBackStack(null)
+                        .commit()
+                }
+            } else {
+                btnTips2.visibility = View.GONE
+            }
+
         } else {
             tvStatus2.text = "Status: Belum Dikerjakan"
             btnMateri2.text = "Kerjakan"
+            btnTips2.visibility = View.GONE
+
             btnMateri2.setOnClickListener {
-                parentFragmentManager.beginTransaction().replace(R.id.fragment_container, QuizSoal2Fragment()).addToBackStack(null).commit()
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, QuizSoal2Fragment())
+                    .addToBackStack(null)
+                    .commit()
             }
         }
 
+        // --- Materi 3 ---
         val selesai3 = pref.getBoolean("quiz3_selesai", false)
         val nilai3 = pref.getInt("quiz3_nilai", 0)
 
@@ -159,12 +219,28 @@ class QuizUtamaFragment : Fragment(R.layout.fragment_quiz_utama_) {
                     .commit()
             }
 
+            // ✅ TAMBAHAN TIPS
+            if (nilai3 == 100) {
+                btnTips3.visibility = View.VISIBLE
+                btnTips3.setOnClickListener {
+                    val pref = requireActivity().getSharedPreferences("KUIS", Context.MODE_PRIVATE)
+                    pref.edit().putBoolean("tips_materi3", true).apply()
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, TipsFragment())
+                        .addToBackStack(null)
+                        .commit()
+                }
+            } else {
+                btnTips3.visibility = View.GONE
+            }
+
         } else {
             tvStatus3.text = "Status: Belum Dikerjakan"
             btnMateri3.text = "Kerjakan"
             btnMateri3.setBackgroundColor(
                 ContextCompat.getColor(requireContext(), R.color.nav_active)
             )
+            btnTips3.visibility = View.GONE
 
             btnMateri3.setOnClickListener {
                 parentFragmentManager.beginTransaction()

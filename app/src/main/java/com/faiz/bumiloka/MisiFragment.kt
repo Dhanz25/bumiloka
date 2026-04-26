@@ -13,6 +13,9 @@ class MisiFragment : Fragment(R.layout.fragment_misi) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val bottomNav = requireActivity().findViewById<View>(R.id.bottom_navigation)
+        bottomNav.visibility = View.GONE
+
         // Binding View
         val btnMulaiMateri = view.findViewById<MaterialButton>(R.id.btnMulaiMateri)
 
@@ -95,6 +98,14 @@ class MisiFragment : Fragment(R.layout.fragment_misi) {
         view.findViewById<ImageView>(R.id.btnBack).setOnClickListener {
             requireActivity().supportFragmentManager.popBackStack()
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        // 🔺 Tampilkan kembali Bottom Navigation saat keluar fragment
+        val bottomNav = requireActivity().findViewById<View>(R.id.bottom_navigation)
+        bottomNav.visibility = View.VISIBLE
     }
 
     // ================= HELPER =================
