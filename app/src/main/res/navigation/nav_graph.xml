@@ -3,26 +3,78 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/FirstFragment">
+    app:startDestination="@id/homeFragment">
+
+    <!-- HOME -->
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.faiz.bumiloka.HomeFragment"
+        android:label="Home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_home_to_misi"
+            app:destination="@id/MisiFragment" />
+        <action
+            android:id="@+id/action_home_to_tantangan"
+            app:destination="@id/FragmentTantangan" />
+    </fragment>
+
+    <!-- AKTIVITAS -->
+    <fragment
+        android:id="@+id/AktivitasFragment"
+        android:name="com.faiz.bumiloka.AktivitasFragment"
+        android:label="Aktivitas"
+        tools:layout="@layout/fragment_aktivitas" />
+
+    <!-- TIPS -->
+    <fragment
+        android:id="@+id/TipsFragment"
+        android:name="com.faiz.bumiloka.TipsFragment"
+        android:label="Tips"
+        tools:layout="@layout/fragment_tips" />
+
+    <!-- PROFIL -->
+    <fragment
+        android:id="@+id/ProfileFragment"
+        android:name="com.faiz.bumiloka.ProfileFragment"
+        android:label="Profil"
+        tools:layout="@layout/fragment_profile" />
+
+    <!-- MISI -->
+    <fragment
+        android:id="@+id/MisiFragment"
+        android:name="com.faiz.bumiloka.MisiFragment"
+        android:label="Misi"
+        tools:layout="@layout/fragment_misi" />
+
+    <!-- TANTANGAN -->
+    <fragment
+        android:id="@+id/FragmentTantangan"
+        android:name="com.faiz.bumiloka.FragmentTantangan"
+        android:label="Tantangan"
+        tools:layout="@layout/fragment_tantangan" />
+
+    <!-- KUIS -->
+    <fragment
+        android:id="@+id/quizUtama_Fragment"
+        android:name="com.faiz.bumiloka.QuizUtama_Fragment"
+        android:label="Kuis Utama"
+        tools:layout="@layout/activity_quizutama" />
 
     <fragment
-        android:id="@+id/FirstFragment"
-        android:name="com.faiz.bumiloka.FirstFragment"
-        android:label="@string/first_fragment_label"
-        tools:layout="@layout/fragment_first">
+        android:id="@+id/quizSelesai_Fragment"
+        android:name="com.faiz.bumiloka.QuizSelesai_Fragment"
+        android:label="Kuis Selesai"
+        tools:layout="@layout/activity_quizselesai" />
 
-        <action
-            android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/SecondFragment" />
-    </fragment>
     <fragment
-        android:id="@+id/SecondFragment"
-        android:name="com.faiz.bumiloka.SecondFragment"
-        android:label="@string/second_fragment_label"
-        tools:layout="@layout/fragment_second">
+        android:id="@+id/quizMenang1_Fragment"
+        android:name="com.faiz.bumiloka.QuizMenang1_Fragment"
+        android:label="Kuis Menang 1" />
 
-        <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
-    </fragment>
+    <fragment
+        android:id="@+id/quizMenang2_Fragment"
+        android:name="com.faiz.bumiloka.QuizMenang2_Fragment"
+        android:label="Kuis Menang 2" />
+
 </navigation>
