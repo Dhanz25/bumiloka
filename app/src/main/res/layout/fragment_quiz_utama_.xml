@@ -32,6 +32,7 @@
             android:textColor="#2E7D32"
             android:textSize="20sp"
             android:textStyle="bold" />
+
     </RelativeLayout>
 
     <!-- 2. TAB FILTER (Segmented Style) -->
@@ -52,6 +53,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
+            android:background="@drawable/bg_tab_active_new"
             android:text="@string/tab_all"
             android:textColor="@android:color/black"
             android:textSize="13sp" />
@@ -61,12 +63,10 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@drawable/bg_tab_active_new"
             android:gravity="center"
             android:text="@string/tab_finished"
-            android:textColor="@android:color/white"
-            android:textSize="13sp"
-            android:textStyle="bold" />
+            android:textColor="@android:color/black"
+            android:textSize="13sp" />
 
         <TextView
             android:id="@+id/tab_belum"
@@ -112,6 +112,7 @@
 
             <!-- Card 1: Selesai -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
@@ -149,25 +150,13 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/tvStatus1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/skor_90_100"
+                            android:text="Status:Belum Dikerjakan"
                             android:textColor="#666666"
                             android:textSize="13sp" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/status_selesai"
-                            android:textColor="#666666"
-                            android:textSize="13sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/tanggal_10_juni_2026"
-                            android:textColor="#666666"
-                            android:textSize="13sp" />
                     </LinearLayout>
 
                     <Button
@@ -180,7 +169,7 @@
                         android:layout_marginTop="4dp"
                         android:backgroundTint="#D9D9D9"
                         android:paddingHorizontal="16dp"
-                        android:text="@string/lihat_detail"
+                        android:text="Kerjakan"
                         android:textAllCaps="false"
                         android:textColor="@android:color/black"
                         android:textSize="12sp"
@@ -191,6 +180,7 @@
 
             <!-- Card 2: Belum -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
@@ -228,6 +218,7 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/tvStatus2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
@@ -257,6 +248,7 @@
 
             <!-- Card 3: Belum -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
@@ -294,6 +286,7 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/tvStatus3"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"

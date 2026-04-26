@@ -2,82 +2,134 @@ package com.faiz.bumiloka
 
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
 
 class MisiFragment : Fragment(R.layout.fragment_misi) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Binding View
         val btnMulaiMateri = view.findViewById<MaterialButton>(R.id.btnMulaiMateri)
+
+        val cardTantangan = view.findViewById<MaterialCardView>(R.id.cardTantangan)
+        val iconTantangan = view.findViewById<ImageView>(R.id.iconTantangan)
         val btnTantangan = view.findViewById<MaterialButton>(R.id.btnTantangan)
+
+        val cardSkor = view.findViewById<MaterialCardView>(R.id.cardSkor)
+        val iconSkor = view.findViewById<ImageView>(R.id.iconSkor)
         val btnSkor = view.findViewById<MaterialButton>(R.id.btnSkor)
 
+        // SharedPreferences
         val sharedPref = requireActivity().getSharedPreferences("MISI", 0)
-        // 🔥 reset (HANYA UNTUK TESTING)
-        sharedPref.edit().putBoolean("misi1_selesai", false).apply()
         val misi1Selesai = sharedPref.getBoolean("misi1_selesai", false)
+        val misi2Selesai = sharedPref.getBoolean("misi2_selesai", false)
+        val misi3Selesai = sharedPref.getBoolean("misi3_selesai", false)
 
-        // =========================
-        // MISI 1
-        // =========================
+        // ================= LOGIKA =================
+
+        // Misi 1
         if (misi1Selesai) {
-            // ❌ sudah selesai → tidak bisa diklik
-            btnMulaiMateri.isEnabled = false
-            btnMulaiMateri.text = "Selesai"
+            setSelesai(btnMulaiMateri)
+        }
 
-            btnMulaiMateri.setBackgroundColor(
-                ContextCompat.getColor(requireContext(), android.R.color.darker_gray)
-            )
+        // Misi 2
+        if (misi1Selesai && !misi2Selesai) {
+            unlockCard(cardTantangan, iconTantangan, btnTantangan, R.drawable.ic_quiz)
 
-        } else {
-            // ✅ belum selesai → aktif
-            btnMulaiMateri.isEnabled = true
-            btnMulaiMateri.text = "Mulai"
-
-            btnMulaiMateri.setBackgroundColor(
-                ContextCompat.getColor(requireContext(), R.color.nav_active)
-            )
-
-            btnMulaiMateri.setOnClickListener {
+            btnTantangan.setOnClickListener {
                 requireActivity().supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, JelajahiMateriFragment())
+                    .replace(R.id.fragment_container, QuizSoalFragment())
                     .addToBackStack(null)
                     .commit()
             }
+
+        } else if (misi2Selesai) {
+            unlockCard(cardTantangan, iconTantangan, btnTantangan, R.drawable.ic_quiz)
+            setSelesai(btnTantangan)
+            cardTantangan.isEnabled = false
+            btnTantangan.setOnClickListener(null)
+
+        } else {
+            lockCard(cardTantangan, iconTantangan, btnTantangan)
         }
 
-        // =========================
-        // MISI 2 & 3
-        // =========================
-        if (misi1Selesai) {
-            enableButton(btnTantangan)
-            enableButton(btnSkor)
+        // Misi 3 (SKOR)
+        if (misi2Selesai && !misi3Selesai) {
+
+            unlockCard(cardSkor, iconSkor, btnSkor, R.drawable.ic_target)
+
+            btnSkor.setOnClickListener {
+                requireActivity().supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, MisiRaihSkorFragment())
+                    .addToBackStack(null)
+                    .commit()
+            }
+
+        } else if (misi3Selesai) {
+
+            unlockCard(cardSkor, iconSkor, btnSkor, R.drawable.ic_target)
+            setSelesai(btnSkor)
+
+            cardSkor.isEnabled = false
+            btnSkor.isEnabled = false
+            btnSkor.setOnClickListener(null)
+
         } else {
-            disableButton(btnTantangan)
-            disableButton(btnSkor)
+            lockCard(cardSkor, iconSkor, btnSkor)
+        }
+
+        // ================= NAV =================
+
+        btnMulaiMateri.setOnClickListener {
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, JelajahiMateriFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        view.findViewById<ImageView>(R.id.btnBack).setOnClickListener {
+            requireActivity().supportFragmentManager.popBackStack()
         }
     }
 
-    // 🔒 LOCK
-    private fun disableButton(button: MaterialButton) {
+    // ================= HELPER =================
+
+    private fun lockCard(card: MaterialCardView, icon: ImageView, button: MaterialButton) {
+        card.setCardBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.darker_gray))
+        card.isEnabled = false
+        card.alpha = 0.7f
+
+        icon.setImageResource(R.drawable.lock)
+        icon.setColorFilter(ContextCompat.getColor(requireContext(), android.R.color.white))
+
         button.isEnabled = false
         button.text = "Terkunci"
+        button.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.darker_gray))
+    }
+
+    private fun unlockCard(card: MaterialCardView, icon: ImageView, button: MaterialButton, originalIcon: Int) {
+        card.setCardBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+        card.isEnabled = true
+        card.alpha = 1.0f
+
+        icon.setImageResource(originalIcon)
+        icon.clearColorFilter()
+
+        button.isEnabled = true
+        button.text = "Mulai"
+        button.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.nav_active))
+    }
+
+    private fun setSelesai(button: MaterialButton) {
+        button.text = "Selesai ✓"
+        button.isEnabled = false
         button.setBackgroundColor(
             ContextCompat.getColor(requireContext(), android.R.color.darker_gray)
         )
-        button.alpha = 0.6f
-    }
-
-    // 🔓 UNLOCK
-    private fun enableButton(button: MaterialButton) {
-        button.isEnabled = true
-        button.text = "Mulai"
-        button.setBackgroundColor(
-            ContextCompat.getColor(requireContext(), R.color.nav_active)
-        )
-        button.alpha = 1f
     }
 }

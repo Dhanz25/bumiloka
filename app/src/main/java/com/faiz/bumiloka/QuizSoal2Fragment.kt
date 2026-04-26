@@ -1,6 +1,5 @@
 package com.faiz.bumiloka
 
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -8,7 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 
-class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
+class QuizSoal2Fragment : Fragment(R.layout.fragment_quiz_soal_) {
 
     private var skor = 0
     private lateinit var options: List<TextView>
@@ -49,6 +48,7 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
         resetOptions()
         skor = points
         sudahPilih = true
+
         btnNext.isEnabled = true
         options[index].setBackgroundResource(android.R.color.holo_green_light)
     }
@@ -61,22 +61,19 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
 
     private fun pindahKeHasil() {
 
-        val prefs = requireActivity().getSharedPreferences("KUIS", Context.MODE_PRIVATE)
-        prefs.edit()
-            .putBoolean("materi1_selesai", true)
-            .putInt("nilai_materi1", skor)
-            .apply()
+        val prefs = requireActivity().getSharedPreferences("KUIS", 0)
+        val editor = prefs.edit()
 
-        val bundle = Bundle()
-        bundle.putString("QUIZ_TYPE", "QUIZ1")
+        // 🔥 INI BEDANYA (KUIS 2)
+        editor.putBoolean("quiz2_selesai", true)
+        editor.putInt("quiz2_nilai", skor)
+        editor.apply()
 
         val fragment = if (skor == 100) {
             QuizMenang2Fragment()
         } else {
             QuizMenang1Fragment()
         }
-
-        fragment.arguments = bundle
 
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)

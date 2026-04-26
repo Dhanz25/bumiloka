@@ -115,7 +115,7 @@
 
             <!-- Buttons -->
             <Button
-                android:id="@+id/btnRetake"
+                android:id="@+id/btnUlangi"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:backgroundTint="#5FAE4E"

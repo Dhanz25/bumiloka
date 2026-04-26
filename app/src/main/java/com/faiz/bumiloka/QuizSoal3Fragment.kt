@@ -8,7 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 
-class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
+class QuizSoal3Fragment : Fragment(R.layout.fragment_quiz_soal_) {
 
     private var skor = 0
     private lateinit var options: List<TextView>
@@ -49,6 +49,7 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
         resetOptions()
         skor = points
         sudahPilih = true
+
         btnNext.isEnabled = true
         options[index].setBackgroundResource(android.R.color.holo_green_light)
     }
@@ -63,12 +64,12 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
 
         val prefs = requireActivity().getSharedPreferences("KUIS", Context.MODE_PRIVATE)
         prefs.edit()
-            .putBoolean("materi1_selesai", true)
-            .putInt("nilai_materi1", skor)
+            .putBoolean("quiz3_selesai", true)
+            .putInt("quiz3_nilai", skor)
             .apply()
 
         val bundle = Bundle()
-        bundle.putString("QUIZ_TYPE", "QUIZ1")
+        bundle.putString("QUIZ_TYPE", "QUIZ3")
 
         val fragment = if (skor == 100) {
             QuizMenang2Fragment()
