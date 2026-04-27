@@ -16,8 +16,18 @@ class TantanganMasterKuisFragment : Fragment(R.layout.fragment_tantangan_master_
         // 🔙 Tombol Back
         val btnBack = view.findViewById<View>(R.id.btnBack)
 
+        // 🔘 Tombol Mulai Materi
+        val btnMulaiMateri = view.findViewById<View>(R.id.btnMulaiMateri)
+
         btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
+        }
+
+        btnMulaiMateri.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, EdukasiFragment())
+                .addToBackStack(null)
+                .commit()
         }
     }
 
