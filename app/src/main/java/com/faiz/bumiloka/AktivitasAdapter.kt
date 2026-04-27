@@ -1,34 +1,56 @@
 package com.faiz.bumiloka
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class AktivitasAdapter(
-    private val context: Context,
-    private val aktivitasList: List<AktivitasItem>
-) : RecyclerView.Adapter<AktivitasAdapter.ViewHolder>() {
+class AktivitasAdapter(private val list: List<AktivitasItem>) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvKategori: TextView = view.findViewById(R.id.tvKategori)
-        val tvIsi: TextView = view.findViewById(R.id.tvIsi)
+    companion object {
+        const val TYPE_HEADER = 0
+        const val TYPE_ITEM = 1
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(context)
-            .inflate(R.layout.item_aktivitas, parent, false)
-        return ViewHolder(view)
+    override fun getItemViewType(position: Int): Int {
+        return when (list[position]) {
+            is AktivitasItem.Header -> TYPE_HEADER
+            is AktivitasItem.Item -> TYPE_ITEM
+        }
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = aktivitasList[position]
-
-        holder.tvKategori.text = item.kategori
-        holder.tvIsi.text = item.aktivitasList.joinToString("\n▣ ", prefix = "▣ ")
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return if (viewType == TYPE_HEADER) {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_header, parent, false)
+            HeaderViewHolder(view)
+        } else {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_aktivitas, parent, false)
+            ItemViewHolder(view)
+        }
     }
 
-    override fun getItemCount(): Int = aktivitasList.size
+    override fun getItemCount(): Int = list.size
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (val item = list[position]) {
+            is AktivitasItem.Header -> {
+                (holder as HeaderViewHolder).tvHeader.text = item.title
+            }
+            is AktivitasItem.Item -> {
+                (holder as ItemViewHolder).tvTitle.text = item.data.title
+            }
+        }
+    }
+
+    class HeaderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val tvHeader: TextView = view.findViewById(R.id.tvHeader)
+    }
+
+    class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val tvTitle: TextView = view.findViewById(R.id.tvTitle)
+    }
 }

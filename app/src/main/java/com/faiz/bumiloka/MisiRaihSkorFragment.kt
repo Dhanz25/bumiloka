@@ -34,6 +34,14 @@ class MisiRaihSkorFragment : Fragment(R.layout.fragment_misi_raih_skor) {
 
             if (nilai >= 75) {
 
+                // ✅ TAMBAH DI SINI (MASUK KE RIWAYAT)
+                AktivitasManager.tambahAktivitas(
+                    requireContext(),
+                    "Menyelesaikan Misi Raih Skor",
+                    "Misi",
+                    20
+                )
+
                 // simpan status misi selesai
                 prefMisi.edit().putBoolean("misi3_selesai", true).apply()
 

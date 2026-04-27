@@ -1,6 +1,6 @@
 package com.faiz.bumiloka
 
-data class AktivitasItem(
-    val kategori: String,
-    val aktivitasList: List<String>
-)
+sealed class AktivitasItem {
+    data class Header(val title: String) : AktivitasItem()
+    data class Item(val data: AktivitasModel) : AktivitasItem()
+}
