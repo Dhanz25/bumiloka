@@ -6,11 +6,13 @@ import android.os.Bundle
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.StyleSpan
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.PopupMenu
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -23,17 +25,20 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import java.util.Locale
-import android.util.Log
 
 class HomeFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
 
+    // Deklarasi view untuk progress agar bisa diakses dari fungsi mana saja
+    private lateinit var tvLevelTitle: TextView
+    private lateinit var pbTargetProgress: ProgressBar
+    private lateinit var tvProgressPercentage: TextView
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_home, container, false)
     }
 
@@ -43,7 +48,6 @@ class HomeFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
 
-        // Cek Session: Jika tidak ada user yang login, arahkan ke LoginActivity
         if (currentUser == null) {
             val intent = Intent(requireContext(), LoginActivity::class.java)
             startActivity(intent)
@@ -63,6 +67,14 @@ class HomeFragment : Fragment() {
         val btnTantangan = view.findViewById<CardView>(R.id.btnTantangan)
         val btnKuis = view.findViewById<CardView>(R.id.btnKuis)
 
+        // Inisialisasi View Progress
+        tvLevelTitle = view.findViewById(R.id.tvLevelTitle)
+        pbTargetProgress = view.findViewById(R.id.pbTargetProgress)
+        tvProgressPercentage = view.findViewById(R.id.tvProgressPercentage)
+
+        // Tampilkan nilai awal (Level 1, 0%) saat memuat data
+        updateUserProgress(1, "Pemula", 0)
+
         // Fungsi untuk memperbarui tampilan nama
         fun updateUserName(user: FirebaseUser?) {
             val rawName = when {
@@ -71,18 +83,15 @@ class HomeFragment : Fragment() {
                 else -> "Bumi Lover"
             }
 
-            // Capitalize: Mengubah huruf pertama setiap kata menjadi huruf besar
             val nameToShow = rawName?.split(" ")?.joinToString(" ") { word ->
                 word.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
             } ?: ""
 
             tvGreeting.text = getString(R.string.hello_placeholder, nameToShow)
 
-            // Setup listener profil dengan nama terbaru
             ivProfile.setOnClickListener { profileView ->
                 val popupMenu = PopupMenu(requireContext(), profileView)
 
-                // Membuat username menjadi BOLD menggunakan SpannableString
                 val spannableName = SpannableString(nameToShow)
                 spannableName.setSpan(
                     StyleSpan(Typeface.BOLD),
@@ -91,7 +100,6 @@ class HomeFragment : Fragment() {
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
 
-                // Menyamakan ID Menu dengan ID di Listener
                 popupMenu.menu.add(0, 1, 0, spannableName)
                 popupMenu.menu.add(0, 2, 1, "Pengaturan Profil")
                 popupMenu.menu.add(0, 3, 2, "Logout")
@@ -103,17 +111,17 @@ class HomeFragment : Fragment() {
                             true
                         }
                         2 -> {
-                            val intent = Intent(requireContext(), ProfileFragment::class.java)
-                            startActivity(intent)
+                            parentFragmentManager.beginTransaction()
+                                .replace(R.id.fragment_container, PengaturanFragment())
+                                .addToBackStack(null)
+                                .commit()
                             true
                         }
                         3 -> {
-                            // Konfirmasi Logout
                             AlertDialog.Builder(requireContext())
                                 .setTitle("Konfirmasi Logout")
                                 .setMessage("Apakah Anda yakin ingin keluar?")
                                 .setPositiveButton("Ya") { _, _ ->
-                                    // Proses Logout
                                     auth.signOut()
                                     googleSignInClient.signOut().addOnCompleteListener {
                                         Toast.makeText(requireContext(), "Berhasil Logout", Toast.LENGTH_SHORT).show()
@@ -170,34 +178,77 @@ class HomeFragment : Fragment() {
             }
         }
 
-        // Tampilkan nama awal dari cache session
         updateUserName(currentUser)
 
-        // Reload data dari server Firebase untuk memastikan Nama muncul (sinkronisasi)
         currentUser.reload().addOnCompleteListener {
             if (it.isSuccessful) {
                 updateUserName(auth.currentUser)
             }
         }
-        checkProfileOnce()
+
+        // Panggil fungsi yang sudah disatukan untuk mengecek profil dan memuat progress
+        loadUserData()
     }
-    private fun checkProfileOnce() {
+
+    // Fungsi terpisah agar kode lebih rapi
+    private fun updateUserProgress(level: Int, title: String, progress: Int) {
+        if (!isAdded) return // Keamanan mencegah crash jika fragment sudah tertutup
+
+        tvLevelTitle.text = "🏅 Level $level - $title"
+        pbTargetProgress.progress = progress
+
+        val motivasi = when {
+            progress == 0 -> "Ayo mulai!"
+            progress < 50 -> "Awal yang bagus!"
+            progress < 100 -> "Terus semangat!"
+            else -> "Target tercapai! Hebat!"
+        }
+        tvProgressPercentage.text = "$progress% tercapai - $motivasi"
+    }
+
+    // Fungsi tunggal untuk mengambil semua data dari node "users/{userId}"
+    private fun loadUserData() {
         val user = auth.currentUser ?: return
         val userId = user.uid
         val db = com.google.firebase.database.FirebaseDatabase.getInstance().reference
 
-        // Pastikan path-nya benar: users -> userId
         db.child("users").child(userId).get().addOnSuccessListener { snapshot ->
-            // Ambil status profil secara akurat
+            // 1. Cek Status Profil
             val isComplete = snapshot.child("isProfileComplete").getValue(Boolean::class.java) ?: false
-
-            Log.d("BUMILOKA_DEBUG", "Cek profil UID: $userId | Status: $isComplete")
-
             if (!isComplete) {
                 showLengkapiProfilDialog()
             }
+
+            // 2. Ambil Data Level & XP (Default: Level 1, 0 XP)
+            val currentLevel = snapshot.child("level").getValue(Int::class.java) ?: 1
+            val currentXp = snapshot.child("xp").getValue(Int::class.java) ?: 0
+
+            // 3. Sistem Perhitungan Progress
+            // Target XP bertambah setiap level (Contoh: Lvl 1 butuh 100 XP, Lvl 2 butuh 200 XP)
+            val targetXp = currentLevel * 100
+
+            // Hitung persentase untuk Progress Bar
+            val progressPercent = if (targetXp > 0) ((currentXp.toDouble() / targetXp) * 100).toInt() else 0
+
+            // Ambil gelar level secara dinamis
+            val levelTitle = getLevelTitle(currentLevel)
+
+            // 4. Update UI
+            updateUserProgress(currentLevel, levelTitle, progressPercent)
+
         }.addOnFailureListener {
             Log.e("BUMILOKA_DEBUG", "Gagal koneksi Firebase: ${it.message}")
+        }
+    }
+
+    // Fungsi tambahan untuk memberikan nama gelar berdasarkan level
+    private fun getLevelTitle(level: Int): String {
+        return when (level) {
+            1 -> "Pemula"
+            2 -> "Pengamat Bumi"
+            3 -> "Pejuang Lingkungan"
+            4 -> "Pahlawan Hijau"
+            else -> "Eco Warrior"
         }
     }
 
@@ -217,7 +268,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // Fungsi pembantu agar tidak menulis ulang dialog berkali-kali
     private fun showLengkapiProfilDialog() {
         if (!isAdded) return
         AlertDialog.Builder(requireContext())

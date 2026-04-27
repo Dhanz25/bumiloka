@@ -101,6 +101,7 @@
                                     android:contentDescription="Trophy Icon" />
 
                                 <TextView
+                                    android:id="@+id/tvGelarUser"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="6dp"
@@ -134,6 +135,7 @@
                                 android:textSize="13sp" />
 
                             <TextView
+                                android:id="@+id/tvTotalPoinBanner"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
@@ -179,6 +181,7 @@
                             android:contentDescription="Trophy" />
 
                         <TextView
+                            android:id="@+id/tvTotalPoinGrid"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
@@ -235,7 +238,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="Target Tercapai"
+                            android:text="Misi Tercapai"
                             android:textSize="12sp"
                             android:gravity="center"
                             android:textAlignment="center"
