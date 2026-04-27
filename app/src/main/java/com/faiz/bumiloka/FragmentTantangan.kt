@@ -13,9 +13,25 @@ class TantanganFragment : Fragment(R.layout.fragment_tantangan) {
         bottomNav.visibility = View.GONE
 
         val btnBack = view.findViewById<View>(R.id.btnBack)
+        val btnMulai1 = view.findViewById<View>(R.id.btnMulai1)
+        val btnMulai2 = view.findViewById<View>(R.id.btnMulai2)
 
         btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
+        }
+
+        btnMulai1.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, DetailTantanganFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        btnMulai2.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, TantanganMasterKuisFragment())
+                .addToBackStack(null)
+                .commit()
         }
     }
 

@@ -90,7 +90,7 @@
                         android:layout_height="180dp"
                         android:background="@color/bg_green"
                         android:scaleType="centerCrop"
-                        android:src="@android:drawable/ic_menu_gallery" />
+                        android:src="@drawable/tantangan1" />
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -147,7 +147,7 @@
                         android:layout_height="180dp"
                         android:background="@color/bg_green"
                         android:scaleType="centerCrop"
-                        android:src="@android:drawable/ic_menu_gallery" />
+                        android:src="@drawable/tantangan2" />
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
