@@ -19,22 +19,50 @@ class EdukasiFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 🔻 Sembunyikan Bottom Navigation
-        val bottomNav = requireActivity().findViewById<View>(R.id.bottom_navigation)
-        bottomNav.visibility = View.GONE
+        val toolbar = view.findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
+        toolbar.setNavigationOnClickListener {
+            parentFragmentManager.popBackStack()
+        }
 
-        // 🔙 Tombol Back
-        val btnBack = view.findViewById<ImageView>(R.id.btnBack)
-        btnBack.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+        view.findViewById<View?>(R.id.materi1)?.setOnClickListener {
+            bukaMateri(1)
+        }
+
+        view.findViewById<View?>(R.id.materi2)?.setOnClickListener {
+            bukaMateri(2)
+        }
+
+        view.findViewById<View?>(R.id.materi3)?.setOnClickListener {
+            bukaMateri(3)
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    // 🔥 NAVIGASI KE MATERI (FIX)
+    private fun bukaMateri(id: Int) {
+        try {
+            val fragment = MateriFragment.newInstance(id)
 
-        // 🔺 Tampilkan kembali Bottom Navigation saat keluar fragment
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.fragment_container, fragment)
+                ?.addToBackStack(null)
+                ?.commit()
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    // 🔻 Hide Bottom Nav
+    override fun onResume() {
+        super.onResume()
         val bottomNav = requireActivity().findViewById<View>(R.id.bottom_navigation)
-        bottomNav.visibility = View.VISIBLE
+        bottomNav?.visibility = View.GONE
+    }
+
+    // 🔺 Show Bottom Nav
+    override fun onPause() {
+        super.onPause()
+        val bottomNav = requireActivity().findViewById<View>(R.id.bottom_navigation)
+        bottomNav?.visibility = View.VISIBLE
     }
 }
