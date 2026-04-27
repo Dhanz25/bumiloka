@@ -74,7 +74,7 @@
                         android:layout_height="match_parent"
                         android:scaleType="centerCrop"
                         android:background="@color/bg_green"
-                        android:src="@drawable/tantangan1" />
+                        android:src="@drawable/tantangan2" />
                 </com.google.android.material.card.MaterialCardView>
 
                 <LinearLayout
@@ -205,6 +205,7 @@
                         android:progressTint="@color/nav_inactive" />
 
                     <Button
+                        android:id="@+id/btnMulaiMateri"
                         android:layout_width="wrap_content"
                         android:layout_height="36dp"
                         android:layout_marginTop="12dp"
@@ -260,6 +261,7 @@
                         android:progressTint="@color/nav_inactive" />
 
                     <Button
+                        android:id="@+id/btnMulaiKuis"
                         android:layout_width="wrap_content"
                         android:layout_height="36dp"
                         android:layout_marginTop="12dp"
