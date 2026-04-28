@@ -23,7 +23,17 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
     private lateinit var options: List<TextView>
     private lateinit var btnNext: Button
 
+    companion object {
+        private const val ARG_MATERI_ID = "materi_id"
 
+        fun newInstance(materiId: Int): QuizSoalFragment {
+            val fragment = QuizSoalFragment()
+            val args = Bundle()
+            args.putInt(ARG_MATERI_ID, materiId)
+            fragment.arguments = args
+            return fragment
+        }
+    }
 
     // ✅ 10 SOAL
     private val questions = listOf(
@@ -142,6 +152,7 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val materiId = arguments?.getInt("materi_id") ?: 1
         val toolbar = view.findViewById<MaterialToolbar>(R.id.toolbar)
         btnNext = view.findViewById(R.id.btnNext)
         tvQuestion = view.findViewById(R.id.tvQuestion)

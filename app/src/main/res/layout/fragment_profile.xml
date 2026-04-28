@@ -570,6 +570,7 @@
 
                     <!-- Keluar -->
                     <LinearLayout
+                        android:id="@+id/btnLogout"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
                         android:gravity="center_vertical"

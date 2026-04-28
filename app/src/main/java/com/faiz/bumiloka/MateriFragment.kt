@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -53,6 +54,8 @@ class MateriFragment : Fragment() {
 
         val tvContohTitle = view.findViewById<TextView>(R.id.tvContohTitle)
         val tvContoh = view.findViewById<TextView>(R.id.tvContoh)
+
+        val btnMulaiKuis = view.findViewById<Button>(R.id.btnMulaiKuis)
 
         val materiId = arguments?.getInt(ARG_MATERI_ID) ?: 1
 
@@ -124,6 +127,13 @@ class MateriFragment : Fragment() {
                         "• Tidak membuang air sia-sia\n\n" +
                         "💡 Tips: Gunakan air seperlunya agar tidak boros."
             }
+        }
+        btnMulaiKuis.setOnClickListener {
+            val fragment = QuizSoalFragment.newInstance(materiId)
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit()
         }
     }
 

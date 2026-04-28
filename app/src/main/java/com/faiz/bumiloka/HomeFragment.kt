@@ -96,7 +96,7 @@ class HomeFragment : Fragment() {
                 // Menyamakan ID Menu dengan ID di Listener
                 popupMenu.menu.add(0, 1, 0, spannableName)
                 popupMenu.menu.add(0, 2, 1, "Pengaturan Profil")
-                popupMenu.menu.add(0, 3, 2, "Logout")
+                popupMenu.menu.add(0, 3, 2, "Keluar")
 
                 popupMenu.setOnMenuItemClickListener { item ->
                     when (item.itemId) {
@@ -114,13 +114,13 @@ class HomeFragment : Fragment() {
                         3 -> {
                             // Konfirmasi Logout
                             AlertDialog.Builder(requireContext())
-                                .setTitle("Konfirmasi Logout")
+                                .setTitle("Konfirmasi Keluar")
                                 .setMessage("Apakah Anda yakin ingin keluar?")
                                 .setPositiveButton("Ya") { _, _ ->
                                     // Proses Logout
                                     auth.signOut()
                                     googleSignInClient.signOut().addOnCompleteListener {
-                                        Toast.makeText(requireContext(), "Berhasil Logout", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(requireContext(), "Berhasil Keluar", Toast.LENGTH_SHORT).show()
                                         val intent = Intent(requireContext(), LoginActivity::class.java)
                                         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                         startActivity(intent)
