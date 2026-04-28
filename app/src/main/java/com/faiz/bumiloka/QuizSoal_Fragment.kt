@@ -258,6 +258,15 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
             .putInt("nilai_materi1", skor)
             .apply()
 
+        if (skor >= 75) {
+            AktivitasManager.tambahAktivitas(
+                requireContext(),
+                "Menyelesaikan Misi Tantangan Diri",
+                "Misi",
+                20
+            )
+        }
+
         val bundle = Bundle()
         bundle.putInt("BENAR", benar)
         bundle.putInt("SALAH", salah)

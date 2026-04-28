@@ -45,6 +45,14 @@ class Jelajahi_MateriDetail : Fragment(R.layout.fragment_jelajahi__materi_detail
         // klik selesai
         btnSelesai.setOnClickListener {
 
+            AktivitasManager.tambahAktivitas(
+                requireContext(),
+                "Menyelesaikan Misi Jelajahi Materi",
+                "Misi",
+                20
+            )
+
+
             // simpan status misi selesai
             val sharedPref = requireActivity().getSharedPreferences("MISI", 0)
             sharedPref.edit().putBoolean("misi1_selesai", true).apply()

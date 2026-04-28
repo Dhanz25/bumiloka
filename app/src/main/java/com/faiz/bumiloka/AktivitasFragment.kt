@@ -1,49 +1,76 @@
 package com.faiz.bumiloka
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class AktivitasFragment : Fragment() {
+class AktivitasFragment : Fragment(R.layout.fragment_aktivitas) {
 
-    private lateinit var recyclerAktivitas: RecyclerView
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var tvEmpty: TextView
     private lateinit var adapter: AktivitasAdapter
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    private val displayList = mutableListOf<AktivitasItem>()
 
-        val view = inflater.inflate(R.layout.fragment_aktivitas, container, false)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        recyclerAktivitas = view.findViewById(R.id.recyclerAktivitas)
-        recyclerAktivitas.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView = view.findViewById(R.id.recyclerAktivitas)
+        tvEmpty = view.findViewById(R.id.tvEmpty)
 
-        val aktivitasData = arrayListOf(
-            AktivitasItem(
-                "Hari ini - baru saja",
-                listOf(
-                    "Menyelesaikan Materi 1",
-                    "Menyelesaikan Kuis Materi 1",
-                    "Mendapat skor 80"
-                )
-            ),
-            AktivitasItem(
-                "Kemarin",
-                listOf(
-                    "Membuka aplikasi",
-                    "Memulai pembelajaran"
-                )
-            )
-        )
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        adapter = AktivitasAdapter(displayList)
+        recyclerView.adapter = adapter
+    }
 
-        adapter = AktivitasAdapter(requireContext(), aktivitasData)
-        recyclerAktivitas.adapter = adapter
+    override fun onResume() {
+        super.onResume()
+        loadData()
+    }
 
-        return view
+    private fun loadData() {
+        val data = AktivitasManager.getAktivitas(requireContext())
+
+        displayList.clear()
+
+        var lastHeader = ""
+
+        for (item in data) {
+
+            val label = getHariLabel(item.timestamp)
+
+            if (label != lastHeader) {
+                displayList.add(AktivitasItem.Header(label))
+                lastHeader = label
+            }
+
+            displayList.add(AktivitasItem.Item(item))
+        }
+
+        if (displayList.isEmpty()) {
+            tvEmpty.visibility = View.VISIBLE
+            recyclerView.visibility = View.GONE
+        } else {
+            tvEmpty.visibility = View.GONE
+            recyclerView.visibility = View.VISIBLE
+        }
+
+        adapter.notifyDataSetChanged()
+    }
+
+    private fun getHariLabel(timestamp: Long): String {
+        val now = System.currentTimeMillis()
+        val diff = now - timestamp
+
+        val oneDay = 24 * 60 * 60 * 1000
+
+        return when {
+            diff < oneDay -> "Hari ini"
+            diff < 2 * oneDay -> "Kemarin"
+            else -> "Beberapa hari lalu"
+        }
     }
 }
