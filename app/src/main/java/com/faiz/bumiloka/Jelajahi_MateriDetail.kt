@@ -1,6 +1,7 @@
 package com.faiz.bumiloka
 
 import android.app.AlertDialog
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.animation.AnimationUtils
@@ -9,6 +10,7 @@ import android.widget.CheckBox
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.google.firebase.auth.FirebaseAuth
 
 class Jelajahi_MateriDetail : Fragment(R.layout.fragment_jelajahi__materi_detail) {
 
@@ -54,9 +56,11 @@ class Jelajahi_MateriDetail : Fragment(R.layout.fragment_jelajahi__materi_detail
 
 
             // simpan status misi selesai
-            val sharedPref = requireActivity().getSharedPreferences("MISI", 0)
-            sharedPref.edit().putBoolean("misi1_selesai", true).apply()
-
+            val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+            val prefMisi = requireActivity().getSharedPreferences("MISI_$userId", Context.MODE_PRIVATE)
+            prefMisi.edit()
+                .putBoolean("misi1_selesai", true)
+                .apply()
             // 🔥 pakai custom dialog
             val viewDialog = layoutInflater.inflate(R.layout.pop_up_misiselesai, null)
 
