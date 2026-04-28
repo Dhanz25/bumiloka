@@ -165,7 +165,6 @@ class HomeFragment : Fragment() {
             requireProfile {
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, QuizUtamaFragment())
-                    .addToBackStack(null)
                     .commit()
             }
         }

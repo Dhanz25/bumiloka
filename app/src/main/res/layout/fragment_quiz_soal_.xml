@@ -9,41 +9,77 @@
     android:background="#E8F5E9">
 
     <!-- Header with Back Button and Centered Title -->
-    <RelativeLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp">
+        android:background="#E8F5E9"
+        android:fitsSystemWindows="true"
+        app:elevation="4dp">
 
-        <ImageView
-            android:id="@+id/ivBack"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:src="@drawable/ic_back_arrow"
-            android:contentDescription="@string/back_button_desc" />
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
 
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="@string/quiz_title"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="#2E7D32" />
-    </RelativeLayout>
+            app:navigationIcon="@drawable/ic_back_arrow"
+            app:navigationIconTint="@android:color/black"
+            app:title="">
 
-    <!-- Pertanyaan -->
-    <TextView
-        android:id="@+id/tvQuestion"
+            <!-- TITLE TENGAH -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Kuis (Peduli Lingkungan)"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_gravity="center"/>
+
+        </com.google.android.material.appbar.MaterialToolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/quiz_question_placeholder"
-        android:textSize="18sp"
-        android:textColor="#333333"
         android:layout_marginBottom="24dp"
-        android:lineSpacingExtra="4dp"/>
+        app:cardCornerRadius="16dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="#FFFFFF">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Soal 1/10 -->
+            <TextView
+                android:id="@+id/tvNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Soal 1/10"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/bg_badge"
+                android:padding="8dp"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- Pertanyaan -->
+            <TextView
+                android:id="@+id/tvQuestion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/quiz_question_placeholder"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:lineSpacingExtra="4dp"/>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 
     <!-- OPTION -->
     <LinearLayout

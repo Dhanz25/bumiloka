@@ -1,5 +1,6 @@
 package com.faiz.bumiloka
 
+import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import android.view.View
@@ -7,20 +8,140 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.google.android.material.appbar.MaterialToolbar
 
-class QuizSoal3Fragment : Fragment(R.layout.fragment_quiz_soal_) {
+class QuizSoal3Fragment : Fragment(R.layout.fragment_quiz_soal3) {
 
+    private var currentQuestion = 0
     private var skor = 0
-    private lateinit var options: List<TextView>
     private var sudahPilih = false
+    private var selectedAnswer = -1
+
+    private lateinit var tvQuestion: TextView
+    private lateinit var tvNumber: TextView
+    private lateinit var options: List<TextView>
+    private lateinit var btnNext: Button
+
+    private val questions = listOf(
+
+        Question(
+            "Mengapa kita harus menghemat air?",
+            listOf(
+                "Agar air cepat habis",
+                "Agar tersedia untuk masa depan",
+                "Agar bisa boros",
+                "Agar tidak digunakan orang lain"
+            ),
+            1
+        ),
+
+        Question(
+            "Contoh perilaku hemat air di rumah adalah?",
+            listOf(
+                "Membiarkan keran terbuka",
+                "Menggunakan air secukupnya",
+                "Menyiram air terus-menerus",
+                "Membuang air bersih"
+            ),
+            1
+        ),
+
+        Question(
+            "Apa yang harus dilakukan saat melihat keran bocor?",
+            listOf(
+                "Dibiarkan saja",
+                "Segera diperbaiki",
+                "Dibuka lebih besar",
+                "Ditambah airnya"
+            ),
+            1
+        ),
+
+        Question(
+            "Menggosok gigi sebaiknya dilakukan dengan cara?",
+            listOf(
+                "Keran tetap menyala",
+                "Menggunakan air secukupnya",
+                "Menghabiskan banyak air",
+                "Menyiram terus-menerus"
+            ),
+            1
+        ),
+
+        Question(
+            "Air hujan dapat dimanfaatkan untuk?",
+            listOf(
+                "Dibuang saja",
+                "Menyiram tanaman",
+                "Mengotori lingkungan",
+                "Dibiarkan menggenang"
+            ),
+            1
+        ),
+
+        Question(
+            "Dampak jika kita boros air adalah?",
+            listOf(
+                "Air semakin banyak",
+                "Kekurangan air bersih",
+                "Lingkungan bersih",
+                "Tidak ada dampak"
+            ),
+            1
+        ),
+
+        Question(
+            "Cara menghemat air saat mandi adalah?",
+            listOf(
+                "Mandi terlalu lama",
+                "Menggunakan air secukupnya",
+                "Membiarkan air mengalir terus",
+                "Mengisi bak penuh setiap saat"
+            ),
+            1
+        ),
+
+        Question(
+            "Mengapa air bersih harus dijaga?",
+            listOf(
+                "Karena tidak penting",
+                "Karena terbatas jumlahnya",
+                "Karena mudah didapat",
+                "Karena bisa dibuang"
+            ),
+            1
+        ),
+
+        Question(
+            "Kegiatan yang boros air adalah?",
+            listOf(
+                "Menutup keran setelah dipakai",
+                "Mencuci kendaraan dengan selang terus menyala",
+                "Menggunakan air secukupnya",
+                "Menampung air hujan"
+            ),
+            1
+        ),
+
+        Question(
+            "Cara sederhana menjaga ketersediaan air adalah?",
+            listOf(
+                "Menebang pohon",
+                "Menanam pohon",
+                "Membuang air bersih",
+                "Mengotori sungai"
+            ),
+            1
+        )
+    )
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val ivBack = view.findViewById<ImageView>(R.id.ivBack)
-        val btnNext = view.findViewById<Button>(R.id.btnNext)
-
-        btnNext.isEnabled = false
+        val toolbar = view.findViewById<MaterialToolbar>(R.id.toolbar)
+        btnNext = view.findViewById(R.id.btnNext)
+        tvQuestion = view.findViewById(R.id.tvQuestion)
+        tvNumber = view.findViewById(R.id.tvNumber)
 
         options = listOf(
             view.findViewById(R.id.option1),
@@ -29,38 +150,72 @@ class QuizSoal3Fragment : Fragment(R.layout.fragment_quiz_soal_) {
             view.findViewById(R.id.option4)
         )
 
-        ivBack.setOnClickListener {
-            parentFragmentManager.popBackStack()
+        // 🔥 POPUP KONFIRMASI KELUAR
+        toolbar.setNavigationOnClickListener {
+            showExitDialog()
         }
 
-        options[0].setOnClickListener { selectOption(0, 100, btnNext) }
-        options[1].setOnClickListener { selectOption(1, 75, btnNext) }
-        options[2].setOnClickListener { selectOption(2, 50, btnNext) }
-        options[3].setOnClickListener { selectOption(3, 25, btnNext) }
+        btnNext.isEnabled = false
+        loadQuestion()
 
         btnNext.setOnClickListener {
             if (sudahPilih) {
-                pindahKeHasil()
+
+                val q = questions[currentQuestion]
+
+                if (selectedAnswer == q.correctAnswer) {
+                    skor += 10
+                }
+
+                currentQuestion++
+
+                if (currentQuestion < questions.size) {
+                    loadQuestion()
+                } else {
+                    pindahKeHasil()
+                }
             }
         }
     }
 
-    private fun selectOption(index: Int, points: Int, btnNext: Button) {
-        resetOptions()
-        skor = points
-        sudahPilih = true
+    private fun loadQuestion() {
+        val q = questions[currentQuestion]
 
-        btnNext.isEnabled = true
-        options[index].setBackgroundResource(android.R.color.holo_green_light)
+        tvNumber.text = "Soal ${currentQuestion + 1}/10"
+        tvQuestion.text = q.question
+
+        for (i in options.indices) {
+            options[i].text = "${('A' + i)}. ${q.options[i]}"
+            options[i].setBackgroundResource(R.drawable.bg_option)
+
+            options[i].setOnClickListener {
+                pilihJawaban(i)
+            }
+        }
+
+        sudahPilih = false
+        selectedAnswer = -1
+        btnNext.isEnabled = false
     }
 
-    private fun resetOptions() {
+    private fun pilihJawaban(index: Int) {
+
         for (option in options) {
             option.setBackgroundResource(R.drawable.bg_option)
         }
+
+        selectedAnswer = index
+        sudahPilih = true
+
+        options[index].setBackgroundResource(android.R.color.holo_green_light)
+        btnNext.isEnabled = true
     }
 
     private fun pindahKeHasil() {
+
+        val totalSoal = 10
+        val benar = skor / 10
+        val salah = totalSoal - benar
 
         val prefs = requireActivity().getSharedPreferences("KUIS", Context.MODE_PRIVATE)
         prefs.edit()
@@ -69,14 +224,12 @@ class QuizSoal3Fragment : Fragment(R.layout.fragment_quiz_soal_) {
             .apply()
 
         val bundle = Bundle()
+        bundle.putInt("BENAR", benar)
+        bundle.putInt("SALAH", salah)
+        bundle.putInt("SKOR", skor)
         bundle.putString("QUIZ_TYPE", "QUIZ3")
 
-        val fragment = if (skor == 100) {
-            QuizMenang2Fragment()
-        } else {
-            QuizMenang1Fragment()
-        }
-
+        val fragment = QuizMenang1Fragment()
         fragment.arguments = bundle
 
         parentFragmentManager.beginTransaction()
@@ -84,4 +237,35 @@ class QuizSoal3Fragment : Fragment(R.layout.fragment_quiz_soal_) {
             .addToBackStack(null)
             .commit()
     }
+
+    private fun showExitDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.popup_konfirmasikeluar, null)
+
+        val btnBatal = dialogView.findViewById<Button>(R.id.btnBatal)
+        val btnKeluar = dialogView.findViewById<Button>(R.id.btnKeluar)
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        btnBatal.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnKeluar.setOnClickListener {
+            dialog.dismiss()
+            parentFragmentManager.popBackStack()
+        }
+
+        dialog.show()
+    }
+
+    data class Question(
+        val question: String,
+        val options: List<String>,
+        val correctAnswer: Int
+    )
 }
