@@ -191,15 +191,6 @@
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
-                    <TextView
-                        android:id="@+id/tvProgressMateri"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="0/3 Progress selesai"
-                        android:textColor="@color/text_subtitle"
-                        android:textSize="13sp" />
-
                     <ProgressBar
                         android:id="@+id/progressBarMateri"
                         style="?android:attr/progressBarStyleHorizontal"
@@ -250,15 +241,6 @@
                         android:textColor="@color/text_black"
                         android:textSize="16sp"
                         android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tvProgressKuis"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="0/3 Progress selesai"
-                        android:textColor="@color/text_subtitle"
-                        android:textSize="13sp" />
 
                     <ProgressBar
                         android:id="@+id/progressBarKuis"
