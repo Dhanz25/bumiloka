@@ -26,6 +26,8 @@ import java.util.Locale
 import android.util.Log
 import java.text.SimpleDateFormat
 import java.util.Date
+import android.content.Context
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class HomeFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
@@ -65,6 +67,14 @@ class HomeFragment : Fragment() {
         val btnTantangan = view.findViewById<CardView>(R.id.btnTantangan)
         val btnKuis = view.findViewById<CardView>(R.id.btnKuis)
         val tvRekomendasiHariIni = view.findViewById<TextView>(R.id.tvRekomendasiHariIni)
+        val prefs = requireContext().getSharedPreferences("APP", Context.MODE_PRIVATE)
+        val sudah = prefs.getBoolean("sudah_welcome", false)
+
+        if (!sudah) {
+            showWelcomeThenProfil()
+            prefs.edit().putBoolean("sudah_welcome", true).apply()
+        }
+
         // Fungsi untuk memperbarui tampilan nama
         fun updateUserName(user: FirebaseUser?) {
             val rawName = when {
@@ -182,7 +192,7 @@ class HomeFragment : Fragment() {
                 updateUserName(auth.currentUser)
             }
         }
-        checkProfileOnce()
+        showWelcomeThenProfil()
         // TAMBAHAN: Tampilkan rekomendasi harian
         tampilkanRekomendasiHarian(tvRekomendasiHariIni)
     }
@@ -323,20 +333,54 @@ class HomeFragment : Fragment() {
             }
         }
     }
+    private fun showWelcomeThenProfil() {
+        if (!isAdded) return
+
+        val user = auth.currentUser
+        val nama = user?.displayName ?: "Pengguna"
+
+        val welcomeDialog = MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Selamat Datang, $nama 👋")
+            .setMessage("di aplikasi Bumiloka")
+            .setCancelable(false)
+            .create()
+
+        welcomeDialog.show()
+
+        // delay → lanjut ke popup custom
+        welcomeDialog.window?.decorView?.postDelayed({
+
+            if (welcomeDialog.isShowing) welcomeDialog.dismiss()
+
+            // 👉 panggil popup custom kamu
+            checkProfileOnce()
+
+        }, 1500)
+    }
 
     // Fungsi pembantu agar tidak menulis ulang dialog berkali-kali
     private fun showLengkapiProfilDialog() {
         if (!isAdded) return
-        AlertDialog.Builder(requireContext())
-            .setTitle("Lengkapi Profil")
-            .setMessage("Silakan lengkapi profil terlebih dahulu agar dapat mengakses semua fitur.")
-            .setCancelable(false)
-            .setPositiveButton("Lengkapi") { _, _ ->
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, PengaturanFragment())
-                    .addToBackStack(null)
-                    .commit()
-            }
-            .show()
+
+        val view = layoutInflater.inflate(R.layout.pop_up_profile, null)
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(view)
+            .setCancelable(true)
+            .create()
+
+        dialog.show()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        // 👉 INI LETAKNYA DI SINI
+        view.setOnClickListener {
+            dialog.dismiss()
+
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, PengaturanFragment())
+                .addToBackStack(null)
+                .commit()
+        }
     }
 }

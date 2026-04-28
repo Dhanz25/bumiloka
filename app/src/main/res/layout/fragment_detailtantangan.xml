@@ -183,7 +183,6 @@
                     android:padding="16dp">
 
                     <TextView
-                        android:id="@+id/tvProgressMateri"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="1. Membaca Materi"
@@ -243,7 +242,6 @@
                     android:padding="16dp">
 
                     <TextView
-                        android:id="@+id/tvProgressKuis"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="2. Kuis"

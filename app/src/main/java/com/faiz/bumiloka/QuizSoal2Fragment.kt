@@ -22,6 +22,17 @@ class QuizSoal2Fragment : Fragment(R.layout.fragment_quiz_soal2) {
     private lateinit var tvNumber: TextView
     private lateinit var options: List<TextView>
     private lateinit var btnNext: Button
+    companion object {
+        private const val ARG_MATERI_ID = "materi_id"
+
+        fun newInstance(materiId: Int): QuizSoal2Fragment {
+            val fragment = QuizSoal2Fragment()
+            val args = Bundle()
+            args.putInt(ARG_MATERI_ID, materiId)
+            fragment.arguments = args
+            return fragment
+        }
+    }
 
     // ✅ SOAL HEMAT AIR
     private val questions = listOf(

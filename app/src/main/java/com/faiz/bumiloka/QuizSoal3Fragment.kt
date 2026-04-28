@@ -22,6 +22,17 @@ class QuizSoal3Fragment : Fragment(R.layout.fragment_quiz_soal3) {
     private lateinit var tvNumber: TextView
     private lateinit var options: List<TextView>
     private lateinit var btnNext: Button
+    companion object {
+        private const val ARG_MATERI_ID = "materi_id"
+
+        fun newInstance(materiId: Int): QuizSoal3Fragment {
+            val fragment = QuizSoal3Fragment()
+            val args = Bundle()
+            args.putInt(ARG_MATERI_ID, materiId)
+            fragment.arguments = args
+            return fragment
+        }
+    }
 
     private val questions = listOf(
 

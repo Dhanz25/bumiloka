@@ -129,7 +129,14 @@ class MateriFragment : Fragment() {
             }
         }
         btnMulaiKuis.setOnClickListener {
-            val fragment = QuizSoalFragment.newInstance(materiId)
+
+            val fragment = when (materiId) {
+                1 -> QuizSoalFragment.newInstance(materiId)
+                2 -> QuizSoal2Fragment.newInstance(materiId)
+                3 -> QuizSoal3Fragment.newInstance(materiId)
+                else -> QuizSoalFragment.newInstance(materiId)
+            }
+
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, fragment)
                 .addToBackStack(null)
