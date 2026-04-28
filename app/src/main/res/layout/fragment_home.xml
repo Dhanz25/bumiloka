@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/home_background"
-    tools:context="HomeFragment">
+    tools:context=".HomeFragment">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -76,7 +76,7 @@
             <!-- Main Banner Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="150dp"
+                android:layout_height="130dp"
                 android:layout_marginTop="28dp"
                 app:cardCornerRadius="28dp"
                 app:cardElevation="6dp">
@@ -104,27 +104,30 @@
                         android:padding="20dp">
 
                         <TextView
+                            android:id="@+id/tvLevelTitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="🏅 Level 1 - Benih Kehidupan"
+                            android:text="🏅 Level 1 - Pemula"
                             android:textColor="@color/white"
                             android:textSize="14sp"
                             android:textStyle="normal" />
 
 
                         <ProgressBar
+                            android:id="@+id/pbTargetProgress"
                             style="@android:style/Widget.ProgressBar.Horizontal"
                             android:layout_width="match_parent"
                             android:layout_height="8dp"
-                            android:progress="68"
+                            android:progress="0"
                             android:progressTint="@color/progress_bar"
                             android:progressBackgroundTint="#80FFFFFF"
                             android:layout_marginTop="12dp" />
 
                         <TextView
+                            android:id="@+id/tvProgressPercentage"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="68% tercapai - Terus semangat!"
+                            android:text="0% tercapai - Ayo mulai!"
                             android:textColor="@color/white"
                             android:textSize="13sp"
                             android:layout_marginTop="8dp" />

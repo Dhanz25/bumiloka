@@ -28,7 +28,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 class HomeFragment : Fragment() {
-
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
 
@@ -36,6 +35,7 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_home, container, false)
     }
 
@@ -45,7 +45,7 @@ class HomeFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
 
-        // Jika user belum login
+        // Cek Session: Jika tidak ada user yang login, arahkan ke LoginActivity
         if (currentUser == null) {
             val intent = Intent(requireContext(), LoginActivity::class.java)
             startActivity(intent)
@@ -56,42 +56,35 @@ class HomeFragment : Fragment() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
             .build()
-
         googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
 
         val tvGreeting = view.findViewById<TextView>(R.id.tvGreeting)
         val ivProfile = view.findViewById<ImageView>(R.id.ivProfile)
-
         val btnEdukasi = view.findViewById<CardView>(R.id.btnEdukasi)
         val btnMisi = view.findViewById<CardView>(R.id.btnMisi)
         val btnTantangan = view.findViewById<CardView>(R.id.btnTantangan)
         val btnKuis = view.findViewById<CardView>(R.id.btnKuis)
-
-        // TAMBAHAN REKOMENDASI HARIAN
         val tvRekomendasiHariIni = view.findViewById<TextView>(R.id.tvRekomendasiHariIni)
-
-        // Update nama user
+        // Fungsi untuk memperbarui tampilan nama
         fun updateUserName(user: FirebaseUser?) {
-
             val rawName = when {
                 !user?.displayName.isNullOrBlank() -> user?.displayName
                 !user?.email.isNullOrBlank() -> user?.email?.substringBefore("@")
                 else -> "Bumi Lover"
             }
 
+            // Capitalize: Mengubah huruf pertama setiap kata menjadi huruf besar
             val nameToShow = rawName?.split(" ")?.joinToString(" ") { word ->
-                word.replaceFirstChar {
-                    if (it.isLowerCase()) it.titlecase(Locale.getDefault())
-                    else it.toString()
-                }
+                word.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
             } ?: ""
 
             tvGreeting.text = getString(R.string.hello_placeholder, nameToShow)
 
+            // Setup listener profil dengan nama terbaru
             ivProfile.setOnClickListener { profileView ->
-
                 val popupMenu = PopupMenu(requireContext(), profileView)
 
+                // Membuat username menjadi BOLD menggunakan SpannableString
                 val spannableName = SpannableString(nameToShow)
                 spannableName.setSpan(
                     StyleSpan(Typeface.BOLD),
@@ -100,53 +93,36 @@ class HomeFragment : Fragment() {
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
 
+                // Menyamakan ID Menu dengan ID di Listener
                 popupMenu.menu.add(0, 1, 0, spannableName)
                 popupMenu.menu.add(0, 2, 1, "Pengaturan Profil")
                 popupMenu.menu.add(0, 3, 2, "Logout")
 
                 popupMenu.setOnMenuItemClickListener { item ->
                     when (item.itemId) {
-
                         1 -> {
-                            Toast.makeText(
-                                requireContext(),
-                                "Logged in as $nameToShow",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            Toast.makeText(requireContext(), "Logged in as $nameToShow", Toast.LENGTH_SHORT).show()
                             true
                         }
-
                         2 -> {
-                            val intent =
-                                Intent(requireContext(), ProfileFragment::class.java)
-                            startActivity(intent)
+                            parentFragmentManager.beginTransaction()
+                                .replace(R.id.fragment_container, PengaturanFragment())
+                                .addToBackStack(null)
+                                .commit()
                             true
                         }
-
                         3 -> {
+                            // Konfirmasi Logout
                             AlertDialog.Builder(requireContext())
                                 .setTitle("Konfirmasi Logout")
                                 .setMessage("Apakah Anda yakin ingin keluar?")
                                 .setPositiveButton("Ya") { _, _ ->
-
+                                    // Proses Logout
                                     auth.signOut()
-
                                     googleSignInClient.signOut().addOnCompleteListener {
-
-                                        Toast.makeText(
-                                            requireContext(),
-                                            "Berhasil Logout",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-
-                                        val intent = Intent(
-                                            requireContext(),
-                                            LoginActivity::class.java
-                                        )
-
-                                        intent.flags =
-                                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-
+                                        Toast.makeText(requireContext(), "Berhasil Logout", Toast.LENGTH_SHORT).show()
+                                        val intent = Intent(requireContext(), LoginActivity::class.java)
+                                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                         startActivity(intent)
                                         activity?.finish()
                                     }
@@ -155,16 +131,13 @@ class HomeFragment : Fragment() {
                                 .show()
                             true
                         }
-
                         else -> false
                     }
                 }
-
                 popupMenu.show()
             }
         }
 
-        // Tombol Edukasi
         btnEdukasi.setOnClickListener {
             requireProfile {
                 parentFragmentManager.beginTransaction()
@@ -174,7 +147,6 @@ class HomeFragment : Fragment() {
             }
         }
 
-        // Tombol Misi
         btnMisi.setOnClickListener {
             requireProfile {
                 parentFragmentManager.beginTransaction()
@@ -184,7 +156,6 @@ class HomeFragment : Fragment() {
             }
         }
 
-        // Tombol Tantangan
         btnTantangan.setOnClickListener {
             requireProfile {
                 parentFragmentManager.beginTransaction()
@@ -194,7 +165,6 @@ class HomeFragment : Fragment() {
             }
         }
 
-        // Tombol Kuis
         btnKuis.setOnClickListener {
             requireProfile {
                 parentFragmentManager.beginTransaction()
@@ -203,19 +173,16 @@ class HomeFragment : Fragment() {
             }
         }
 
-        // Tampilkan nama user
+        // Tampilkan nama awal dari cache session
         updateUserName(currentUser)
 
-        // Refresh nama dari Firebase
+        // Reload data dari server Firebase untuk memastikan Nama muncul (sinkronisasi)
         currentUser.reload().addOnCompleteListener {
             if (it.isSuccessful) {
                 updateUserName(auth.currentUser)
             }
         }
-
-        // Cek profil
         checkProfileOnce()
-
         // TAMBAHAN: Tampilkan rekomendasi harian
         tampilkanRekomendasiHarian(tvRekomendasiHariIni)
     }
@@ -321,72 +288,50 @@ class HomeFragment : Fragment() {
 
         tvRekomendasi.text = rekomendasiHariIni
     }
-
     private fun checkProfileOnce() {
-
         val user = auth.currentUser ?: return
         val userId = user.uid
+        val db = com.google.firebase.database.FirebaseDatabase.getInstance().reference
 
-        val db = com.google.firebase.database.FirebaseDatabase
-            .getInstance()
-            .reference
+        // Pastikan path-nya benar: users -> userId
+        db.child("users").child(userId).get().addOnSuccessListener { snapshot ->
+            // Ambil status profil secara akurat
+            val isComplete = snapshot.child("isProfileComplete").getValue(Boolean::class.java) ?: false
 
-        db.child("users").child(userId).get()
-            .addOnSuccessListener { snapshot ->
+            Log.d("BUMILOKA_DEBUG", "Cek profil UID: $userId | Status: $isComplete")
 
-                val isComplete = snapshot.child("isProfileComplete")
-                    .getValue(Boolean::class.java) ?: false
-
-                Log.d(
-                    "BUMILOKA_DEBUG",
-                    "Cek profil UID: $userId | Status: $isComplete"
-                )
-
-                if (!isComplete) {
-                    showLengkapiProfilDialog()
-                }
+            if (!isComplete) {
+                showLengkapiProfilDialog()
             }
-            .addOnFailureListener {
-                Log.e(
-                    "BUMILOKA_DEBUG",
-                    "Gagal koneksi Firebase: ${it.message}"
-                )
-            }
+        }.addOnFailureListener {
+            Log.e("BUMILOKA_DEBUG", "Gagal koneksi Firebase: ${it.message}")
+        }
     }
 
     private fun requireProfile(action: () -> Unit) {
-
         val user = auth.currentUser ?: return
         val userId = user.uid
+        val db = com.google.firebase.database.FirebaseDatabase.getInstance().reference
 
-        val db = com.google.firebase.database.FirebaseDatabase
-            .getInstance()
-            .reference
+        db.child("users").child(userId).get().addOnSuccessListener { snapshot ->
+            val isComplete = snapshot.child("isProfileComplete").getValue(Boolean::class.java) ?: false
 
-        db.child("users").child(userId).get()
-            .addOnSuccessListener { snapshot ->
-
-                val isComplete = snapshot.child("isProfileComplete")
-                    .getValue(Boolean::class.java) ?: false
-
-                if (isComplete) {
-                    action()
-                } else {
-                    showLengkapiProfilDialog()
-                }
+            if (isComplete) {
+                action()
+            } else {
+                showLengkapiProfilDialog()
             }
+        }
     }
 
+    // Fungsi pembantu agar tidak menulis ulang dialog berkali-kali
     private fun showLengkapiProfilDialog() {
-
         if (!isAdded) return
-
         AlertDialog.Builder(requireContext())
             .setTitle("Lengkapi Profil")
             .setMessage("Silakan lengkapi profil terlebih dahulu agar dapat mengakses semua fitur.")
             .setCancelable(false)
             .setPositiveButton("Lengkapi") { _, _ ->
-
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, PengaturanFragment())
                     .addToBackStack(null)
