@@ -1,141 +1,189 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_main_gradient">
+    android:background="@drawable/bg_splash">
 
-    <!-- Header Section -->
-    <RelativeLayout
-        android:id="@+id/header"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:paddingHorizontal="16dp"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/ivBack"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_centerVertical="true"
-            android:contentDescription="@string/back_button_desc"
-            android:src="@drawable/ic_back_arrow" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="@string/materi_1_title"
-            android:textColor="@android:color/black"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-    </RelativeLayout>
-
-    <!-- Main Content Card -->
-    <com.google.android.material.card.MaterialCardView
+    <!-- Header with Back Button and Centered Title -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="24dp"
-        app:cardBackgroundColor="@android:color/white"
+        android:background="#E8F5E9"
+        android:fitsSystemWindows="true"
+        app:elevation="4dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+
+            app:navigationIcon="@drawable/ic_back_arrow"
+            app:navigationIconTint="@android:color/black"
+            app:title="">
+
+            <!-- TITLE TENGAH -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Kuis (Sampah)"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_gravity="center"/>
+
+        </com.google.android.material.appbar.MaterialToolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- 🔥 CARD UTAMA -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="16dp"
         app:cardCornerRadius="24dp"
-        app:cardElevation="6dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@id/appBar"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header"
-        app:layout_constraintVertical_bias="0.4">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:padding="24dp"
+            android:gravity="center_horizontal">
 
-            <!-- Trophy Icon -->
+            <!-- 🎉 ICON -->
             <ImageView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:src="@drawable/ic_trophy"
-                android:contentDescription="Trophy"
-                android:layout_marginBottom="16dp" />
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:src="@drawable/winnerkuis"
+                android:layout_marginBottom="12dp"/>
 
-            <!-- Title -->
+            <!-- TITLE -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/quiz_finished_title"
+                android:text="Kuis Selesai"
                 android:textColor="#2E7D32"
-                android:textSize="24sp"
+                android:textSize="22sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="8dp"
-                android:gravity="center" />
+                android:layout_marginBottom="4dp"/>
 
-            <!-- Description -->
+            <!-- SUBTITLE -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/quiz_result_desc"
-                android:textColor="#555555"
-                android:textSize="14sp"
-                android:gravity="center"
-                android:layout_marginBottom="24dp" />
+                android:text="Berikut hasil yang kamu dapatkan"
+                android:textColor="#666666"
+                android:textSize="13sp"
+                android:layout_marginBottom="20dp"/>
 
-            <!-- Results -->
+            <!-- 🔥 BOX HASIL -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:layout_marginBottom="20dp">
+
+                <!-- BENAR -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="#E8F5E9"
+                    android:padding="12dp"
+                    android:layout_marginEnd="6dp">
+
+                    <TextView
+                        android:id="@+id/tvBenar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="8"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="#2E7D32"/>
+
+                    <TextView
+                        android:text="Benar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp"/>
+                </LinearLayout>
+
+                <!-- SALAH -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="#FFEBEE"
+                    android:padding="12dp"
+                    android:layout_marginStart="6dp">
+
+                    <TextView
+                        android:id="@+id/tvSalah"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="2"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="#E53935"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Salah"
+                        android:textSize="12sp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 🔥 SKOR BESAR -->
             <TextView
-                android:id="@+id/tvCorrectCount"
+                android:id="@+id/tvSkor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Jawaban Benar : 8"
-                android:textColor="#4CAF50"
-                android:textSize="16sp"
+                android:text="90/100"
+                android:textSize="30sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="4dp" />
+                android:textColor="#000000"
+                android:layout_marginBottom="24dp"/>
 
-            <TextView
-                android:id="@+id/tvWrongCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Jawaban Salah : 2"
-                android:textColor="#E53935"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="16dp" />
-
-            <!-- Score -->
-            <TextView
-                android:id="@+id/tvFinalScore"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Skor: 90/100"
-                android:textColor="@android:color/black"
-                android:textSize="28sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="32dp" />
-
-            <!-- Buttons -->
+            <!-- BUTTON ULANGI -->
             <Button
                 android:id="@+id/btnUlangi"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:backgroundTint="#5FAE4E"
-                android:text="@string/btn_retake"
+                android:text="Ulangi Kuis"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"
-                android:textStyle="bold"
-                android:layout_marginBottom="12dp"
-                app:cornerRadius="8dp" />
+                android:backgroundTint="#4CAF50"
+                android:layout_marginBottom="10dp"
+                app:cornerRadius="12dp"/>
 
+            <!-- BUTTON OK -->
             <Button
                 android:id="@+id/btnOk"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:backgroundTint="#5FAE4E"
-                android:text="@string/btn_ok"
+                android:text="Selesai"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"
-                android:textStyle="bold"
-                app:cornerRadius="8dp" />
+                android:backgroundTint="#2E7D32"
+                app:cornerRadius="12dp"/>
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

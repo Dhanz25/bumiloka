@@ -17,24 +17,31 @@ class TipsFragment : Fragment(R.layout.fragment_tips) {
         val tips2 = pref.getBoolean("tips_materi2", false)
         val tips3 = pref.getBoolean("tips_materi3", false)
 
+        val layoutEmpty = view.findViewById<View>(R.id.layoutEmpty)
+        val layoutContent = view.findViewById<View>(R.id.layoutContent)
+
         val card1 = view.findViewById<View>(R.id.cardTips1)
         val card2 = view.findViewById<View>(R.id.cardTips2)
         val card3 = view.findViewById<View>(R.id.cardTips3)
-        val tvEmpty = view.findViewById<TextView>(R.id.tvEmpty)
 
-        // tampil / sembunyi
+
+// 🔥 EMPTY CHECK
+        if (!tips1 && !tips2 && !tips3) {
+            layoutEmpty.visibility = View.VISIBLE
+            layoutContent.visibility = View.GONE
+        } else {
+            layoutEmpty.visibility = View.GONE
+            layoutContent.visibility = View.VISIBLE
+        }
+
+
+// 🔓 TAMPILKAN SESUAI YANG SUDAH UNLOCK
         card1.visibility = if (tips1) View.VISIBLE else View.GONE
         card2.visibility = if (tips2) View.VISIBLE else View.GONE
         card3.visibility = if (tips3) View.VISIBLE else View.GONE
 
-        // empty state
-        if (!tips1 && !tips2 && !tips3) {
-            tvEmpty.visibility = View.VISIBLE
-        } else {
-            tvEmpty.visibility = View.GONE
-        }
 
-        // klik card
+// 🔘 CLICK (hanya aktif kalau visible)
         card1.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, TipsPeduliFragment())
@@ -51,9 +58,9 @@ class TipsFragment : Fragment(R.layout.fragment_tips) {
 
         card3.setOnClickListener {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, TipsFragment())
+                .replace(R.id.fragment_container, TipsHematAirFragment())
                 .addToBackStack(null)
                 .commit()
         }
+        }
     }
-}

@@ -92,7 +92,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="Tips : Sampah"
+                        android:text="Tips : Hemat Air"
                         android:textColor="#F0F4C3"
                         android:textSize="24sp"
                         android:textStyle="bold" />
@@ -110,7 +110,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:scaleType="centerCrop"
-                            android:src="@drawable/img_sampah"/>
+                            android:src="@drawable/hematair"/>
                     </com.google.android.material.card.MaterialCardView>
 
                     <!-- Section 1 -->

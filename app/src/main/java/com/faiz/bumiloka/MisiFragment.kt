@@ -46,7 +46,7 @@ class MisiFragment : Fragment(R.layout.fragment_misi) {
 
             btnTantangan.setOnClickListener {
                 requireActivity().supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, QuizSoalFragment())
+                    .replace(R.id.fragment_container, TantanganDiriFragment())
                     .addToBackStack(null)
                     .commit()
             }
