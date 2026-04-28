@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.card.MaterialCardView
 
 import android.widget.Toast
+import com.google.firebase.auth.FirebaseAuth
 
 class QuizUtamaFragment : Fragment(R.layout.fragment_quiz_utama_) {
 
@@ -72,7 +73,8 @@ class QuizUtamaFragment : Fragment(R.layout.fragment_quiz_utama_) {
         }
 
         fun filterCards(type: String) {
-            val pref = requireActivity().getSharedPreferences("KUIS", Context.MODE_PRIVATE)
+            val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+            val pref = requireActivity().getSharedPreferences("KUIS_$userId", Context.MODE_PRIVATE)
             val s1 = pref.getBoolean("materi1_selesai", false)
             val s2 = pref.getBoolean("quiz2_selesai", false)
             val s3 = pref.getBoolean("quiz3_selesai", false)
@@ -118,7 +120,8 @@ class QuizUtamaFragment : Fragment(R.layout.fragment_quiz_utama_) {
     }
 
     private fun loadUI() {
-        val pref = requireActivity().getSharedPreferences("KUIS", Context.MODE_PRIVATE)
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+        val pref = requireActivity().getSharedPreferences("KUIS_$userId", Context.MODE_PRIVATE)
 
         // ================= MATERI 1 =================
         val s1 = pref.getBoolean("materi1_selesai", false)
@@ -148,7 +151,8 @@ class QuizUtamaFragment : Fragment(R.layout.fragment_quiz_utama_) {
             if (n1 == 100) {
                 btnTips1.visibility = View.VISIBLE
                 btnTips1.setOnClickListener {
-                    val pref = requireActivity().getSharedPreferences("KUIS", Context.MODE_PRIVATE)
+                    val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+                    val pref = requireActivity().getSharedPreferences("KUIS_$userId", Context.MODE_PRIVATE)
                     pref.edit().putBoolean("tips_materi1", true).apply()
                     parentFragmentManager.beginTransaction()
                         .replace(R.id.fragment_container, TipsPeduliFragment())
@@ -205,7 +209,8 @@ class QuizUtamaFragment : Fragment(R.layout.fragment_quiz_utama_) {
             if (n2 == 100) {
                 btnTips2.visibility = View.VISIBLE
                 btnTips2.setOnClickListener {
-                    val pref = requireActivity().getSharedPreferences("KUIS", Context.MODE_PRIVATE)
+                    val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+                    val pref = requireActivity().getSharedPreferences("KUIS_$userId", Context.MODE_PRIVATE)
                     pref.edit().putBoolean("tips_materi2", true).apply()
                     parentFragmentManager.beginTransaction()
                         .replace(R.id.fragment_container, TipsSampahFragment())
@@ -262,7 +267,8 @@ class QuizUtamaFragment : Fragment(R.layout.fragment_quiz_utama_) {
             if (n3 == 100) {
                 btnTips3.visibility = View.VISIBLE
                 btnTips3.setOnClickListener {
-                    val pref = requireActivity().getSharedPreferences("KUIS", Context.MODE_PRIVATE)
+                    val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+                    val pref = requireActivity().getSharedPreferences("KUIS_$userId", Context.MODE_PRIVATE)
                     pref.edit().putBoolean("tips_materi3", true).apply()
                     parentFragmentManager.beginTransaction()
                         .replace(R.id.fragment_container, TipsHematAirFragment())

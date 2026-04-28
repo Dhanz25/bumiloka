@@ -1,5 +1,6 @@
 package com.faiz.bumiloka
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
@@ -7,6 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
+import com.google.firebase.auth.FirebaseAuth
 
 class MisiFragment : Fragment(R.layout.fragment_misi) {
 
@@ -28,7 +30,8 @@ class MisiFragment : Fragment(R.layout.fragment_misi) {
         val btnSkor = view.findViewById<MaterialButton>(R.id.btnSkor)
 
         // SharedPreferences
-        val sharedPref = requireActivity().getSharedPreferences("MISI", 0)
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+        val sharedPref = requireActivity().getSharedPreferences("MISI_$userId", Context.MODE_PRIVATE)
         val misi1Selesai = sharedPref.getBoolean("misi1_selesai", false)
         val misi2Selesai = sharedPref.getBoolean("misi2_selesai", false)
         val misi3Selesai = sharedPref.getBoolean("misi3_selesai", false)

@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.firebase.auth.FirebaseAuth
 
 class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
 
@@ -252,12 +253,26 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
         val benar = skor / 10
         val salah = totalSoal - benar
 
-        val prefs = requireActivity().getSharedPreferences("KUIS", Context.MODE_PRIVATE)
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+        val prefs = requireActivity().getSharedPreferences("KUIS_$userId", Context.MODE_PRIVATE)
+
+        // 🔥 TENTUKAN LEVEL USER
+        val level = when {
+            skor == 100 -> "EXPERT"
+            skor >= 75 -> "GOOD"
+            skor >= 50 -> "LEARNER"
+            else -> "BEGINNER"
+        }
+
+        // 🔥 SIMPAN SEMUA DATA
         prefs.edit()
             .putBoolean("materi1_selesai", true)
             .putInt("nilai_materi1", skor)
+            .putString("level_materi1", level)     // ✅ level user
+            .putBoolean("tips_materi1", true)      // ✅ unlock tips
             .apply()
 
+        // 🔥 BONUS AKTIVITAS
         if (skor >= 75) {
             AktivitasManager.tambahAktivitas(
                 requireContext(),
