@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import com.google.android.material.button.MaterialButton
+import com.google.firebase.auth.FirebaseAuth
 
 class MisiRaihSkorFragment : Fragment(R.layout.fragment_misi_raih_skor) {
 
@@ -18,8 +19,10 @@ class MisiRaihSkorFragment : Fragment(R.layout.fragment_misi_raih_skor) {
         val btnBack = view.findViewById<ImageView>(R.id.btnBack)
         val btnMulaiKuis = view.findViewById<MaterialButton>(R.id.btnMulaiKuis)
 
-        val prefKuis = requireActivity().getSharedPreferences("KUIS", Context.MODE_PRIVATE)
-        val prefMisi = requireActivity().getSharedPreferences("MISI", Context.MODE_PRIVATE)
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+
+        val prefKuis = requireActivity().getSharedPreferences("KUIS_$userId", Context.MODE_PRIVATE)
+        val prefMisi = requireActivity().getSharedPreferences("MISI_$userId", Context.MODE_PRIVATE)
 
         val nilai = prefKuis.getInt("quiz3_nilai", 0)
 

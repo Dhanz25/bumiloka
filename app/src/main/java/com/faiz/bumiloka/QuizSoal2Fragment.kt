@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.firebase.auth.FirebaseAuth
 
 class QuizSoal2Fragment : Fragment(R.layout.fragment_quiz_soal2) {
 
@@ -218,7 +219,8 @@ class QuizSoal2Fragment : Fragment(R.layout.fragment_quiz_soal2) {
         val benar = skor / 10
         val salah = totalSoal - benar
 
-        val prefs = requireActivity().getSharedPreferences("KUIS", Context.MODE_PRIVATE)
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+        val prefs = requireActivity().getSharedPreferences("KUIS_$userId", Context.MODE_PRIVATE)
         prefs.edit()
             .putBoolean("quiz2_selesai", true)
             .putInt("quiz2_nilai", skor)

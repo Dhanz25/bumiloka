@@ -7,6 +7,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import android.content.Context
 import androidx.fragment.app.FragmentManager
+import com.google.firebase.auth.FirebaseAuth
 
 class QuizMenang1Fragment : Fragment(R.layout.fragment_quiz_menang1_) {
 
@@ -22,7 +23,8 @@ class QuizMenang1Fragment : Fragment(R.layout.fragment_quiz_menang1_) {
         val quizType = arguments?.getString("QUIZ_TYPE") ?: "QUIZ1"
 
         val toolbar = view.findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
-        val pref = requireActivity().getSharedPreferences("KUIS", Context.MODE_PRIVATE)
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+        val pref = requireActivity().getSharedPreferences("KUIS_$userId", Context.MODE_PRIVATE)
 
         // ✅ Ambil dari Bundle dulu (REAL TIME dari soal)
         val skorBundle = arguments?.getInt("SKOR", -1) ?: -1

@@ -5,13 +5,15 @@ import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.google.firebase.auth.FirebaseAuth
 
 class TipsFragment : Fragment(R.layout.fragment_tips) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val pref = requireActivity().getSharedPreferences("KUIS", Context.MODE_PRIVATE)
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+        val pref = requireActivity().getSharedPreferences("KUIS_$userId", Context.MODE_PRIVATE)
 
         val tips1 = pref.getBoolean("tips_materi1", false)
         val tips2 = pref.getBoolean("tips_materi2", false)
@@ -43,22 +45,43 @@ class TipsFragment : Fragment(R.layout.fragment_tips) {
 
 // 🔘 CLICK (hanya aktif kalau visible)
         card1.setOnClickListener {
+            val level = pref.getString("level_materi1", "BEGINNER")
+
+            val fragment = TipsPeduliFragment()
+            val bundle = Bundle()
+            bundle.putString("LEVEL", level)
+            fragment.arguments = bundle
+
             parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, TipsPeduliFragment())
+                .replace(R.id.fragment_container, fragment)
                 .addToBackStack(null)
                 .commit()
         }
 
-        card2.setOnClickListener {
+        card1.setOnClickListener {
+            val level = pref.getString("level_materi1", "BEGINNER")
+
+            val fragment = TipsSampahFragment()
+            val bundle = Bundle()
+            bundle.putString("LEVEL", level)
+            fragment.arguments = bundle
+
             parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, TipsSampahFragment())
+                .replace(R.id.fragment_container, fragment)
                 .addToBackStack(null)
                 .commit()
         }
 
-        card3.setOnClickListener {
+        card1.setOnClickListener {
+            val level = pref.getString("level_materi1", "BEGINNER")
+
+            val fragment = TipsHematAirFragment()
+            val bundle = Bundle()
+            bundle.putString("LEVEL", level)
+            fragment.arguments = bundle
+
             parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, TipsHematAirFragment())
+                .replace(R.id.fragment_container, fragment)
                 .addToBackStack(null)
                 .commit()
         }
