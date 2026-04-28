@@ -92,6 +92,7 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/tvProgressUtama"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -100,6 +101,7 @@
                         android:textSize="14sp" />
 
                     <ProgressBar
+                        android:id="@+id/progressBarUtama"
                         style="?android:attr/progressBarStyleHorizontal"
                         android:layout_width="match_parent"
                         android:layout_height="4dp"
@@ -181,6 +183,7 @@
                     android:padding="16dp">
 
                     <TextView
+                        android:id="@+id/tvProgressMateri"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="1. Membaca Materi"
@@ -197,6 +200,7 @@
                         android:textSize="13sp" />
 
                     <ProgressBar
+                        android:id="@+id/progressBarMateri"
                         style="?android:attr/progressBarStyleHorizontal"
                         android:layout_width="match_parent"
                         android:layout_height="4dp"
@@ -236,6 +240,7 @@
                     android:padding="16dp">
 
                     <TextView
+                        android:id="@+id/tvProgressKuis"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="2. Kuis"
@@ -252,6 +257,7 @@
                         android:textSize="13sp" />
 
                     <ProgressBar
+                        android:id="@+id/progressBarKuis"
                         style="?android:attr/progressBarStyleHorizontal"
                         android:layout_width="match_parent"
                         android:layout_height="4dp"
