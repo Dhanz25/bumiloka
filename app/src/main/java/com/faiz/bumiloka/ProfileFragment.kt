@@ -35,6 +35,8 @@ class ProfileFragment : Fragment() {
         val tvGelarUser = view.findViewById<TextView>(R.id.tvGelarUser) // Untuk teks "📍 Eco Warrior"
         val tvTotalPoinBanner = view.findViewById<TextView>(R.id.tvTotalPoinBanner) // Untuk teks poin besar di kartu hijau
         val tvTotalPoinGrid = view.findViewById<TextView>(R.id.tvTotalPoinGrid) // Untuk teks poin kecil di bawah piala
+        val tvTotalMisi = view.findViewById<TextView>(R.id.tvTotalMisi)
+        val tvTotalLencana = view.findViewById<TextView>(R.id.tvTotalLencana)
 
         currentUser?.let { user ->
             val rawName = when {
@@ -50,7 +52,7 @@ class ProfileFragment : Fragment() {
             tvProfileName.text = nameToShow
 
             // --- PANGGIL FUNGSI LOAD DATA FIREBASE DI SINI ---
-            loadDataProfil(user.uid, tvGelarUser, tvTotalPoinBanner, tvTotalPoinGrid)
+            loadDataProfil(user.uid, tvGelarUser, tvTotalPoinBanner, tvTotalPoinGrid, tvTotalMisi, tvTotalLencana)
         }
 
         btnPengaturan.setOnClickListener {
@@ -66,7 +68,9 @@ class ProfileFragment : Fragment() {
         userId: String,
         tvGelarUser: TextView?,
         tvTotalPoinBanner: TextView?,
-        tvTotalPoinGrid: TextView?
+        tvTotalPoinGrid: TextView?,
+        tvTotalMisi: TextView?,
+        tvTotalLencana: TextView?
     ) {
         val db = FirebaseDatabase.getInstance().reference.child("users").child(userId)
 
@@ -77,6 +81,10 @@ class ProfileFragment : Fragment() {
             val currentXp = snapshot.child("xp").getValue(Int::class.java) ?: 0
             val currentLevel = snapshot.child("level").getValue(Int::class.java) ?: 1
 
+            // --- AMBIL DATA MISI & LENCANA (Default 0) ---
+            val misiTercapai = snapshot.child("misiTercapai").getValue(Int::class.java) ?: 0
+            val totalLencana = snapshot.child("totalLencana").getValue(Int::class.java) ?: 0
+
             // Atur Gelar berdasarkan level
             val levelTitle = getLevelTitle(currentLevel)
 
@@ -84,6 +92,8 @@ class ProfileFragment : Fragment() {
             tvGelarUser?.text = "📍 $levelTitle"
             tvTotalPoinBanner?.text = currentXp.toString()
             tvTotalPoinGrid?.text = currentXp.toString()
+            tvTotalMisi?.text = misiTercapai.toString()
+            tvTotalLencana?.text = totalLencana.toString()
 
         }.addOnFailureListener {
             Log.e("BUMILOKA_DEBUG", "Gagal load profil: ${it.message}")

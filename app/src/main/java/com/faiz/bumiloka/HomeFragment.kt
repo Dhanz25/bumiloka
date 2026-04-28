@@ -24,6 +24,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import java.util.Locale
 import android.util.Log
+import java.text.SimpleDateFormat
+import java.util.Date
 
 class HomeFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
@@ -62,7 +64,7 @@ class HomeFragment : Fragment() {
         val btnMisi = view.findViewById<CardView>(R.id.btnMisi)
         val btnTantangan = view.findViewById<CardView>(R.id.btnTantangan)
         val btnKuis = view.findViewById<CardView>(R.id.btnKuis)
-
+        val tvRekomendasiHariIni = view.findViewById<TextView>(R.id.tvRekomendasiHariIni)
         // Fungsi untuk memperbarui tampilan nama
         fun updateUserName(user: FirebaseUser?) {
             val rawName = when {
@@ -103,8 +105,10 @@ class HomeFragment : Fragment() {
                             true
                         }
                         2 -> {
-                            val intent = Intent(requireContext(), ProfileFragment::class.java)
-                            startActivity(intent)
+                            parentFragmentManager.beginTransaction()
+                                .replace(R.id.fragment_container, PengaturanFragment())
+                                .addToBackStack(null)
+                                .commit()
                             true
                         }
                         3 -> {
@@ -180,6 +184,110 @@ class HomeFragment : Fragment() {
             }
         }
         checkProfileOnce()
+        // TAMBAHAN: Tampilkan rekomendasi harian
+        tampilkanRekomendasiHarian(tvRekomendasiHariIni)
+    }
+
+    // ===============================
+    // REKOMENDASI HARIAN (1 HARI 1 REKOMENDASI)
+    // ===============================
+    private fun tampilkanRekomendasiHarian(tvRekomendasi: TextView) {
+
+        val sharedPref = requireActivity().getSharedPreferences(
+            "RekomendasiHarian",
+            android.content.Context.MODE_PRIVATE
+        )
+
+        val editor = sharedPref.edit()
+
+        val today = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
+
+        val savedDate = sharedPref.getString("tanggal", "")
+        var rekomendasiHariIni = sharedPref.getString("rekomendasi", "")
+
+        if (savedDate != today) {
+
+            val daftarRekomendasi = listOf(
+
+                // Edukasi / Materi
+                "📘 Baca materi edukasi baru hari ini!",
+                "📚 Lanjutkan membaca materi berikutnya sekarang!",
+                "🌍 Pelajari tips baru tentang lingkungan hari ini!",
+                "📖 Review kembali materi yang sudah kamu pelajari!",
+                "🧠 Tambah wawasanmu dengan membaca materi terbaru!",
+                "📗 Yuk lanjutkan edukasi lingkunganmu hari ini!",
+                "🌱 Baca materi tentang gaya hidup ramah lingkungan!",
+                "📘 Mulai baca materi pertamamu hari ini!",
+                "📚 Jangan lupa selesaikan materi yang belum dibaca!",
+                "🌿 Baca satu materi untuk menambah progresmu!",
+
+                // Kuis
+                "❓ Selesaikan kuis hari ini untuk menambah wawasan!",
+                "📝 Kerjakan kuis sekarang dan uji pemahamanmu!",
+                "🎯 Yuk lanjutkan kuis yang belum selesai!",
+                "🏆 Tantang dirimu dengan menyelesaikan kuis baru!",
+                "📊 Coba kerjakan kuis dari materi yang sudah dibaca!",
+                "🔥 Selesaikan kuis agar progresmu bertambah!",
+                "💡 Uji pengetahuanmu lewat kuis hari ini!",
+                "📍 Jangan lewatkan kuis harianmu!",
+                "🚀 Kerjakan kuis sekarang juga!",
+                "🎓 Lanjutkan kuis berikutnya untuk hasil terbaik!",
+
+                // Tantangan
+                "🚩 Selesaikan tantangan hari ini sekarang!",
+                "🌱 Lanjutkan tantangan lingkunganmu hari ini!",
+                "♻️ Kerjakan tantangan baru untuk bumi yang lebih baik!",
+                "🏅 Yuk selesaikan tantangan yang tersedia!",
+                "🔥 Jangan berhenti, lanjutkan tantanganmu!",
+                "🌍 Tantangan hari ini menunggumu!",
+                "🎯 Coba selesaikan satu tantangan sekarang!",
+                "🚀 Lanjutkan tantangan agar progres meningkat!",
+                "💪 Selesaikan aksi hijau melalui tantangan hari ini!",
+                "🌿 Kerjakan tantangan ramah lingkungan sekarang!",
+
+                // Misi
+                "🎯 Kerjakan misi hari ini untuk menambah pencapaian!",
+                "🚀 Selesaikan misi baru sekarang!",
+                "🏆 Lanjutkan misi yang belum selesai!",
+                "📍 Coba satu misi baru hari ini!",
+                "🔥 Jangan lupa kerjakan misi harianmu!",
+                "🌍 Selesaikan misi lingkungan untuk progres lebih baik!",
+                "💡 Misi baru siap kamu selesaikan!",
+                "🎖️ Yuk tuntaskan misi berikutnya!",
+                "📈 Tambah progres dengan menyelesaikan misi!",
+                "🌱 Kerjakan misi sederhana untuk bantu bumi!",
+
+                // Aksi lingkungan umum
+                "🌱 Gunakan tumbler sendiri hari ini untuk menjaga lingkungan!",
+                "♻️ Kurangi penggunaan plastik sekali pakai!",
+                "💡 Matikan lampu yang tidak digunakan!",
+                "🚶 Jalan kaki ke tempat dekat!",
+                "🛍️ Gunakan tas belanja reusable!",
+                "🚿 Gunakan air secukupnya!",
+                "🪥 Matikan keran saat menyikat gigi!",
+                "🥤 Tolak sedotan plastik hari ini!",
+                "🗑️ Buang sampah pada tempatnya!",
+                "♻️ Pisahkan sampah organik dan anorganik!",
+                "🌿 Rawat tanaman di rumah hari ini!",
+                "🚲 Gunakan sepeda untuk perjalanan dekat!",
+                "🔌 Cabut charger jika tidak digunakan!",
+                "📄 Gunakan kertas seperlunya!",
+                "🍱 Bawa bekal sendiri untuk kurangi sampah!",
+                "🌞 Manfaatkan cahaya alami di siang hari!",
+                "🧴 Gunakan botol isi ulang!",
+                "🧹 Bersihkan area sekitarmu hari ini!",
+                "🥗 Habiskan makananmu agar tidak terbuang!",
+                "🌏 Satu aksi kecilmu hari ini bisa bantu bumi!"
+            )
+
+            rekomendasiHariIni = daftarRekomendasi.random()
+
+            editor.putString("tanggal", today)
+            editor.putString("rekomendasi", rekomendasiHariIni)
+            editor.apply()
+        }
+
+        tvRekomendasi.text = rekomendasiHariIni
     }
     private fun checkProfileOnce() {
         val user = auth.currentUser ?: return

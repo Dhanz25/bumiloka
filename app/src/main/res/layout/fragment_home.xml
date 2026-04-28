@@ -6,11 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/home_background"
-<<<<<<< HEAD
     tools:context=".HomeFragment">
-=======
-    tools:context="HomeFragment">
->>>>>>> 66c8713cd3bb670e2426132b13efe08e21d30baf
 
     <ScrollView
         android:layout_width="match_parent"
@@ -80,7 +76,7 @@
             <!-- Main Banner Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="150dp"
+                android:layout_height="130dp"
                 android:layout_marginTop="28dp"
                 app:cardCornerRadius="28dp"
                 app:cardElevation="6dp">
@@ -111,11 +107,7 @@
                             android:id="@+id/tvLevelTitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-<<<<<<< HEAD
                             android:text="🏅 Level 1 - Pemula"
-=======
-                            android:text="🏅 Level 1 - Benih Kehidupan"
->>>>>>> 66c8713cd3bb670e2426132b13efe08e21d30baf
                             android:textColor="@color/white"
                             android:textSize="14sp"
                             android:textStyle="normal" />

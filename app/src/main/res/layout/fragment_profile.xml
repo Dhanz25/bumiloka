@@ -226,11 +226,10 @@
                             android:contentDescription="Target" />
 
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:id="@+id/tvTotalMisi" android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="34"
-                            android:textSize="20sp"
+                            android:text="0" android:textSize="20sp"
                             android:textStyle="bold"
                             android:textColor="@color/text_title"/>
 
@@ -267,14 +266,13 @@
                             android:layout_height="32dp"
                             android:src="@drawable/ic_leaf"
                             app:tint="#4CAF50"
-                            android:contentDescription="Pohon" />
+                            android:contentDescription="Lencana" />
 
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:id="@+id/tvTotalLencana" android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="52"
-                            android:textSize="20sp"
+                            android:text="0" android:textSize="20sp"
                             android:textStyle="bold"
                             android:textColor="@color/text_title"/>
 
@@ -452,7 +450,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginStart="12dp"
-                            android:text="Pengaturan"
+                            android:text="Pengaturan Profil"
                             android:textSize="14sp"
                             android:textColor="@color/black"/>
                         <ImageView
