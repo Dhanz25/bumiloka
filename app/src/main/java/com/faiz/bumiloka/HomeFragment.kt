@@ -27,6 +27,9 @@ import android.util.Log
 import java.text.SimpleDateFormat
 import java.util.Date
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
+import android.view.Gravity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class HomeFragment : Fragment() {
@@ -192,7 +195,6 @@ class HomeFragment : Fragment() {
                 updateUserName(auth.currentUser)
             }
         }
-        showWelcomeThenProfil()
         // TAMBAHAN: Tampilkan rekomendasi harian
         tampilkanRekomendasiHarian(tvRekomendasiHariIni)
     }
@@ -337,24 +339,23 @@ class HomeFragment : Fragment() {
         if (!isAdded) return
 
         val user = auth.currentUser
-        val nama = user?.displayName ?: "Pengguna"
+        val nama = user?.displayName?.split(" ")?.first() ?: "Pengguna"
 
-        val welcomeDialog = MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Selamat Datang, $nama 👋")
-            .setMessage("di aplikasi Bumiloka")
-            .setCancelable(false)
-            .create()
+        // 👉 tampilkan toast kecil
+        val toastView = layoutInflater.inflate(R.layout.toast_welcome, null)
+        val tv = toastView.findViewById<TextView>(R.id.tvToastMessage)
+        tv.text = "Selamat Datang, $nama 👋"
 
-        welcomeDialog.show()
+        val toast = Toast(requireContext())
+        toast.duration = Toast.LENGTH_SHORT
+        toast.view = toastView
+        toast.setGravity(Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, 200)
 
-        // delay → lanjut ke popup custom
-        welcomeDialog.window?.decorView?.postDelayed({
+        toast.show()
 
-            if (welcomeDialog.isShowing) welcomeDialog.dismiss()
-
-            // 👉 panggil popup custom kamu
+        // 👉 setelah itu baru cek profil
+        Handler(Looper.getMainLooper()).postDelayed({
             checkProfileOnce()
-
         }, 1500)
     }
 
