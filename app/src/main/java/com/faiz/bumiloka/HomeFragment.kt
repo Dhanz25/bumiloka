@@ -30,10 +30,15 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.view.Gravity
+import android.widget.ProgressBar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class HomeFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
+
+    private lateinit var pbProgress: ProgressBar
+    private lateinit var tvProgress: TextView
+    private lateinit var tvLevel: TextView
     private lateinit var googleSignInClient: GoogleSignInClient
 
     override fun onCreateView(
@@ -44,8 +49,19 @@ class HomeFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_home, container, false)
     }
 
+    override fun onResume() {
+        super.onResume()
+        loadProgressFirebase(pbProgress, tvProgress, tvLevel)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        pbProgress = view.findViewById(R.id.pbTargetProgress)
+        tvProgress = view.findViewById(R.id.tvProgressPercentage)
+        tvLevel = view.findViewById(R.id.tvLevelTitle)
+
+        loadProgressFirebase(pbProgress, tvProgress, tvLevel)
 
         auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
@@ -382,6 +398,34 @@ class HomeFragment : Fragment() {
                 .replace(R.id.fragment_container, PengaturanFragment())
                 .addToBackStack(null)
                 .commit()
+        }
+    }
+
+    private fun loadProgressFirebase(
+        progressBar: ProgressBar,
+        tvProgress: TextView,
+        tvLevel: TextView
+    ) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = com.google.firebase.database.FirebaseDatabase.getInstance()
+            .reference.child("users").child(userId)
+
+        db.get().addOnSuccessListener { snapshot ->
+
+            val level = snapshot.child("level").getValue(Int::class.java) ?: 1
+            val xp = snapshot.child("xp").getValue(Int::class.java) ?: 0
+
+            val targetXP = level * 100
+
+            val progressPercent = ((xp.toDouble() / targetXP) * 100).toInt()
+
+            // SET UI
+            progressBar.progress = progressPercent
+            tvProgress.text = "$progressPercent% tercapai"
+            tvLevel.text = "🏅 Level $level"
+
+        }.addOnFailureListener {
+            Log.e("HOME_PROGRESS", "Gagal ambil data: ${it.message}")
         }
     }
 }

@@ -39,6 +39,7 @@ object AktivitasManager {
         }
     }
 
+
     private fun simpanAktivitas(context: Context, list: List<AktivitasModel>) {
         val pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         pref.edit().putString(KEY, gson.toJson(list)).apply()
