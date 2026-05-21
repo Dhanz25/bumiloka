@@ -21,6 +21,9 @@ class MisiFragment : Fragment(R.layout.fragment_misi) {
         // Binding View
         val btnMulaiMateri = view.findViewById<MaterialButton>(R.id.btnMulaiMateri)
 
+        //Reset Misi
+//        val btnResetMisi = view.findViewById<MaterialButton>(R.id.btnResetMisi)
+
         val cardTantangan = view.findViewById<MaterialCardView>(R.id.cardTantangan)
         val iconTantangan = view.findViewById<ImageView>(R.id.iconTantangan)
         val btnTantangan = view.findViewById<MaterialButton>(R.id.btnTantangan)
@@ -98,8 +101,32 @@ class MisiFragment : Fragment(R.layout.fragment_misi) {
                 .commit()
         }
 
+//        btnResetMisi.setOnClickListener {
+//
+//        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+//
+//        val prefMisi = requireActivity()
+//            .getSharedPreferences("MISI_$userId", Context.MODE_PRIVATE)
+//
+//        val prefKuis = requireActivity()
+//            .getSharedPreferences("KUIS_$userId", Context.MODE_PRIVATE)
+//
+//        // 🔥 Hapus semua data misi
+//        prefMisi.edit().clear().apply()
+//
+//        // 🔥 Hapus semua data kuis
+//        prefKuis.edit().clear().apply()
+//
+//        // 🔥 Reload fragment
+//        requireActivity().supportFragmentManager.beginTransaction()
+//            .replace(R.id.fragment_container, MisiFragment())
+//            .commit()
+//    }
+
         view.findViewById<ImageView>(R.id.btnBack).setOnClickListener {
-            requireActivity().supportFragmentManager.popBackStack()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, HomeFragment())
+                .commit()
         }
     }
 

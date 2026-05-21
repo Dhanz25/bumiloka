@@ -67,11 +67,16 @@ class MisiRaihSkorFragment : Fragment(R.layout.fragment_misi_raih_skor) {
                 val btnLanjut = viewDialog.findViewById<Button>(R.id.btnLanjut)
 
                 btnLanjut.setOnClickListener {
-                    val prefMisi = requireActivity().getSharedPreferences("MISI", 0)
-                    prefMisi.edit().putBoolean("misi3_selesai", true).apply()
+
+                    val prefMisi = requireActivity()
+                        .getSharedPreferences("MISI_$userId", Context.MODE_PRIVATE)
+
+                    prefMisi.edit()
+                        .putBoolean("misi3_selesai", true)
+                        .apply()
+
                     dialog.dismiss()
 
-                    // langsung ke MisiFragment
                     parentFragmentManager.beginTransaction()
                         .replace(R.id.fragment_container, MisiFragment())
                         .commit()
@@ -79,9 +84,14 @@ class MisiRaihSkorFragment : Fragment(R.layout.fragment_misi_raih_skor) {
 
             } else {
 
-                // ❌ belum 75 → masuk ke quiz
+                val fragment = QuizSoal3Fragment()
+
+                fragment.arguments = Bundle().apply {
+                    putBoolean("DARI_MISI", true)
+                }
+
                 parentFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, QuizSoal3Fragment())
+                    .replace(R.id.fragment_container, fragment)
                     .addToBackStack(null)
                     .commit()
             }

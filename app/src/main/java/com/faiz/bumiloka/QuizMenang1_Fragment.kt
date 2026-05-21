@@ -21,6 +21,7 @@ class QuizMenang1Fragment : Fragment(R.layout.fragment_quiz_menang1_) {
         val btnUlangi = view.findViewById<Button>(R.id.btnUlangi)
 
         val quizType = arguments?.getString("QUIZ_TYPE") ?: "QUIZ1"
+        val dariMisi = arguments?.getBoolean("DARI_MISI", false) ?: false
 
         val toolbar = view.findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
@@ -57,18 +58,72 @@ class QuizMenang1Fragment : Fragment(R.layout.fragment_quiz_menang1_) {
         tvSalah.text = "$salah"
         tvSkor.text = "Skor: $skor/100"
 
+
+        // ✅ Simpan progres misi tantangan diri selesai
+        val prefMisi = requireActivity()
+            .getSharedPreferences("MISI_$userId", Context.MODE_PRIVATE)
+
+        prefMisi.edit()
+            .putBoolean("misi2_selesai", true)
+            .apply()
+
         // ✅ ULANGI
         if (skor == 100) {
             btnUlangi.visibility = View.GONE
         } else {
             btnUlangi.visibility = View.VISIBLE
         }
-
+        val finalSkor = skor
         // ✅ OK → balik ke menu kuis
         btnOk.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, QuizUtamaFragment())
-                .commit()
+
+            // ✅ QUIZ3 dari misi tapi skor belum 75
+            if (quizType == "QUIZ3" && dariMisi && finalSkor < 75) {
+
+                val dialogView = layoutInflater.inflate(
+                    R.layout.popup_belumraihskor,
+                    null
+                )
+
+                val dialog = AlertDialog.Builder(requireContext())
+                    .setView(dialogView)
+                    .setCancelable(false)
+                    .create()
+
+                dialog.window?.setBackgroundDrawableResource(
+                    android.R.color.transparent
+                )
+
+                dialog.show()
+
+                val btnLanjut = dialogView.findViewById<Button>(R.id.btnLanjut)
+
+                btnLanjut.setOnClickListener {
+
+                    dialog.dismiss()
+
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, MisiFragment())
+                        .commit()
+                }
+
+            } else {
+
+                // ✅ kalau dari misi → kembali ke misi
+                if (dariMisi) {
+
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, MisiFragment())
+                        .commit()
+
+                } else {
+
+                    // ✅ kalau dari halaman quiz biasa
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, QuizUtamaFragment())
+                        .commit()
+                }
+            }
         }
 
         // ✅ ULANGI SESUAI QUIZ
@@ -88,6 +143,12 @@ class QuizMenang1Fragment : Fragment(R.layout.fragment_quiz_menang1_) {
         toolbar.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        val bottomNav = requireActivity().findViewById<View>(R.id.bottom_navigation)
+        bottomNav.visibility = View.VISIBLE
     }
 
     private fun showUlangiDialog(fragment: Fragment) {

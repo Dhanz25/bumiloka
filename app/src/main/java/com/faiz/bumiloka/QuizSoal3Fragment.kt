@@ -236,11 +236,23 @@ class QuizSoal3Fragment : Fragment(R.layout.fragment_quiz_soal3) {
             .putInt("quiz3_nilai", skor)
             .apply()
 
+// ✅ Simpan progres misi jika skor >= 75
+        if (skor >= 75) {
+
+            val prefMisi = requireActivity()
+                .getSharedPreferences("MISI_$userId", Context.MODE_PRIVATE)
+
+            prefMisi.edit()
+                .putBoolean("misi3_selesai", true)
+                .apply()
+        }
+        val dariMisi = arguments?.getBoolean("DARI_MISI", false) ?: false
         val bundle = Bundle()
         bundle.putInt("BENAR", benar)
         bundle.putInt("SALAH", salah)
         bundle.putInt("SKOR", skor)
         bundle.putString("QUIZ_TYPE", "QUIZ3")
+        bundle.putBoolean("DARI_MISI", dariMisi)
 
         val fragment = QuizMenang1Fragment()
         fragment.arguments = bundle

@@ -154,10 +154,13 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
         super.onViewCreated(view, savedInstanceState)
 
         val materiId = arguments?.getInt("materi_id") ?: 1
+        val from = arguments?.getString("FROM")
         val toolbar = view.findViewById<MaterialToolbar>(R.id.toolbar)
         btnNext = view.findViewById(R.id.btnNext)
         tvQuestion = view.findViewById(R.id.tvQuestion)
         tvNumber = view.findViewById(R.id.tvNumber)
+        val bottomNav = requireActivity().findViewById<View>(R.id.bottom_navigation)
+        bottomNav.visibility = View.GONE
 
         options = listOf(
             view.findViewById(R.id.option1),
@@ -193,6 +196,12 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
                 }
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        val bottomNav = requireActivity().findViewById<View>(R.id.bottom_navigation)
+        bottomNav.visibility = View.VISIBLE
     }
 
     private fun showExitDialog() {
@@ -293,10 +302,17 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
             )
         }
 
-        val bundle = Bundle()
-        bundle.putInt("BENAR", benar)
-        bundle.putInt("SALAH", salah)
-        bundle.putInt("SKOR", skor)
+        val from = arguments?.getString("FROM")
+
+        val bundle = Bundle().apply {
+            putInt("BENAR", benar)
+            putInt("SALAH", salah)
+            putInt("SKOR", skor)
+
+            // ✅ teruskan asal fragment
+            putString("FROM", from)
+        }
+
 
         val fragment = QuizMenang1Fragment()
         fragment.arguments = bundle

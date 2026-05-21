@@ -34,8 +34,15 @@ class TantanganDiriFragment : Fragment(R.layout.fragment_tantangan_diri) {
             btnMulaiKuis.isEnabled = true
 
             btnMulaiKuis.setOnClickListener {
+
+                val fragment = QuizSoalFragment()
+
+                fragment.arguments = Bundle().apply {
+                    putString("FROM", "MISI")
+                }
+
                 requireActivity().supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, QuizSoalFragment())
+                    .replace(R.id.fragment_container, fragment)
                     .addToBackStack(null)
                     .commit()
             }

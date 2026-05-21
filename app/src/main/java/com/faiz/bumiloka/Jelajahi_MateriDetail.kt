@@ -87,11 +87,9 @@ class Jelajahi_MateriDetail : Fragment(R.layout.fragment_jelajahi__materi_detail
 
                 dialog.dismiss()
 
-                val fm = requireActivity().supportFragmentManager
-
-                // balik ke MisiFragment
-                fm.popBackStack()
-                fm.popBackStack()
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, MisiFragment())
+                    .commit()
             }
         }
     }
