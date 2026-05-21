@@ -237,15 +237,15 @@ class QuizSoal3Fragment : Fragment(R.layout.fragment_quiz_soal3) {
             .apply()
 
 // ✅ Simpan progres misi jika skor >= 75
-        if (skor >= 75) {
-
-            val prefMisi = requireActivity()
-                .getSharedPreferences("MISI_$userId", Context.MODE_PRIVATE)
-
-            prefMisi.edit()
-                .putBoolean("misi3_selesai", true)
-                .apply()
-        }
+//        if (skor >= 75) {
+//
+//            val prefMisi = requireActivity()
+//                .getSharedPreferences("MISI_$userId", Context.MODE_PRIVATE)
+//
+//            prefMisi.edit()
+//                .putBoolean("misi3_selesai", true)
+//                .apply()
+//        }
         val dariMisi = arguments?.getBoolean("DARI_MISI", false) ?: false
         val bundle = Bundle()
         bundle.putInt("BENAR", benar)

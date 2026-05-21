@@ -59,13 +59,51 @@ class QuizMenang1Fragment : Fragment(R.layout.fragment_quiz_menang1_) {
         tvSkor.text = "Skor: $skor/100"
 
 
-        // ✅ Simpan progres misi tantangan diri selesai
+        // ✅ SharedPreferences misi
         val prefMisi = requireActivity()
             .getSharedPreferences("MISI_$userId", Context.MODE_PRIVATE)
 
-        prefMisi.edit()
-            .putBoolean("misi2_selesai", true)
-            .apply()
+// ===============================
+// MISI 2 → Tantangan Diri
+// ===============================
+        if (quizType == "QUIZ1" && dariMisi) {
+
+            val sudahMisi2 = prefMisi.getBoolean("misi2_selesai", false)
+
+            // ✅ hanya kasih XP sekali
+            if (!sudahMisi2) {
+
+                prefMisi.edit()
+                    .putBoolean("misi2_selesai", true)
+                    .apply()
+
+                // ✅ tambah XP 30
+                AktivitasHelper.tambahPoint(30)
+
+                AktivitasHelper.tambahMisiSelesai()
+            }
+        }
+
+// ===============================
+// MISI 3 → Raih Skor 75
+// ===============================
+        if (quizType == "QUIZ3" && dariMisi && skor >= 75) {
+
+            val sudahMisi3 = prefMisi.getBoolean("misi3_selesai", false)
+
+            // ✅ hanya kasih XP sekali
+            if (!sudahMisi3) {
+
+                prefMisi.edit()
+                    .putBoolean("misi3_selesai", true)
+                    .apply()
+
+                // ✅ tambah XP 40
+                AktivitasHelper.tambahPoint(40)
+
+                AktivitasHelper.tambahMisiSelesai()
+            }
+        }
 
         // ✅ ULANGI
         if (skor == 100) {

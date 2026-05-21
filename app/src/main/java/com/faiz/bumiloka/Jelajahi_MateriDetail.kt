@@ -53,7 +53,7 @@ class Jelajahi_MateriDetail : Fragment(R.layout.fragment_jelajahi__materi_detail
                 "Misi",
                 20
             )
-            AktivitasHelper.tambahPoint(20) // ← WAJIB (ini yang ngaruh ke progress bar)
+            AktivitasHelper.tambahPoint(30) // ← WAJIB (ini yang ngaruh ke progress bar)
             AktivitasHelper.tambahMisiSelesai() // ← opsional tapi bagus untuk tracking
 
             // simpan status misi selesai

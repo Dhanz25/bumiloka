@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 
 class MisiFragment : Fragment(R.layout.fragment_misi) {
 
@@ -22,7 +23,7 @@ class MisiFragment : Fragment(R.layout.fragment_misi) {
         val btnMulaiMateri = view.findViewById<MaterialButton>(R.id.btnMulaiMateri)
 
         //Reset Misi
-//        val btnResetMisi = view.findViewById<MaterialButton>(R.id.btnResetMisi)
+        val btnResetMisi = view.findViewById<MaterialButton>(R.id.btnResetMisi)
 
         val cardTantangan = view.findViewById<MaterialCardView>(R.id.cardTantangan)
         val iconTantangan = view.findViewById<ImageView>(R.id.iconTantangan)
@@ -101,27 +102,54 @@ class MisiFragment : Fragment(R.layout.fragment_misi) {
                 .commit()
         }
 
-//        btnResetMisi.setOnClickListener {
-//
-//        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
-//
-//        val prefMisi = requireActivity()
-//            .getSharedPreferences("MISI_$userId", Context.MODE_PRIVATE)
-//
-//        val prefKuis = requireActivity()
-//            .getSharedPreferences("KUIS_$userId", Context.MODE_PRIVATE)
-//
-//        // 🔥 Hapus semua data misi
-//        prefMisi.edit().clear().apply()
-//
-//        // 🔥 Hapus semua data kuis
-//        prefKuis.edit().clear().apply()
-//
-//        // 🔥 Reload fragment
-//        requireActivity().supportFragmentManager.beginTransaction()
-//            .replace(R.id.fragment_container, MisiFragment())
-//            .commit()
-//    }
+        btnResetMisi.setOnClickListener {
+
+            val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+
+            // =========================
+            // SharedPreferences
+            // =========================
+
+            val prefMisi = requireActivity()
+                .getSharedPreferences("MISI_$userId", Context.MODE_PRIVATE)
+
+            val prefKuis = requireActivity()
+                .getSharedPreferences("KUIS_$userId", Context.MODE_PRIVATE)
+
+            // 🔥 Reset semua misi & kuis lokal
+            prefMisi.edit().clear().apply()
+            prefKuis.edit().clear().apply()
+
+            // =========================
+            // Firebase Reset
+            // =========================
+
+            val db = FirebaseDatabase.getInstance()
+                .reference
+                .child("users")
+                .child(userId)
+
+            val resetData = mapOf(
+                "xp" to 0,
+                "level" to 1,
+                "misiTercapai" to 0,
+                "totalPoint" to 0,
+                "totalLencana" to 0
+            )
+
+            db.updateChildren(resetData)
+
+            // 🔥 hapus semua lencana dimiliki
+            db.child("lencana_dimiliki").removeValue()
+
+            // =========================
+            // Reload Fragment
+            // =========================
+
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, MisiFragment())
+                .commit()
+        }
 
         view.findViewById<ImageView>(R.id.btnBack).setOnClickListener {
             parentFragmentManager.beginTransaction()

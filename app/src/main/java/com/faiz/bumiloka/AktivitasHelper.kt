@@ -7,43 +7,48 @@ import com.google.firebase.database.FirebaseDatabase
 object AktivitasHelper {
 
     fun tambahPoint(tambahanXP: Int) {
-        // Otomatis ambil userId yang sedang login
+
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val db = FirebaseDatabase.getInstance().reference.child("users").child(userId)
+        val db = FirebaseDatabase.getInstance().reference
+            .child("users")
+            .child(userId)
 
         db.get().addOnSuccessListener { snapshot ->
-            // Ambil level dan XP saat ini
-            var currentLevel = snapshot.child("level").getValue(Int::class.java) ?: 1
-            var currentXP = snapshot.child("xp").getValue(Int::class.java) ?: 0
 
-            // Target XP untuk level saat ini (Kelipatan 100)
-            var targetXP = currentLevel * 100
+            var currentLevel =
+                snapshot.child("level").getValue(Int::class.java) ?: 1
 
-            // Tambahkan XP baru
+            var currentXP =
+                snapshot.child("xp").getValue(Int::class.java) ?: 0
+
+            // ✅ TOTAL POINT TIDAK RESET
+            var totalPoint =
+                snapshot.child("totalPoint").getValue(Int::class.java) ?: 0
+
+            val targetXP = 100
+
+            // ✅ tambah progress level
             currentXP += tambahanXP
 
-            // Kalkulasi naik level
+            // ✅ tambah total poin permanen
+            totalPoint += tambahanXP
+
+            // ✅ naik level kalau xp >= 100
             while (currentXP >= targetXP) {
                 currentXP -= targetXP
                 currentLevel++
-                targetXP = currentLevel * 100
             }
 
-            // Simpan data Level dan XP yang baru ke Firebase
             val updates = mapOf(
                 "level" to currentLevel,
-                "xp" to currentXP
+                "xp" to currentXP,
+                "totalPoint" to totalPoint
             )
 
-            db.updateChildren(updates).addOnSuccessListener {
-                Log.d("BUMILOKA_LEVEL", "Berhasil update: Level $currentLevel, XP: $currentXP")
-            }.addOnFailureListener {
-                Log.e("BUMILOKA_LEVEL", "Gagal menyimpan XP: ${it.message}")
-            }
-        }.addOnFailureListener {
-            Log.e("BUMILOKA_LEVEL", "Gagal membaca database: ${it.message}")
+            db.updateChildren(updates)
         }
     }
+
     fun tambahMisiSelesai() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseDatabase.getInstance().reference.child("users").child(userId)

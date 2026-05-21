@@ -309,8 +309,11 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
             putInt("SALAH", salah)
             putInt("SKOR", skor)
 
-            // ✅ teruskan asal fragment
-            putString("FROM", from)
+            // ✅ identitas quiz
+            putString("QUIZ_TYPE", "QUIZ1")
+
+            // ✅ dari misi atau bukan
+            putBoolean("DARI_MISI", from == "MISI")
         }
 
 

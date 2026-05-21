@@ -113,7 +113,8 @@ class ProfileFragment : Fragment() {
             if (!isAdded) return@addOnSuccessListener // Keamanan fragment agar tidak crash
 
             // Ambil data XP dan Level (Default: 0 XP, Level 1)
-            val currentXp = snapshot.child("xp").getValue(Int::class.java) ?: 0
+            val totalPoint = snapshot.child("totalPoint")
+                .getValue(Int::class.java) ?: 0
             val currentLevel = snapshot.child("level").getValue(Int::class.java) ?: 1
 
             // --- AMBIL DATA MISI & LENCANA (Default 0) ---
@@ -125,8 +126,8 @@ class ProfileFragment : Fragment() {
 
             // Update teks di layar
             tvGelarUser?.text = "📍 $levelTitle"
-            tvTotalPoinBanner?.text = currentXp.toString()
-            tvTotalPoinGrid?.text = currentXp.toString()
+            tvTotalPoinBanner?.text = totalPoint.toString()
+            tvTotalPoinGrid?.text = totalPoint.toString()
             tvTotalMisi?.text = misiTercapai.toString()
             tvTotalLencana?.text = totalLencana.toString()
 
