@@ -1,112 +1,118 @@
-package com.faiz.bumiloka.data
+package com.faiz.bumiloka
 
 import android.content.Context
-import com.faiz.bumiloka.AktivitasManager
 
-object ChallengeManager {
+data class ChallengeData(
+    val materiSelesai: Int,
+    val totalMateri: Int,
+    val status: String,
+    val progress: Int,
+    val deadline: Long
+)
 
-    private const val PREF_NAME = "challenge_pref"
+object TantanganManager {
 
-    // ==========================
-    // MULAI TANTANGAN
-    // ==========================
-    fun mulaiTantangan(context: Context) {
+    private const val PREF_NAME = "tantangan_pref"
 
-        val sharedPref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        val editor = sharedPref.edit()
+    private const val KEY_MATERI = "materi_selesai"
+    private const val KEY_STATUS = "status"
+    private const val KEY_PROGRESS = "progress"
+    private const val KEY_DEADLINE = "deadline"
 
-        val startDate = System.currentTimeMillis()
-        val endDate = startDate + (7 * 24 * 60 * 60 * 1000)
+    private const val TOTAL_MATERI = 3
 
-        editor.putString("challengeName", "Penjelajah Mingguan")
-        editor.putInt("totalMateri", 3)
-        editor.putInt("materiSelesai", 0)
-        editor.putBoolean("kuisSelesai", false)
-        editor.putInt("progress", 0)
-        editor.putLong("startDate", startDate)
-        editor.putLong("endDate", endDate)
-        editor.putString("status", "aktif")
-
-        editor.apply()
-    }
-
-    // ==========================
-    // UPDATE SAAT BACA MATERI
-    // ==========================
-    fun updateProgressMateri(context: Context): Pair<Int, Int> {
-
-        val sharedPref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-
-        val totalMateri = sharedPref.getInt("totalMateri", 3)
-        var materiSelesai = sharedPref.getInt("materiSelesai", 0)
-
-        if (materiSelesai < totalMateri) {
-            materiSelesai++
-        }
-
-        val progress = ((materiSelesai.toDouble() / totalMateri) * 75).toInt()
-
-        sharedPref.edit()
-            .putInt("materiSelesai", materiSelesai)
-            .putInt("progress", progress)
-            .apply()
-
-        return Pair(materiSelesai, totalMateri)
-    }
-
-    // ==========================
-    // UPDATE SAAT KUIS
-    // ==========================
-    fun updateProgressKuis(context: Context) {
-
-        val sharedPref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-
-        sharedPref.edit()
-            .putBoolean("kuisSelesai", true)
-            .putInt("progress", 100)
-            .putString("status", "selesai")
-            .apply()
-    }
-
-    // ==========================
+    // =========================
     // LOAD DATA
-    // ==========================
+    // =========================
     fun loadChallenge(context: Context): ChallengeData {
 
-        val sharedPref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val prefs =
+            context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+
+        val materi =
+            prefs.getInt(KEY_MATERI, 0)
+
+        val status =
+            prefs.getString(KEY_STATUS, "belum") ?: "belum"
+
+        val progress =
+            prefs.getInt(KEY_PROGRESS, 0)
+
+        val deadline =
+            prefs.getLong(
+                KEY_DEADLINE,
+                System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000)
+            )
 
         return ChallengeData(
-            materiSelesai = sharedPref.getInt("materiSelesai", 0),
-            totalMateri = sharedPref.getInt("totalMateri", 3),
-            progress = sharedPref.getInt("progress", 0),
-            status = sharedPref.getString("status", "belum_mulai") ?: "belum_mulai"
+            materiSelesai = materi,
+            totalMateri = TOTAL_MATERI,
+            status = status,
+            progress = progress,
+            deadline = deadline
         )
     }
-    // CEK APAKAH TANTANGAN EXPIRED
-// ==========================
-    fun isChallengeExpired(context: Context): Boolean {
 
-        val sharedPref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+    // =========================
+    // UPDATE PROGRESS MATERI
+    // =========================
+    fun updateProgressMateri(
+        context: Context
+    ): Pair<Int, Int> {
 
-        // Ambil endDate
-        val endDate = sharedPref.getLong("endDate", 0L)
+        val prefs =
+            context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
 
-        // Kalau belum pernah mulai tantangan
-        if (endDate == 0L) {
-            return false
+        var materi =
+            prefs.getInt(KEY_MATERI, 0)
+
+        if (materi < TOTAL_MATERI) {
+            materi++
         }
 
-        // Jika waktu sekarang lebih besar dari endDate
-        return System.currentTimeMillis() > endDate
+        val progress =
+            ((materi.toDouble() / TOTAL_MATERI) * 80).toInt()
+
+        prefs.edit()
+            .putInt(KEY_MATERI, materi)
+            .putInt(KEY_PROGRESS, progress)
+            .apply()
+
+        return Pair(materi, TOTAL_MATERI)
     }
 
-    // ==========================
-    // DATA CLASS
-    // ==========================
-    data class ChallengeData(
-        val materiSelesai: Int,
-        val totalMateri: Int,
-        val progress: Int,
-        val status: String
-    )
+    // =========================
+    // UPDATE PROGRESS KUIS
+    // =========================
+    fun updateProgressKuis(context: Context) {
+
+        val prefs =
+            context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+
+        prefs.edit()
+            .putString(KEY_STATUS, "selesai")
+            .putInt(KEY_PROGRESS, 100)
+            .apply()
+    }
+
+    // =========================
+    // RESET
+    // =========================
+    fun resetChallenge(context: Context) {
+
+        val prefs =
+            context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+
+        prefs.edit().clear().apply()
+    }
+
+    // =========================
+    // CEK DEADLINE
+    // =========================
+    fun isChallengeExpired(context: Context): Boolean {
+
+        val challenge = loadChallenge(context)
+
+        return System.currentTimeMillis() > challenge.deadline
+    }
 }

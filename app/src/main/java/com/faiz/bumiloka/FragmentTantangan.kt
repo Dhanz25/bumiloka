@@ -20,16 +20,28 @@ class TantanganFragment : Fragment(R.layout.fragment_tantangan) {
             parentFragmentManager.popBackStack()
         }
 
+        // =========================
+// PENJELAJAH MINGGUAN
+// =========================
         btnMulai1.setOnClickListener {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, DetailTantanganFragment())
+                .replace(
+                    R.id.fragment_container,
+                    TantanganPenjelajahMingguanFragment()
+                )
                 .addToBackStack(null)
                 .commit()
         }
 
+// =========================
+// MASTER KUIS
+// =========================
         btnMulai2.setOnClickListener {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, TantanganMasterKuisFragment())
+                .replace(
+                    R.id.fragment_container,
+                    TantanganMasterKuisFragment()
+                )
                 .addToBackStack(null)
                 .commit()
         }

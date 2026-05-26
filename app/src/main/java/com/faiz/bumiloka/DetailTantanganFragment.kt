@@ -1,12 +1,9 @@
 // ===============================
 // FILE: DetailTantanganFragment.kt
-// SESUAI DENGAN layout fragment_detail_tantangan.xml
-// TANPA FIREBASE (SharedPreferences)
 // ===============================
 
 package com.faiz.bumiloka
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -15,7 +12,6 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.faiz.bumiloka.data.ChallengeManager
 
 class DetailTantanganFragment : Fragment(R.layout.fragment_detailtantangan) {
 
@@ -54,7 +50,7 @@ class DetailTantanganFragment : Fragment(R.layout.fragment_detailtantangan) {
         progressBarKuis = view.findViewById(R.id.progressBarKuis)
 
         // =========================
-        // LOAD PROGRESS SAAT MASUK
+        // LOAD PROGRESS
         // =========================
         loadProgress()
 
@@ -66,11 +62,12 @@ class DetailTantanganFragment : Fragment(R.layout.fragment_detailtantangan) {
         }
 
         // =========================
-        // TOMBOL MULAI MATERI
+        // MULAI MATERI
         // =========================
         btnMulaiMateri.setOnClickListener {
 
-            val result = ChallengeManager.updateProgressMateri(requireContext())
+            val result =
+                TantanganManager.updateProgressMateri(requireContext())
 
             Toast.makeText(
                 requireContext(),
@@ -79,20 +76,17 @@ class DetailTantanganFragment : Fragment(R.layout.fragment_detailtantangan) {
             ).show()
 
             loadProgress()
-
-            // OPTIONAL:
-            // pindah ke halaman materi
-            // startActivity(Intent(requireContext(), Jelajahi_MateriDetail::class.java))
         }
 
         // =========================
-        // TOMBOL MULAI KUIS
+        // MULAI KUIS
         // =========================
         btnMulaiKuis.setOnClickListener {
 
-            val challenge = ChallengeManager.loadChallenge(requireContext())
+            val challenge =
+                TantanganManager.loadChallenge(requireContext())
 
-            // Kuis hanya bisa jika materi 3/3
+            // kuis hanya bisa jika materi selesai
             if (challenge.materiSelesai < challenge.totalMateri) {
 
                 Toast.makeText(
@@ -103,7 +97,7 @@ class DetailTantanganFragment : Fragment(R.layout.fragment_detailtantangan) {
 
             } else {
 
-                ChallengeManager.updateProgressKuis(requireContext())
+                TantanganManager.updateProgressKuis(requireContext())
 
                 Toast.makeText(
                     requireContext(),
@@ -112,9 +106,6 @@ class DetailTantanganFragment : Fragment(R.layout.fragment_detailtantangan) {
                 ).show()
 
                 loadProgress()
-
-                // OPTIONAL:
-                // pindah ke fragment kuis
             }
         }
 
@@ -123,7 +114,8 @@ class DetailTantanganFragment : Fragment(R.layout.fragment_detailtantangan) {
         // =========================
         btnSelesai.setOnClickListener {
 
-            val challenge = ChallengeManager.loadChallenge(requireContext())
+            val challenge =
+                TantanganManager.loadChallenge(requireContext())
 
             if (challenge.progress == 100) {
 
@@ -147,11 +139,12 @@ class DetailTantanganFragment : Fragment(R.layout.fragment_detailtantangan) {
     }
 
     // =========================
-    // LOAD UI PROGRESS
+    // LOAD UI
     // =========================
     private fun loadProgress() {
 
-        val challenge = ChallengeManager.loadChallenge(requireContext())
+        val challenge =
+            TantanganManager.loadChallenge(requireContext())
 
         // =====================
         // PROGRESS MATERI
@@ -160,7 +153,8 @@ class DetailTantanganFragment : Fragment(R.layout.fragment_detailtantangan) {
             "${challenge.materiSelesai}/${challenge.totalMateri} Progress selesai"
 
         val progressMateri =
-            ((challenge.materiSelesai.toDouble() / challenge.totalMateri) * 100).toInt()
+            ((challenge.materiSelesai.toDouble()
+                    / challenge.totalMateri) * 100).toInt()
 
         progressBarMateri.progress = progressMateri
 
@@ -168,9 +162,12 @@ class DetailTantanganFragment : Fragment(R.layout.fragment_detailtantangan) {
         // PROGRESS KUIS
         // =====================
         if (challenge.status == "selesai") {
+
             tvProgressKuis.text = "Kuis selesai"
             progressBarKuis.progress = 100
+
         } else {
+
             tvProgressKuis.text = "Belum selesai"
             progressBarKuis.progress = 0
         }
@@ -178,29 +175,38 @@ class DetailTantanganFragment : Fragment(R.layout.fragment_detailtantangan) {
         // =====================
         // PROGRESS UTAMA
         // =====================
-        tvProgressUtama.text = "Progress ${challenge.progress}%"
-        progressBarUtama.progress = challenge.progress
+        tvProgressUtama.text =
+            "Progress ${challenge.progress}%"
+
+        progressBarUtama.progress =
+            challenge.progress
 
         // =====================
-        // BUTTON STATUS
+        // STATUS BUTTON
         // =====================
-        if (challenge.materiSelesai == challenge.totalMateri) {
+        if (challenge.materiSelesai ==
+            challenge.totalMateri
+        ) {
+
             btnMulaiMateri.text = "Selesai"
         }
 
         if (challenge.status == "selesai") {
+
             btnMulaiKuis.text = "Selesai"
             btnSelesai.text = "Tantangan Selesai"
         }
 
         // =====================
-        // DEADLINE CEK
+        // CEK EXPIRED
         // =====================
-        if (ChallengeManager.isChallengeExpired(requireContext())
+        if (
+            TantanganManager.isChallengeExpired(requireContext())
             && challenge.status != "selesai"
         ) {
 
             btnSelesai.text = "Tantangan Gagal"
+
             btnMulaiMateri.isEnabled = false
             btnMulaiKuis.isEnabled = false
         }
