@@ -44,13 +44,25 @@ class MisiFragment : Fragment(R.layout.fragment_misi) {
         val btnSkor = view.findViewById<MaterialButton>(R.id.btnSkor)
 
         // Ambil Level User
-            val level = LevelHelper.getCurrentLevelLocal(requireContext())
+        LevelHelper.getCurrentLevel(requireContext()) { level ->
             userLevel = level
-            updateUIByLevel(tvMisiHeader, tvMisiSubHeader, tvMisiTitle1, tvMisiDesc1, tvMisiTitle2, tvMisiDesc2, tvMisiTitle3, tvMisiDesc3)
-            
+            updateUIByLevel(
+                tvMisiHeader,
+                tvMisiSubHeader,
+                tvMisiTitle1,
+                tvMisiDesc1,
+                tvMisiTitle2,
+                tvMisiDesc2,
+                tvMisiTitle3,
+                tvMisiDesc3
+            )
+
             // SharedPreferences
             val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
-            val sharedPref = requireActivity().getSharedPreferences("MISI_${userId}_LEVEL_$userLevel", Context.MODE_PRIVATE)
+            val sharedPref = requireActivity().getSharedPreferences(
+                "MISI_${userId}_LEVEL_$userLevel",
+                Context.MODE_PRIVATE
+            )
             val misi1Selesai = sharedPref.getBoolean("misi1_selesai", false)
             val misi2Selesai = sharedPref.getBoolean("misi2_selesai", false)
             val misi3Selesai = sharedPref.getBoolean("misi3_selesai", false)
@@ -107,6 +119,7 @@ class MisiFragment : Fragment(R.layout.fragment_misi) {
             } else {
                 lockCard(cardSkor, iconSkor, btnSkor)
             }
+        }
 
         // ================= NAV =================
 //        btnMulaiMateri.setOnClickListener {

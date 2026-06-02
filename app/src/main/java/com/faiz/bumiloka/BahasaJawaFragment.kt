@@ -37,7 +37,7 @@ class BahasaJawaFragment : Fragment() {
         btnSelanjutnya.setOnClickListener {
             if (rbBenar.isChecked) {
                 // Berikan reward poin (XP)
-                AktivitasHelper.tambahPoint(20)
+                AktivitasHelper.tambahPoint(requireContext(), 20)
                 AktivitasHelper.tambahMisiSelesai()
 
                 Toast.makeText(requireContext(), "Jawaban Benar! +20 Poin", Toast.LENGTH_SHORT).show()

@@ -76,7 +76,7 @@ class QuizUtamaFragment : Fragment(R.layout.fragment_quiz_utama_) {
         val card3 = view.findViewById<MaterialCardView>(R.id.card3)
 
         // Ambil Level User
-        LevelHelper.getCurrentLevel { level ->
+        LevelHelper.getCurrentLevel(requireContext()) { level ->
             userLevel = level
             tvLevelIndicator.text = "Level $level (${if (level == 1) "Eco Beginner" else "Eco Warrior"})"
             loadUI()
@@ -132,7 +132,7 @@ class QuizUtamaFragment : Fragment(R.layout.fragment_quiz_utama_) {
 
     override fun onResume() {
         super.onResume()
-        LevelHelper.getCurrentLevel { level ->
+        LevelHelper.getCurrentLevel(requireContext()) { level ->
             userLevel = level
             loadUI()
         }

@@ -60,7 +60,7 @@ class QuizMenang1Fragment : Fragment(R.layout.fragment_quiz_menang1_) {
 
 
         // ✅ SharedPreferences misi
-        val currentLevel = LevelHelper.getCurrentLevelLocal(requireContext())
+        LevelHelper.getCurrentLevel(requireContext()) { currentLevel ->
 
             val prefMisi = requireActivity()
                 .getSharedPreferences(
@@ -185,6 +185,7 @@ class QuizMenang1Fragment : Fragment(R.layout.fragment_quiz_menang1_) {
                     )
                 }
             }
+        }
 
         // ✅ ULANGI
         if (skor == 100) {

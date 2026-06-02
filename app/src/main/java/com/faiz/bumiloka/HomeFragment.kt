@@ -30,6 +30,7 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.view.Gravity
+import android.widget.Button
 import android.widget.ProgressBar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
@@ -85,6 +86,23 @@ class HomeFragment : Fragment() {
         val btnMisi = view.findViewById<CardView>(R.id.btnMisi)
         val btnTantangan = view.findViewById<CardView>(R.id.btnTantangan)
         val btnKuis = view.findViewById<CardView>(R.id.btnKuis)
+        val btnLevelDashboard = view.findViewById<CardView>(R.id.btnLevelDashboard)
+        val btnMulaiKuisJawa = view.findViewById<Button>(R.id.btnMulaiKuisJawa)
+
+        btnMulaiKuisJawa.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, BahasaJawaFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        btnLevelDashboard.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, LevelFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
         val tvRekomendasiHariIni = view.findViewById<TextView>(R.id.tvRekomendasiHariIni)
         val prefs = requireContext().getSharedPreferences("APP", Context.MODE_PRIVATE)
         val sudah = prefs.getBoolean("sudah_welcome", false)
@@ -407,25 +425,36 @@ class HomeFragment : Fragment() {
         tvLevel: TextView
     ) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val db = com.google.firebase.database.FirebaseDatabase.getInstance()
-            .reference.child("users").child(userId)
 
-        db.get().addOnSuccessListener { snapshot ->
+        LevelHelper.getCurrentLevel(requireContext()) { level ->
 
-            val level = snapshot.child("level").getValue(Int::class.java) ?: 1
-            val xp = snapshot.child("xp").getValue(Int::class.java) ?: 0
-
-            val targetXP = level * 100
-
-            val progressPercent = ((xp.toDouble() / targetXP) * 100).toInt()
-
-            // SET UI
-            progressBar.progress = progressPercent
-            tvProgress.text = "$progressPercent% tercapai"
+            // ✅ update UI Level instant
             tvLevel.text = "🏅 Level $level"
 
-        }.addOnFailureListener {
-            Log.e("HOME_PROGRESS", "Gagal ambil data: ${it.message}")
+            val db = com.google.firebase.database.FirebaseDatabase.getInstance()
+                .reference.child("users").child(userId)
+
+            db.get().addOnSuccessListener { snapshot ->
+
+                val highest = snapshot.child("highestUnlockedLevel").getValue(Int::class.java) ?: 1
+                val xp = snapshot.child("xp").getValue(Int::class.java) ?: 0
+
+                val targetXP = level * 100
+                var progressPercent = ((xp.toDouble() / targetXP) * 100).toInt()
+
+                // Jika level yang dilihat adalah level lama, tampilkan 100%
+                if (level < highest) {
+                    progressPercent = 100
+                }
+
+                // SET UI
+                progressBar.progress = progressPercent
+                tvProgress.text = if (level < highest) "Selesai ✓" else "$progressPercent% tercapai"
+                tvLevel.text = "🏅 Level $level ${if (level < highest) "(Riwayat)" else ""}"
+
+            }.addOnFailureListener {
+                Log.e("HOME_PROGRESS", "Gagal ambil data: ${it.message}")
+            }
         }
     }
 }

@@ -58,7 +58,7 @@ class Jelajahi_MateriDetail : Fragment(R.layout.fragment_jelajahi__materi_detail
 
             // simpan status misi selesai
             val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
-            LevelHelper.getCurrentLevel { currentLevel ->
+            LevelHelper.getCurrentLevel(requireContext()) { currentLevel ->
 
                 val prefMisi = requireActivity().getSharedPreferences(
                     "MISI_${userId}_LEVEL_$currentLevel",
@@ -71,7 +71,7 @@ class Jelajahi_MateriDetail : Fragment(R.layout.fragment_jelajahi__materi_detail
             }
 
             // ✅ Cek apakah level berikutnya terbuka
-            LevelHelper.getCurrentLevel { current ->
+            LevelHelper.getCurrentLevel(requireContext()) { current ->
                 UnlockLevelHelper.checkAndUnlockNextLevel(requireContext(), current)
             }
 

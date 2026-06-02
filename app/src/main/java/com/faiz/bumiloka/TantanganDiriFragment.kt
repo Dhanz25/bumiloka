@@ -23,7 +23,7 @@ class TantanganDiriFragment : Fragment(R.layout.fragment_tantangan_diri) {
         }
 
         // ✅ Ambil level aktif
-        val currentLevel = LevelHelper.getCurrentLevelLocal(requireContext())
+        LevelHelper.getCurrentLevel(requireContext()) { currentLevel ->
 
             val prefMisi = requireActivity().getSharedPreferences(
                 "MISI_${userId}_LEVEL_$currentLevel",
@@ -59,5 +59,6 @@ class TantanganDiriFragment : Fragment(R.layout.fragment_tantangan_diri) {
                         .commit()
                 }
             }
+        }
         }
     }

@@ -231,7 +231,7 @@ class QuizSoal3Fragment : Fragment(R.layout.fragment_quiz_soal3) {
 
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
         
-        LevelHelper.getCurrentLevel { levelUser ->
+        LevelHelper.getCurrentLevel(requireContext()) { levelUser ->
             val prefs = requireActivity().getSharedPreferences("KUIS_${userId}_LEVEL_$levelUser", Context.MODE_PRIVATE)
             prefs.edit()
                 .putBoolean("quiz3_selesai", true)

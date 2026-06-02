@@ -275,7 +275,7 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
 
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
         
-        LevelHelper.getCurrentLevel { levelUser ->
+        LevelHelper.getCurrentLevel(requireContext()) { levelUser ->
             val prefs = requireActivity().getSharedPreferences("KUIS_${userId}_LEVEL_$levelUser", Context.MODE_PRIVATE)
 
             // 🔥 TENTUKAN LEVEL HASIL (EXPERT dsb)

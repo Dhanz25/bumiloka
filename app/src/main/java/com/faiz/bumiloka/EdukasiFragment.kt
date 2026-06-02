@@ -39,7 +39,7 @@ class EdukasiFragment : Fragment() {
         }
 
         // Ambil Level User
-        LevelHelper.getCurrentLevel { level ->
+        LevelHelper.getCurrentLevel(requireContext()) { level ->
             userLevel = level
             tvEdukasiLevel.text = "Level $level (${if (level == 1) "Eco Beginner" else "Eco Warrior"})"
             

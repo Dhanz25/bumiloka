@@ -16,16 +16,42 @@ object LevelHelper {
     /**
      * Mengambil level yang SEDANG AKTIF/DILIHAT user.
      */
-    fun getCurrentLevel(callback: (Int) -> Unit) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return callback(1)
-        val db = FirebaseDatabase.getInstance().reference.child("users").child(userId)
-        
-        db.child("level").get().addOnSuccessListener { snapshot ->
-            val level = snapshot.getValue(Int::class.java) ?: 1
-            callback(level)
-        }.addOnFailureListener {
-            callback(1)
-        }
+    fun getCurrentLevel(context: Context, callback: (Int) -> Unit) {
+
+        // ✅ ambil local dulu biar instant
+        val localLevel = getCurrentLevelLocal(context)
+        callback(localLevel)
+
+        // ✅ sync firebase di background
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        val db = FirebaseDatabase.getInstance()
+            .reference
+            .child("users")
+            .child(userId)
+
+        db.child("level")
+            .get()
+            .addOnSuccessListener { snapshot ->
+
+                val firebaseLevel =
+                    snapshot.getValue(Int::class.java) ?: 1
+
+                // update local jika beda
+                if (firebaseLevel != localLevel) {
+
+                    val pref = context.getSharedPreferences(
+                        "LEVEL_SYSTEM",
+                        Context.MODE_PRIVATE
+                    )
+
+                    pref.edit()
+                        .putInt("current_level", firebaseLevel)
+                        .apply()
+
+                    callback(firebaseLevel)
+                }
+            }
     }
 
     /**
@@ -129,9 +155,11 @@ object LevelHelper {
     fun resetProgressPerLevel(context: Context, userId: String, nextLevel: Int, sisaXP: Int, onComplete: () -> Unit) {
         val prefKuis = context.getSharedPreferences("KUIS_$userId", Context.MODE_PRIVATE)
         val prefMisi = context.getSharedPreferences("MISI_$userId", Context.MODE_PRIVATE)
+        val prefSystem = context.getSharedPreferences("LEVEL_SYSTEM", Context.MODE_PRIVATE)
 
         prefKuis.edit().clear().apply()
         prefMisi.edit().clear().apply()
+        prefSystem.edit().putInt("current_level", 1).apply()
 
         val db = FirebaseDatabase.getInstance().reference.child("users").child(userId)
         val updates = mutableMapOf<String, Any>(
