@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.faiz.bumiloka">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -35,6 +34,10 @@
         </activity>
         <activity
             android:name=".MainActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TerraViva" />
+        <activity
+            android:name=".AdminActivity"
             android:exported="false"
             android:theme="@style/Theme.TerraViva" />
     </application>

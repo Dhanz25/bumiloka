@@ -83,7 +83,7 @@ class PengaturanFragment : Fragment() {
         spKec.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, v: View?, pos: Int, id: Long) {
                 if (isEditMode && kecamatanList.isNotEmpty()) {
-                    loadSekolah(kecamatanList[pos].id)
+                    loadSekolah(kecamatanList[pos].name)
                 }
             }
             override fun onNothingSelected(parent: AdapterView<*>) {}
@@ -318,7 +318,8 @@ class PengaturanFragment : Fragment() {
                 val index = names.indexOf(selectedKec)
                 if (index >= 0) {
                     spKec.setSelection(index)
-                    loadSekolah(kecamatanList[index].id) // 🔥 AUTO LANJUT
+                    // 🔥 UBAH .id MENJADI .name
+                    loadSekolah(kecamatanList[index].name)
                 }
 
             } catch (e: Exception) {
@@ -327,9 +328,27 @@ class PengaturanFragment : Fragment() {
         }
     }
 
-    private fun loadSekolah(idKecamatan: String) {
+    private fun loadSekolah(namaKecamatan: String) {
         val spSek = view?.findViewById<Spinner>(R.id.spSekolah) ?: return
-        val db = FirebaseDatabase.getInstance().reference.child("sekolah").child(idKecamatan.trim())
+        val mapKecamatanToId = mapOf(
+            "LUMBIR" to "330201", "WANGON" to "330202", "JATILAWANG" to "330203",
+            "RAWALO" to "330204", "KEBASEN" to "330205", "KEMRANJEN" to "330206",
+            "SUMPIUH" to "330207", "TAMBAK" to "330208", "SOMAGEDE" to "330209",
+            "KALIBAGOR" to "330210", "BANYUMAS" to "330211", "PATIKRAJA" to "330212",
+            "PURWOJATI" to "330213", "AJIBARANG" to "330214", "GUMELAR" to "330215",
+            "PEKUNCEN" to "330216", "CILONGOK" to "330217", "KARANGLEWAS" to "330218",
+            "KEDUNGBANTENG" to "330219", "KEDUNG BANTENG" to "330219", // Antisipasi spasi API
+            "BATURADEN" to "330220", "BATURRADEN" to "330220", // Antisipasi typo API (R dobel)
+            "SUMBANG" to "330221", "KEMBARAN" to "330222", "SOKARAJA" to "330223",
+            "PURWOKERTO SELATAN" to "330224", "PURWOKERTO BARAT" to "330225",
+            "PURWOKERTO TIMUR" to "330226", "PURWOKERTO UTARA" to "330227"
+        )
+
+        // Ambil ID dari map dengan mengubah nama jadi UPPERCASE (huruf besar) agar cocok
+        val idFirebase = mapKecamatanToId[namaKecamatan.uppercase()] ?: namaKecamatan
+
+        // Arahkan db ke idFirebase yang benar
+        val db = FirebaseDatabase.getInstance().reference.child("sekolah").child(idFirebase)
 
         db.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {

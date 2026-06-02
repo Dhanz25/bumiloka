@@ -30,8 +30,8 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.view.Gravity
+import android.widget.Button
 import android.widget.ProgressBar
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class HomeFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
@@ -61,7 +61,7 @@ class HomeFragment : Fragment() {
         tvProgress = view.findViewById(R.id.tvProgressPercentage)
         tvLevel = view.findViewById(R.id.tvLevelTitle)
 
-        loadProgressFirebase(pbProgress, tvProgress, tvLevel)
+        loadProgressFirebase(pbTargetProgress = pbProgress, tvProgress = tvProgress, tvLevel = tvLevel)
 
         auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
@@ -86,6 +86,8 @@ class HomeFragment : Fragment() {
         val btnTantangan = view.findViewById<CardView>(R.id.btnTantangan)
         val btnKuis = view.findViewById<CardView>(R.id.btnKuis)
         val tvRekomendasiHariIni = view.findViewById<TextView>(R.id.tvRekomendasiHariIni)
+        val btnMulaiKuisJawa = view.findViewById<Button>(R.id.btnMulaiKuisJawa)
+
         val prefs = requireContext().getSharedPreferences("APP", Context.MODE_PRIVATE)
         val sudah = prefs.getBoolean("sudah_welcome", false)
 
@@ -202,6 +204,15 @@ class HomeFragment : Fragment() {
             }
         }
 
+        btnMulaiKuisJawa.setOnClickListener {
+            requireProfile {
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, BahasaJawaFragment())
+                    .addToBackStack(null)
+                    .commit()
+            }
+        }
+
         // Tampilkan nama awal dari cache session
         updateUserName(currentUser)
 
@@ -250,7 +261,7 @@ class HomeFragment : Fragment() {
 
                 // Kuis
                 "❓ Selesaikan kuis hari ini untuk menambah wawasan!",
-                "📝 Kerjakan kuis sekarang dan uji pemahamanmu!",
+                "📝 Kerjakan kuis sekarang and uji pemahamanmu!",
                 "🎯 Yuk lanjutkan kuis yang belum selesai!",
                 "🏆 Tantang dirimu dengan menyelesaikan kuis baru!",
                 "📊 Coba kerjakan kuis dari materi yang sudah dibaca!",
@@ -402,7 +413,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadProgressFirebase(
-        progressBar: ProgressBar,
+        pbTargetProgress: ProgressBar,
         tvProgress: TextView,
         tvLevel: TextView
     ) {
@@ -420,7 +431,7 @@ class HomeFragment : Fragment() {
             val progressPercent = ((xp.toDouble() / targetXP) * 100).toInt()
 
             // SET UI
-            progressBar.progress = progressPercent
+            pbTargetProgress.progress = progressPercent
             tvProgress.text = "$progressPercent% tercapai"
             tvLevel.text = "🏅 Level $level"
 

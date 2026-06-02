@@ -7,6 +7,7 @@ object RetrofitClient {
 
     private const val BASE_URL =
         "https://emsifa.github.io/api-wilayah-indonesia/api/"
+//        "https://api-sekolah-indonesia.vercel.app/"
 
     val instance: ApiService by lazy {
         Retrofit.Builder()
