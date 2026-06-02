@@ -17,35 +17,47 @@ class TantanganDiriFragment : Fragment(R.layout.fragment_tantangan_diri) {
         val btnMulaiKuis = view.findViewById<MaterialButton>(R.id.btnMulaiKuis)
 
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
-        val prefMisi = requireActivity().getSharedPreferences("MISI_$userId", Context.MODE_PRIVATE)
-        val prefKuis = requireActivity().getSharedPreferences("KUIS_$userId", Context.MODE_PRIVATE)
-
-        val sudahSelesai = prefMisi.getBoolean("misi2_selesai", false)
 
         btnBack.setOnClickListener {
             requireActivity().supportFragmentManager.popBackStack()
         }
 
-        if (sudahSelesai) {
-            btnMulaiKuis.text = "Selesai ✓"
-            btnMulaiKuis.isEnabled = false
-        } else {
-            btnMulaiKuis.text = "Mulai Tantangan"
-            btnMulaiKuis.isEnabled = true
+        // ✅ Ambil level aktif
+        val currentLevel = LevelHelper.getCurrentLevelLocal(requireContext())
 
-            btnMulaiKuis.setOnClickListener {
+            val prefMisi = requireActivity().getSharedPreferences(
+                "MISI_${userId}_LEVEL_$currentLevel",
+                Context.MODE_PRIVATE
+            )
 
-                val fragment = QuizSoalFragment()
+            val sudahSelesai = prefMisi.getBoolean("misi2_selesai", false)
 
-                fragment.arguments = Bundle().apply {
-                    putString("FROM", "MISI")
+            // ===============================
+            // STATUS BUTTON
+            // ===============================
+            if (sudahSelesai) {
+
+                btnMulaiKuis.text = "Selesai ✓"
+                btnMulaiKuis.isEnabled = false
+
+            } else {
+
+                btnMulaiKuis.text = "Mulai Tantangan"
+                btnMulaiKuis.isEnabled = true
+
+                btnMulaiKuis.setOnClickListener {
+
+                    val fragment = QuizSoalFragment()
+
+                    fragment.arguments = Bundle().apply {
+                        putString("FROM", "MISI")
+                    }
+
+                    requireActivity().supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, fragment)
+                        .addToBackStack(null)
+                        .commit()
                 }
-
-                requireActivity().supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, fragment)
-                    .addToBackStack(null)
-                    .commit()
             }
         }
     }
-}

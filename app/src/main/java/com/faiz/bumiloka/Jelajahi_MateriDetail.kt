@@ -53,15 +53,28 @@ class Jelajahi_MateriDetail : Fragment(R.layout.fragment_jelajahi__materi_detail
                 "Misi",
                 20
             )
-            AktivitasHelper.tambahPoint(30) // ← WAJIB (ini yang ngaruh ke progress bar)
+            AktivitasHelper.tambahPoint(requireContext(), 30) // ← WAJIB (ini yang ngaruh ke progress bar)
             AktivitasHelper.tambahMisiSelesai() // ← opsional tapi bagus untuk tracking
 
             // simpan status misi selesai
             val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
-            val prefMisi = requireActivity().getSharedPreferences("MISI_$userId", Context.MODE_PRIVATE)
-            prefMisi.edit()
-                .putBoolean("misi1_selesai", true)
-                .apply()
+            LevelHelper.getCurrentLevel { currentLevel ->
+
+                val prefMisi = requireActivity().getSharedPreferences(
+                    "MISI_${userId}_LEVEL_$currentLevel",
+                    Context.MODE_PRIVATE
+                )
+
+                prefMisi.edit()
+                    .putBoolean("misi1_selesai", true)
+                    .apply()
+            }
+
+            // ✅ Cek apakah level berikutnya terbuka
+            LevelHelper.getCurrentLevel { current ->
+                UnlockLevelHelper.checkAndUnlockNextLevel(requireContext(), current)
+            }
+
             // 🔥 pakai custom dialog
             val viewDialog = layoutInflater.inflate(R.layout.pop_up_misiselesai, null)
 

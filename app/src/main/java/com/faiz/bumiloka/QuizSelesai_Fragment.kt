@@ -23,6 +23,6 @@ class QuizSelesaiFragment : Fragment() {
         val xpDidapat = 50
 
         // Panggil helper untuk menambahkan XP ke database Firebase
-        AktivitasHelper.tambahPoint(xpDidapat)
+        AktivitasHelper.tambahPoint(requireContext(), xpDidapat)
     }
 }

@@ -85,6 +85,15 @@ class HomeFragment : Fragment() {
         val btnMisi = view.findViewById<CardView>(R.id.btnMisi)
         val btnTantangan = view.findViewById<CardView>(R.id.btnTantangan)
         val btnKuis = view.findViewById<CardView>(R.id.btnKuis)
+        val btnLevelDashboard = view.findViewById<CardView>(R.id.btnLevelDashboard)
+
+        btnLevelDashboard.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, LevelFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
         val tvRekomendasiHariIni = view.findViewById<TextView>(R.id.tvRekomendasiHariIni)
         val prefs = requireContext().getSharedPreferences("APP", Context.MODE_PRIVATE)
         val sudah = prefs.getBoolean("sudah_welcome", false)
@@ -337,19 +346,21 @@ class HomeFragment : Fragment() {
     }
 
     private fun requireProfile(action: () -> Unit) {
-        val user = auth.currentUser ?: return
-        val userId = user.uid
-        val db = com.google.firebase.database.FirebaseDatabase.getInstance().reference
-
-        db.child("users").child(userId).get().addOnSuccessListener { snapshot ->
-            val isComplete = snapshot.child("isProfileComplete").getValue(Boolean::class.java) ?: false
-
-            if (isComplete) {
-                action()
-            } else {
-                showLengkapiProfilDialog()
-            }
-        }
+//        val user = auth.currentUser ?: return
+//        val userId = user.uid
+//        val db = com.google.firebase.database.FirebaseDatabase.getInstance().reference
+//
+//        db.child("users").child(userId).get().addOnSuccessListener { snapshot ->
+//            val isComplete = snapshot.child("isProfileComplete").getValue(Boolean::class.java) ?: false
+//
+//            if (isComplete) {
+//                action()
+//            } else {
+//                showLengkapiProfilDialog()
+//            }
+//        }
+        // ✅ sementara bypass profile check
+        action()
     }
     private fun showWelcomeThenProfil() {
         if (!isAdded) return
@@ -370,9 +381,9 @@ class HomeFragment : Fragment() {
         toast.show()
 
         // 👉 setelah itu baru cek profil
-        Handler(Looper.getMainLooper()).postDelayed({
-            checkProfileOnce()
-        }, 1500)
+//        Handler(Looper.getMainLooper()).postDelayed({
+//            checkProfileOnce()
+//        }, 1500)
     }
 
     // Fungsi pembantu agar tidak menulis ulang dialog berkali-kali
@@ -404,7 +415,7 @@ class HomeFragment : Fragment() {
     private fun loadProgressFirebase(
         progressBar: ProgressBar,
         tvProgress: TextView,
-        tvLevel: TextView
+        tvLevel: TextView,
     ) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = com.google.firebase.database.FirebaseDatabase.getInstance()
@@ -413,16 +424,21 @@ class HomeFragment : Fragment() {
         db.get().addOnSuccessListener { snapshot ->
 
             val level = snapshot.child("level").getValue(Int::class.java) ?: 1
+            val highest = snapshot.child("highestUnlockedLevel").getValue(Int::class.java) ?: 1
             val xp = snapshot.child("xp").getValue(Int::class.java) ?: 0
 
             val targetXP = level * 100
+            var progressPercent = ((xp.toDouble() / targetXP) * 100).toInt()
 
-            val progressPercent = ((xp.toDouble() / targetXP) * 100).toInt()
+            // Jika level yang dilihat adalah level lama, tampilkan 100%
+            if (level < highest) {
+                progressPercent = 100
+            }
 
             // SET UI
             progressBar.progress = progressPercent
-            tvProgress.text = "$progressPercent% tercapai"
-            tvLevel.text = "🏅 Level $level"
+            tvProgress.text = if (level < highest) "Selesai ✓" else "$progressPercent% tercapai"
+            tvLevel.text = "🏅 Level $level ${if (level < highest) "(Riwayat)" else ""}"
 
         }.addOnFailureListener {
             Log.e("HOME_PROGRESS", "Gagal ambil data: ${it.message}")

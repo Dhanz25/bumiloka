@@ -230,37 +230,30 @@ class QuizSoal3Fragment : Fragment(R.layout.fragment_quiz_soal3) {
         val salah = totalSoal - benar
 
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
-        val prefs = requireActivity().getSharedPreferences("KUIS_$userId", Context.MODE_PRIVATE)
-        prefs.edit()
-            .putBoolean("quiz3_selesai", true)
-            .putInt("quiz3_nilai", skor)
-            .apply()
+        
+        LevelHelper.getCurrentLevel { levelUser ->
+            val prefs = requireActivity().getSharedPreferences("KUIS_${userId}_LEVEL_$levelUser", Context.MODE_PRIVATE)
+            prefs.edit()
+                .putBoolean("quiz3_selesai", true)
+                .putInt("quiz3_nilai", skor)
+                .apply()
 
-// ✅ Simpan progres misi jika skor >= 75
-//        if (skor >= 75) {
-//
-//            val prefMisi = requireActivity()
-//                .getSharedPreferences("MISI_$userId", Context.MODE_PRIVATE)
-//
-//            prefMisi.edit()
-//                .putBoolean("misi3_selesai", true)
-//                .apply()
-//        }
-        val dariMisi = arguments?.getBoolean("DARI_MISI", false) ?: false
-        val bundle = Bundle()
-        bundle.putInt("BENAR", benar)
-        bundle.putInt("SALAH", salah)
-        bundle.putInt("SKOR", skor)
-        bundle.putString("QUIZ_TYPE", "QUIZ3")
-        bundle.putBoolean("DARI_MISI", dariMisi)
+            val dariMisi = arguments?.getBoolean("DARI_MISI", false) ?: false
+            val bundle = Bundle()
+            bundle.putInt("BENAR", benar)
+            bundle.putInt("SALAH", salah)
+            bundle.putInt("SKOR", skor)
+            bundle.putString("QUIZ_TYPE", "QUIZ3")
+            bundle.putBoolean("DARI_MISI", dariMisi)
 
-        val fragment = QuizMenang1Fragment()
-        fragment.arguments = bundle
+            val fragment = QuizMenang1Fragment()
+            fragment.arguments = bundle
 
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit()
+        }
     }
 
     private fun showExitDialog() {

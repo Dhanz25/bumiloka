@@ -75,6 +75,7 @@
 
             <!-- Main Banner Card -->
             <androidx.cardview.widget.CardView
+                android:id="@+id/btnLevelDashboard"
                 android:layout_width="match_parent"
                 android:layout_height="130dp"
                 android:layout_marginTop="28dp"
