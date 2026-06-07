@@ -307,6 +307,7 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
                 putInt("SKOR", skor)
                 putString("QUIZ_TYPE", "QUIZ1")
                 putBoolean("DARI_MISI", arguments?.getString("FROM") == "MISI")
+                putBoolean("DARI_TANTANGAN", arguments?.getBoolean("DARI_TANTANGAN", false) ?: false)
             }
 
             val fragment = QuizMenang1Fragment()

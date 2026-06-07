@@ -69,15 +69,15 @@ class EdukasiFragment : Fragment() {
     }
 
     private fun bukaMateri(id: Int) {
-        try {
-            val fragment = MateriFragment.newInstance(id)
-            activity?.supportFragmentManager?.beginTransaction()
-                ?.replace(R.id.fragment_container, fragment)
-                ?.addToBackStack(null)
-                ?.commit()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        val dariTantangan = arguments?.getBoolean("DARI_TANTANGAN", false) ?: false
+        val fragment = MateriFragment.newInstance(id)
+        val args = fragment.arguments ?: Bundle()
+        args.putBoolean("DARI_TANTANGAN", dariTantangan) // ✅ teruskan flag
+        fragment.arguments = args
+        activity?.supportFragmentManager?.beginTransaction()
+            ?.replace(R.id.fragment_container, fragment)
+            ?.addToBackStack(null)
+            ?.commit()
     }
 
     override fun onResume() {

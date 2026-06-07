@@ -194,58 +194,41 @@ class QuizMenang1Fragment : Fragment(R.layout.fragment_quiz_menang1_) {
             btnUlangi.visibility = View.VISIBLE
         }
         val finalSkor = skor
-        // ✅ OK → balik ke menu kuis
+
+        val dariTantangan = arguments?.getBoolean("DARI_TANTANGAN", false) ?: false
+
         btnOk.setOnClickListener {
-
-            // ✅ QUIZ3 dari misi tapi skor belum 75
             if (quizType == "QUIZ3" && dariMisi && finalSkor < 75) {
-
-                val dialogView = layoutInflater.inflate(
-                    R.layout.popup_belumraihskor,
-                    null
-                )
-
+                val dialogView = layoutInflater.inflate(R.layout.popup_belumraihskor, null)
                 val dialog = AlertDialog.Builder(requireContext())
                     .setView(dialogView)
                     .setCancelable(false)
                     .create()
-
-                dialog.window?.setBackgroundDrawableResource(
-                    android.R.color.transparent
-                )
-
+                dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
                 dialog.show()
-
                 val btnLanjut = dialogView.findViewById<Button>(R.id.btnLanjut)
-
                 btnLanjut.setOnClickListener {
-
                     dialog.dismiss()
-
                     parentFragmentManager.beginTransaction()
                         .replace(R.id.fragment_container, MisiFragment())
                         .commit()
                 }
-
+            } else if (dariMisi) {
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, MisiFragment())
+                    .commit()
+            } else if (dariTantangan) {
+                // Hapus semua back stack sampai ketemu TantanganPenjelajahMingguanFragment
+                parentFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, TantanganPenjelajahMingguanFragment())
+                    .commit()
             } else {
-
-                // ✅ kalau dari misi → kembali ke misi
-                if (dariMisi) {
-
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, MisiFragment())
-                        .commit()
-
-                } else {
-
-                    // ✅ kalau dari halaman quiz biasa
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, QuizUtamaFragment())
-                        .commit()
-                }
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, QuizUtamaFragment())
+                    .commit()
             }
         }
-
         // ✅ ULANGI SESUAI QUIZ
         btnUlangi.setOnClickListener {
 

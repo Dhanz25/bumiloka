@@ -1,5 +1,6 @@
 package com.faiz.bumiloka
 
+import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import android.view.View
@@ -12,16 +13,21 @@ import com.google.firebase.auth.FirebaseAuth
 
 class TantanganPenjelajahMingguanFragment : Fragment(R.layout.fragment_tantangan_penjelajah_mingguan) {
 
-    companion object {
-        const val TOTAL_MATERI = 3
-        const val TOTAL_KUIS = 3
-    }
+    private val userId get() = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+    private val prefName get() = "TANTANGAN_PENJELAJAH_$userId"
+    private fun pref() = requireActivity().getSharedPreferences(prefName, Context.MODE_PRIVATE)
+
+    private fun isMateriSelesai(id: Int) = pref().getBoolean("materi${id}_selesai", false)
+    private fun setMateriSelesai(id: Int) = pref().edit().putBoolean("materi${id}_selesai", true).apply()
+    private fun getMateriSelesaiCount() = (1..3).count { isMateriSelesai(it) }
+    private fun isSemuaSelesai() = getMateriSelesaiCount() == 3
+    private fun isPopupShown() = pref().getBoolean("popup_shown", false)
+    private fun setPopupShown() = pref().edit().putBoolean("popup_shown", true).apply()
 
     private lateinit var btnBack: View
     private lateinit var btnMulaiMateri: Button
     private lateinit var btnMulaiKuis: Button
     private lateinit var btnSelesai: Button
-
     private lateinit var tvProgressMateri: TextView
     private lateinit var pbMateri: ProgressBar
     private lateinit var tvProgressKuis: TextView
@@ -29,37 +35,8 @@ class TantanganPenjelajahMingguanFragment : Fragment(R.layout.fragment_tantangan
     private lateinit var tvProgressUtama: TextView
     private lateinit var pbUtama: ProgressBar
 
-    private val userId get() = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
-    private val prefName get() = "TANTANGAN_PENJELAJAH_$userId"
-    private fun pref() = requireActivity().getSharedPreferences(prefName, Context.MODE_PRIVATE)
-
-    private fun getMateriSelesai() = pref().getInt("materi_selesai", 0)
-    private fun getKuisSelesai() = pref().getInt("kuis_selesai", 0)
-    private fun isTantanganSelesai() = pref().getBoolean("tantangan_selesai", false)
-
-    private fun tambahMateri() {
-        val current = getMateriSelesai()
-        if (current < TOTAL_MATERI) {
-            pref().edit().putInt("materi_selesai", current + 1).apply()
-        }
-    }
-
-    private fun tambahKuis() {
-        val current = getKuisSelesai()
-        if (current < TOTAL_KUIS) {
-            pref().edit().putInt("kuis_selesai", current + 1).apply()
-        }
-    }
-
-    private fun selesaikanTantangan() {
-        pref().edit().putBoolean("tantangan_selesai", true).apply()
-    }
-
-    private fun hitungProgress(): Int {
-        val pMateri = (getMateriSelesai().toFloat() / TOTAL_MATERI) * 50
-        val pKuis = (getKuisSelesai().toFloat() / TOTAL_KUIS) * 50
-        return (pMateri + pKuis).toInt()
-    }
+    // Menyimpan materi mana yang sedang dibuka
+    private var materiYangDibuka = 0
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -79,77 +56,54 @@ class TantanganPenjelajahMingguanFragment : Fragment(R.layout.fragment_tantangan
 
         updateUI()
 
-        // ✅ Listener dipasang SEKALI di sini
+        // ✅ Listener dipasang SEKALI — materi selesai = kuis ikut naik
         parentFragmentManager.setFragmentResultListener(
             "materi_selesai_result", viewLifecycleOwner
-        ) { _, _ ->
-            tambahMateri()
-            tambahKuis()
-            updateUI()
-            Toast.makeText(requireContext(),
-                "Materi & Kuis ${getKuisSelesai()}/$TOTAL_KUIS selesai! ✅",
-                Toast.LENGTH_SHORT).show()
-        }
-
-        parentFragmentManager.setFragmentResultListener(
-            "kuis_selesai_result", viewLifecycleOwner
         ) { _, bundle ->
-            val skor = bundle.getInt("skor", 0)
-            tambahKuis()
+            val materiId = bundle.getInt("materi_id", materiYangDibuka)
+            if (materiId > 0) setMateriSelesai(materiId)
             updateUI()
-            Toast.makeText(requireContext(),
-                "Kuis selesai! Skor: $skor ✅",
-                Toast.LENGTH_SHORT).show()
+            cekSemuaSelesai()
         }
 
         btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
 
+        // ✅ Tombol Mulai Materi — pilih materi yang belum selesai
         btnMulaiMateri.setOnClickListener {
-            if (getMateriSelesai() >= TOTAL_MATERI) {
+            if (getMateriSelesaiCount() >= 3) {
                 Toast.makeText(requireContext(), "Semua materi sudah selesai!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
-            val nextMateriId = getMateriSelesai() + 1
-
+            val fragment = EdukasiFragment()
+            val args = Bundle().apply {
+                putBoolean("DARI_TANTANGAN", true) // ✅ tambah ini
+            }
+            fragment.arguments = args
             parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, MateriFragment.newInstance(nextMateriId))
+                .replace(R.id.fragment_container, fragment)
                 .addToBackStack(null)
                 .commit()
         }
 
         btnMulaiKuis.setOnClickListener {
-            if (getMateriSelesai() < TOTAL_MATERI) {
-                Toast.makeText(requireContext(),
-                    "Selesaikan semua materi terlebih dahulu!",
-                    Toast.LENGTH_SHORT).show()
+            if (getMateriSelesaiCount() >= 3) {
+                Toast.makeText(requireContext(), "Semua kuis sudah selesai!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
-            if (getKuisSelesai() >= TOTAL_KUIS) {
-                Toast.makeText(requireContext(), "Kuis sudah selesai semua!", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
             parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, QuizSoalFragment.newInstance(getKuisSelesai() + 1))
+                .replace(R.id.fragment_container, EdukasiFragment())
                 .addToBackStack(null)
                 .commit()
         }
 
         btnSelesai.setOnClickListener {
-            val progress = hitungProgress()
-            if (progress < 100) {
+            if (!isSemuaSelesai()) {
                 Toast.makeText(requireContext(),
-                    "Progress belum 100%! Saat ini: $progress%",
+                    "Selesaikan semua materi terlebih dahulu!",
                     Toast.LENGTH_SHORT).show()
             } else {
-                selesaikanTantangan()
-                Toast.makeText(requireContext(),
-                    "🎉 Tantangan Penjelajah Mingguan berhasil diselesaikan!",
-                    Toast.LENGTH_LONG).show()
                 parentFragmentManager.popBackStack()
             }
         }
@@ -158,6 +112,7 @@ class TantanganPenjelajahMingguanFragment : Fragment(R.layout.fragment_tantangan
     override fun onResume() {
         super.onResume()
         updateUI()
+        cekSemuaSelesai()
     }
 
     override fun onDestroyView() {
@@ -165,22 +120,53 @@ class TantanganPenjelajahMingguanFragment : Fragment(R.layout.fragment_tantangan
         requireActivity().findViewById<View>(R.id.bottom_navigation).visibility = View.VISIBLE
     }
 
+    private fun cekSemuaSelesai() {
+        if (isSemuaSelesai() && !isPopupShown()) {
+            setPopupShown()
+            showPopupSelesai()
+        }
+    }
+
+    private fun showPopupSelesai() {
+        val dialogView = layoutInflater.inflate(R.layout.popup_tantanganselesai1, null)
+        val tvJudul = dialogView.findViewById<TextView>(R.id.tvJudulPopup)
+        val btnLanjut = dialogView.findViewById<Button>(R.id.btnLanjutPopup)
+
+        tvJudul?.text = "Penjelajah Mingguan Selesai!"
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        btnLanjut.setOnClickListener {
+            dialog.dismiss()
+            parentFragmentManager.popBackStack()
+        }
+
+        dialog.show()
+    }
+
     private fun updateUI() {
-        val materiSelesai = getMateriSelesai()
-        val kuisSelesai = getKuisSelesai()
-        val progress = hitungProgress()
-        val selesai = isTantanganSelesai()
+        val materiSelesai = getMateriSelesaiCount()
+        val progress = (materiSelesai.toFloat() / 3 * 100).toInt()
 
-        tvProgressMateri.text = "$materiSelesai/$TOTAL_MATERI Progress selesai"
-        pbMateri.progress = ((materiSelesai.toFloat() / TOTAL_MATERI) * 100).toInt()
-
-        tvProgressKuis.text = "$kuisSelesai/$TOTAL_KUIS Progress selesai"
-        pbKuis.progress = ((kuisSelesai.toFloat() / TOTAL_KUIS) * 100).toInt()
-
+        // Progress utama
         tvProgressUtama.text = "Progress $progress%"
         pbUtama.progress = progress
 
-        if (materiSelesai >= TOTAL_MATERI) {
+        // Progress Materi
+        tvProgressMateri.text = "$materiSelesai/3 Progress selesai"
+        pbMateri.progress = (materiSelesai.toFloat() / 3 * 100).toInt()
+
+        // Progress Kuis (sama dengan materi karena materi + kuis 1 paket)
+        tvProgressKuis.text = "$materiSelesai/3 Progress selesai"
+        pbKuis.progress = (materiSelesai.toFloat() / 3 * 100).toInt()
+
+        // Tombol Mulai Materi
+        if (materiSelesai >= 3) {
             btnMulaiMateri.text = "Selesai ✓"
             btnMulaiMateri.isEnabled = false
         } else {
@@ -188,20 +174,16 @@ class TantanganPenjelajahMingguanFragment : Fragment(R.layout.fragment_tantangan
             btnMulaiMateri.isEnabled = true
         }
 
-        if (kuisSelesai >= TOTAL_KUIS) {
+        // Tombol Mulai Kuis
+        if (materiSelesai >= 3) {
             btnMulaiKuis.text = "Selesai ✓"
             btnMulaiKuis.isEnabled = false
         } else {
             btnMulaiKuis.text = "Mulai"
-            btnMulaiKuis.isEnabled = materiSelesai >= TOTAL_MATERI
+            btnMulaiKuis.isEnabled = true
         }
 
-        if (selesai || progress >= 100) {
-            btnSelesai.text = "Tantangan Selesai ✓"
-            btnSelesai.isEnabled = false
-        } else {
-            btnSelesai.text = "Selesai"
-            btnSelesai.isEnabled = true
-        }
+        // Tombol Selesai
+        btnSelesai.isEnabled = isSemuaSelesai()
     }
 }
