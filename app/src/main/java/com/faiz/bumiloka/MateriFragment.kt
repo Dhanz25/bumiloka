@@ -129,6 +129,7 @@ class MateriFragment : Fragment() {
             }
         }
         btnMulaiKuis.setOnClickListener {
+            parentFragmentManager.setFragmentResult("materi_selesai_result", Bundle())
 
             val fragment = when (materiId) {
                 1 -> QuizSoalFragment.newInstance(materiId)

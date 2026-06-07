@@ -182,7 +182,6 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
 
                 val q = questions[currentQuestion]
 
-                // cek jawaban benar saat NEXT ditekan
                 if (selectedAnswer == q.correctAnswer) {
                     skor += 10
                 }
@@ -251,19 +250,15 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
 
     private fun pilihJawaban(index: Int, correct: Int) {
 
-        // reset tampilan semua opsi
         for (option in options) {
             option.setBackgroundResource(R.drawable.bg_option)
         }
 
-        // simpan pilihan terbaru
         selectedAnswer = index
         sudahPilih = true
 
-        // highlight pilihan
         options[index].setBackgroundResource(android.R.color.holo_green_light)
 
-        // aktifkan tombol next
         btnNext.isEnabled = true
     }
 
@@ -274,11 +269,10 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
         val salah = totalSoal - benar
 
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
-        
+
         LevelHelper.getCurrentLevel(requireContext()) { levelUser ->
             val prefs = requireActivity().getSharedPreferences("KUIS_${userId}_LEVEL_$levelUser", Context.MODE_PRIVATE)
 
-            // 🔥 TENTUKAN LEVEL HASIL (EXPERT dsb)
             val resultLevel = when {
                 skor == 100 -> "EXPERT"
                 skor >= 75 -> "GOOD"
@@ -286,14 +280,12 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
                 else -> "BEGINNER"
             }
 
-            // 🔥 SIMPAN SEMUA DATA
             prefs.edit()
                 .putBoolean("materi1_selesai", true)
                 .putInt("nilai_materi1", skor)
                 .putString("level_materi1", resultLevel)
                 .apply()
 
-            // 🔥 BONUS AKTIVITAS
             if (skor >= 75) {
                 AktivitasManager.tambahAktivitas(
                     requireContext(),
@@ -302,6 +294,12 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
                     20
                 )
             }
+
+            // ✅ Kirim hasil skor ke fragment tantangan
+            val resultBundle = Bundle().apply {
+                putInt("skor", skor)
+            }
+            parentFragmentManager.setFragmentResult("kuis_selesai_result", resultBundle)
 
             val bundle = Bundle().apply {
                 putInt("BENAR", benar)
