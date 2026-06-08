@@ -80,7 +80,6 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
                     android:orientation="vertical">
 
                     <TextView
@@ -92,6 +91,7 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/tvProgressUtama"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -100,6 +100,7 @@
                         android:textSize="14sp" />
 
                     <ProgressBar
+                        android:id="@+id/progressBarUtama"
                         style="?android:attr/progressBarStyleHorizontal"
                         android:layout_width="match_parent"
                         android:layout_height="4dp"
@@ -107,6 +108,7 @@
                         android:progress="0"
                         android:progressTint="@color/nav_inactive" />
                 </LinearLayout>
+
             </LinearLayout>
 
             <!-- Card: Deskripsi Tantangan -->
@@ -189,6 +191,7 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/tvProgressKuis"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
@@ -197,6 +200,7 @@
                         android:textSize="13sp" />
 
                     <ProgressBar
+                        android:id="@+id/progressBarKuis"
                         style="?android:attr/progressBarStyleHorizontal"
                         android:layout_width="match_parent"
                         android:layout_height="4dp"
@@ -245,6 +249,7 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/tvProgressNilai75"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
@@ -253,6 +258,7 @@
                         android:textSize="13sp" />
 
                     <ProgressBar
+                        android:id="@+id/progressBarNilai75"
                         style="?android:attr/progressBarStyleHorizontal"
                         android:layout_width="match_parent"
                         android:layout_height="4dp"

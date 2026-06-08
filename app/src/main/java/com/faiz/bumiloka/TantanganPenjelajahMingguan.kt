@@ -121,9 +121,17 @@ class TantanganPenjelajahMingguanFragment : Fragment(R.layout.fragment_tantangan
     }
 
     private fun cekSemuaSelesai() {
-        if (isSemuaSelesai() && !isPopupShown()) {
-            setPopupShown()
-            showPopupSelesai()
+
+        if (isSemuaSelesai()) {
+
+            pref().edit()
+                .putBoolean("tantangan_selesai", true)
+                .apply()
+
+            if (!isPopupShown()) {
+                setPopupShown()
+                showPopupSelesai()
+            }
         }
     }
 
