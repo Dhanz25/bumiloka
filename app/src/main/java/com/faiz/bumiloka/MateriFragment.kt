@@ -129,6 +129,12 @@ class MateriFragment : Fragment() {
             }
         }
         btnMulaiKuis.setOnClickListener {
+            val dariTantangan = arguments?.getBoolean("DARI_TANTANGAN", false) ?: false
+
+            val resultBundle = Bundle().apply {
+                putInt("materi_id", materiId)
+            }
+            parentFragmentManager.setFragmentResult("materi_selesai_result", resultBundle)
 
             val fragment = when (materiId) {
                 1 -> QuizSoalFragment.newInstance(materiId)
@@ -136,6 +142,11 @@ class MateriFragment : Fragment() {
                 3 -> QuizSoal3Fragment.newInstance(materiId)
                 else -> QuizSoalFragment.newInstance(materiId)
             }
+
+            // ✅ Teruskan flag DARI_TANTANGAN ke quiz
+            val args = fragment.arguments ?: Bundle()
+            args.putBoolean("DARI_TANTANGAN", dariTantangan)
+            fragment.arguments = args
 
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, fragment)

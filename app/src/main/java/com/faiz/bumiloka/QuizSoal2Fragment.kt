@@ -231,25 +231,28 @@ class QuizSoal2Fragment : Fragment(R.layout.fragment_quiz_soal2) {
         val salah = totalSoal - benar
 
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
-        val prefs = requireActivity().getSharedPreferences("KUIS_$userId", Context.MODE_PRIVATE)
-        prefs.edit()
-            .putBoolean("quiz2_selesai", true)
-            .putInt("quiz2_nilai", skor)
-            .apply()
+        
+        LevelHelper.getCurrentLevel(requireContext()) { levelUser ->
+            val prefs = requireActivity().getSharedPreferences("KUIS_${userId}_LEVEL_$levelUser", Context.MODE_PRIVATE)
+            prefs.edit()
+                .putBoolean("quiz2_selesai", true)
+                .putInt("quiz2_nilai", skor)
+                .apply()
 
-        val bundle = Bundle()
-        bundle.putInt("BENAR", benar)
-        bundle.putInt("SALAH", salah)
-        bundle.putInt("SKOR", skor)
-        bundle.putString("QUIZ_TYPE", "QUIZ2")
+            val bundle = Bundle()
+            bundle.putInt("BENAR", benar)
+            bundle.putInt("SALAH", salah)
+            bundle.putInt("SKOR", skor)
+            bundle.putString("QUIZ_TYPE", "QUIZ2")
 
-        val fragment = QuizMenang1Fragment()
-        fragment.arguments = bundle
+            val fragment = QuizMenang1Fragment()
+            fragment.arguments = bundle
 
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit()
+        }
     }
 
     private fun showExitDialog() {

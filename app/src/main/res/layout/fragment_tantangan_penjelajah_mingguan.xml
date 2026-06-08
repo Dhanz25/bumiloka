@@ -74,7 +74,7 @@
                         android:layout_height="match_parent"
                         android:scaleType="centerCrop"
                         android:background="@color/bg_green"
-                        android:src="@drawable/tantangan2" />
+                        android:src="@drawable/tantangan1" />
                 </com.google.android.material.card.MaterialCardView>
 
                 <LinearLayout
@@ -91,7 +91,9 @@
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
+                    <!-- ✅ ID DITAMBAHKAN -->
                     <TextView
+                        android:id="@+id/tvProgressUtama"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -100,6 +102,7 @@
                         android:textSize="14sp" />
 
                     <ProgressBar
+                        android:id="@+id/progressBarUtama"
                         style="?android:attr/progressBarStyleHorizontal"
                         android:layout_width="match_parent"
                         android:layout_height="4dp"
@@ -145,7 +148,7 @@
                             android:background="@drawable/bg_badge"
                             android:paddingHorizontal="12dp"
                             android:paddingVertical="4dp"
-                            android:text="6 Hari tersisa"
+                            android:text="7 Hari tersisa"
                             android:textColor="@color/white"
                             android:textSize="12sp"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -188,7 +191,9 @@
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
+                    <!-- ✅ ID DITAMBAHKAN -->
                     <TextView
+                        android:id="@+id/tvProgressMateri"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
@@ -197,6 +202,7 @@
                         android:textSize="13sp" />
 
                     <ProgressBar
+                        android:id="@+id/progressBarMateri"
                         style="?android:attr/progressBarStyleHorizontal"
                         android:layout_width="match_parent"
                         android:layout_height="4dp"
@@ -244,7 +250,9 @@
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
+                    <!-- ✅ ID DITAMBAHKAN -->
                     <TextView
+                        android:id="@+id/tvProgressKuis"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
@@ -253,6 +261,7 @@
                         android:textSize="13sp" />
 
                     <ProgressBar
+                        android:id="@+id/progressBarKuis"
                         style="?android:attr/progressBarStyleHorizontal"
                         android:layout_width="match_parent"
                         android:layout_height="4dp"

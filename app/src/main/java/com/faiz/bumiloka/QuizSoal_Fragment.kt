@@ -182,7 +182,6 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
 
                 val q = questions[currentQuestion]
 
-                // cek jawaban benar saat NEXT ditekan
                 if (selectedAnswer == q.correctAnswer) {
                     skor += 10
                 }
@@ -251,19 +250,15 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
 
     private fun pilihJawaban(index: Int, correct: Int) {
 
-        // reset tampilan semua opsi
         for (option in options) {
             option.setBackgroundResource(R.drawable.bg_option)
         }
 
-        // simpan pilihan terbaru
         selectedAnswer = index
         sudahPilih = true
 
-        // highlight pilihan
         options[index].setBackgroundResource(android.R.color.holo_green_light)
 
-        // aktifkan tombol next
         btnNext.isEnabled = true
     }
 
@@ -274,56 +269,55 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
         val salah = totalSoal - benar
 
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
-        val prefs = requireActivity().getSharedPreferences("KUIS_$userId", Context.MODE_PRIVATE)
 
-        // 🔥 TENTUKAN LEVEL USER
-        val level = when {
-            skor == 100 -> "EXPERT"
-            skor >= 75 -> "GOOD"
-            skor >= 50 -> "LEARNER"
-            else -> "BEGINNER"
+        LevelHelper.getCurrentLevel(requireContext()) { levelUser ->
+            val prefs = requireActivity().getSharedPreferences("KUIS_${userId}_LEVEL_$levelUser", Context.MODE_PRIVATE)
+
+            val resultLevel = when {
+                skor == 100 -> "EXPERT"
+                skor >= 75 -> "GOOD"
+                skor >= 50 -> "LEARNER"
+                else -> "BEGINNER"
+            }
+
+            prefs.edit()
+                .putBoolean("materi1_selesai", true)
+                .putInt("nilai_materi1", skor)
+                .putString("level_materi1", resultLevel)
+                .apply()
+
+            if (skor >= 75) {
+                AktivitasManager.tambahAktivitas(
+                    requireContext(),
+                    "Menyelesaikan Misi Tantangan Diri",
+                    "Misi",
+                    20
+                )
+            }
+
+            // ✅ Kirim hasil skor ke fragment tantangan
+            val resultBundle = Bundle().apply {
+                putInt("skor", skor)
+            }
+            parentFragmentManager.setFragmentResult("kuis_selesai_result", resultBundle)
+
+            val bundle = Bundle().apply {
+                putInt("BENAR", benar)
+                putInt("SALAH", salah)
+                putInt("SKOR", skor)
+                putString("QUIZ_TYPE", "QUIZ1")
+                putBoolean("DARI_MISI", arguments?.getString("FROM") == "MISI")
+                putBoolean("DARI_TANTANGAN", arguments?.getBoolean("DARI_TANTANGAN", false) ?: false)
+            }
+
+            val fragment = QuizMenang1Fragment()
+            fragment.arguments = bundle
+
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit()
         }
-
-        // 🔥 SIMPAN SEMUA DATA
-        prefs.edit()
-            .putBoolean("materi1_selesai", true)
-            .putInt("nilai_materi1", skor)
-            .putString("level_materi1", level)     // ✅ level user
-            .putBoolean("tips_materi1", true)      // ✅ unlock tips
-            .apply()
-
-        // 🔥 BONUS AKTIVITAS
-        if (skor >= 75) {
-            AktivitasManager.tambahAktivitas(
-                requireContext(),
-                "Menyelesaikan Misi Tantangan Diri",
-                "Misi",
-                20
-            )
-        }
-
-        val from = arguments?.getString("FROM")
-
-        val bundle = Bundle().apply {
-            putInt("BENAR", benar)
-            putInt("SALAH", salah)
-            putInt("SKOR", skor)
-
-            // ✅ identitas quiz
-            putString("QUIZ_TYPE", "QUIZ1")
-
-            // ✅ dari misi atau bukan
-            putBoolean("DARI_MISI", from == "MISI")
-        }
-
-
-        val fragment = QuizMenang1Fragment()
-        fragment.arguments = bundle
-
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
     }
 
     data class Question(

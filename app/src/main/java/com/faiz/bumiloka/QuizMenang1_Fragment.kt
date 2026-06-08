@@ -60,48 +60,130 @@ class QuizMenang1Fragment : Fragment(R.layout.fragment_quiz_menang1_) {
 
 
         // ✅ SharedPreferences misi
-        val prefMisi = requireActivity()
-            .getSharedPreferences("MISI_$userId", Context.MODE_PRIVATE)
+        LevelHelper.getCurrentLevel(requireContext()) { currentLevel ->
 
-// ===============================
-// MISI 2 → Tantangan Diri
-// ===============================
-        if (quizType == "QUIZ1" && dariMisi) {
+            val prefMisi = requireActivity()
+                .getSharedPreferences(
+                    "MISI_${userId}_LEVEL_$currentLevel",
+                    Context.MODE_PRIVATE
+                )
 
-            val sudahMisi2 = prefMisi.getBoolean("misi2_selesai", false)
+            // ===============================
+            // MISI 2 → Tantangan Diri
+            // ===============================
+            if (quizType == "QUIZ1" && skor > 0) {
 
-            // ✅ hanya kasih XP sekali
-            if (!sudahMisi2) {
+                val sudahMisi2 = prefMisi.getBoolean("misi2_selesai", false)
 
-                prefMisi.edit()
-                    .putBoolean("misi2_selesai", true)
-                    .apply()
+                if (!sudahMisi2) {
 
-                // ✅ tambah XP 30
-                AktivitasHelper.tambahPoint(30)
+                    prefMisi.edit()
+                        .putBoolean("misi2_selesai", true)
+                        .apply()
 
-                AktivitasHelper.tambahMisiSelesai()
+                    AktivitasHelper.tambahPoint(requireContext(), 30)
+                    AktivitasHelper.tambahMisiSelesai()
+
+                    AktivitasManager.tambahAktivitas(
+                        requireContext(),
+                        "Berhasil menyelesaikan Misi Tantangan Diri",
+                        "Misi",
+                        30
+                    )
+
+                    val notifView = layoutInflater.inflate(
+                        R.layout.notif_misi_selesai,
+                        null
+                    )
+
+                    val notifDialog = AlertDialog.Builder(requireContext())
+                        .setView(notifView)
+                        .create()
+
+                    notifDialog.window?.setBackgroundDrawableResource(
+                        android.R.color.transparent
+                    )
+
+                    notifDialog.show()
+
+                    notifDialog.window?.setGravity(
+                        android.view.Gravity.TOP or android.view.Gravity.START
+                    )
+
+                    notifDialog.window?.attributes =
+                        notifDialog.window?.attributes?.apply {
+                            x = 30
+                            y = 120
+                        }
+
+                    notifView.postDelayed({
+                        notifDialog.dismiss()
+                    }, 2000)
+
+                    UnlockLevelHelper.checkAndUnlockNextLevel(
+                        requireContext(),
+                        currentLevel
+                    )
+                }
             }
-        }
 
-// ===============================
-// MISI 3 → Raih Skor 75
-// ===============================
-        if (quizType == "QUIZ3" && dariMisi && skor >= 75) {
+            // ===============================
+            // MISI 3 → Raih Skor 75
+            // ===============================
+            if (quizType == "QUIZ3" && skor >= 75) {
 
-            val sudahMisi3 = prefMisi.getBoolean("misi3_selesai", false)
+                val sudahMisi3 = prefMisi.getBoolean("misi3_selesai", false)
 
-            // ✅ hanya kasih XP sekali
-            if (!sudahMisi3) {
+                if (!sudahMisi3) {
 
-                prefMisi.edit()
-                    .putBoolean("misi3_selesai", true)
-                    .apply()
+                    prefMisi.edit()
+                        .putBoolean("misi3_selesai", true)
+                        .apply()
 
-                // ✅ tambah XP 40
-                AktivitasHelper.tambahPoint(40)
+                    AktivitasHelper.tambahPoint(requireContext(), 40)
+                    AktivitasHelper.tambahMisiSelesai()
 
-                AktivitasHelper.tambahMisiSelesai()
+                    AktivitasManager.tambahAktivitas(
+                        requireContext(),
+                        "Berhasil menyelesaikan Misi Raih Skor 75",
+                        "Misi",
+                        40
+                    )
+
+                    val notifView = layoutInflater.inflate(
+                        R.layout.notif_misi_selesai,
+                        null
+                    )
+
+                    val notifDialog = AlertDialog.Builder(requireContext())
+                        .setView(notifView)
+                        .create()
+
+                    notifDialog.window?.setBackgroundDrawableResource(
+                        android.R.color.transparent
+                    )
+
+                    notifDialog.show()
+
+                    notifDialog.window?.setGravity(
+                        android.view.Gravity.TOP or android.view.Gravity.START
+                    )
+
+                    notifDialog.window?.attributes =
+                        notifDialog.window?.attributes?.apply {
+                            x = 30
+                            y = 120
+                        }
+
+                    notifView.postDelayed({
+                        notifDialog.dismiss()
+                    }, 2000)
+
+                    UnlockLevelHelper.checkAndUnlockNextLevel(
+                        requireContext(),
+                        currentLevel
+                    )
+                }
             }
         }
 
@@ -112,58 +194,41 @@ class QuizMenang1Fragment : Fragment(R.layout.fragment_quiz_menang1_) {
             btnUlangi.visibility = View.VISIBLE
         }
         val finalSkor = skor
-        // ✅ OK → balik ke menu kuis
+
+        val dariTantangan = arguments?.getBoolean("DARI_TANTANGAN", false) ?: false
+
         btnOk.setOnClickListener {
-
-            // ✅ QUIZ3 dari misi tapi skor belum 75
             if (quizType == "QUIZ3" && dariMisi && finalSkor < 75) {
-
-                val dialogView = layoutInflater.inflate(
-                    R.layout.popup_belumraihskor,
-                    null
-                )
-
+                val dialogView = layoutInflater.inflate(R.layout.popup_belumraihskor, null)
                 val dialog = AlertDialog.Builder(requireContext())
                     .setView(dialogView)
                     .setCancelable(false)
                     .create()
-
-                dialog.window?.setBackgroundDrawableResource(
-                    android.R.color.transparent
-                )
-
+                dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
                 dialog.show()
-
                 val btnLanjut = dialogView.findViewById<Button>(R.id.btnLanjut)
-
                 btnLanjut.setOnClickListener {
-
                     dialog.dismiss()
-
                     parentFragmentManager.beginTransaction()
                         .replace(R.id.fragment_container, MisiFragment())
                         .commit()
                 }
-
+            } else if (dariMisi) {
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, MisiFragment())
+                    .commit()
+            } else if (dariTantangan) {
+                // Hapus semua back stack sampai ketemu TantanganPenjelajahMingguanFragment
+                parentFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, TantanganPenjelajahMingguanFragment())
+                    .commit()
             } else {
-
-                // ✅ kalau dari misi → kembali ke misi
-                if (dariMisi) {
-
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, MisiFragment())
-                        .commit()
-
-                } else {
-
-                    // ✅ kalau dari halaman quiz biasa
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, QuizUtamaFragment())
-                        .commit()
-                }
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, QuizUtamaFragment())
+                    .commit()
             }
         }
-
         // ✅ ULANGI SESUAI QUIZ
         btnUlangi.setOnClickListener {
 

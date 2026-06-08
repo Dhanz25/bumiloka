@@ -41,6 +41,7 @@
                     android:textStyle="bold"/>
 
                 <TextView
+                    android:id="@+id/tvEdukasiLevel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Level 1 (Eco Beginner)"
@@ -81,12 +82,14 @@
                     android:orientation="vertical">
 
                     <ImageView
+                        android:id="@+id/imgEdukasi1"
                         android:layout_width="match_parent"
                         android:layout_height="150dp"
                         android:scaleType="centerCrop"
                         android:src="@drawable/lingkungan"/>
 
                     <TextView
+                        android:id="@+id/tvEdukasiTitle1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="12dp"
@@ -110,12 +113,14 @@
                     android:orientation="vertical">
 
                     <ImageView
+                        android:id="@+id/imgEdukasi2"
                         android:layout_width="match_parent"
                         android:layout_height="150dp"
                         android:scaleType="centerCrop"
                         android:src="@drawable/tumpukansampah"/>
 
                     <TextView
+                        android:id="@+id/tvEdukasiTitle2"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="12dp"
@@ -138,12 +143,14 @@
                     android:orientation="vertical">
 
                     <ImageView
+                        android:id="@+id/imgEdukasi3"
                         android:layout_width="match_parent"
                         android:layout_height="150dp"
                         android:scaleType="centerCrop"
                         android:src="@drawable/hematair"/>
 
                     <TextView
+                        android:id="@+id/tvEdukasiTitle3"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="12dp"
