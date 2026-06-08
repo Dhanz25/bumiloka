@@ -86,7 +86,7 @@
                     android:text="Membuat tanah tandus"/>
 
                 <RadioButton
-                    android:id="@+id/rbBenar"
+                    android:id="@+id/rbC"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Menyerap karbon dioksida"/>
