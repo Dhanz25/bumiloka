@@ -18,6 +18,9 @@ class AktivitasFragment : Fragment(R.layout.fragment_aktivitas) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // ✅ Tampilkan Bottom Navigation
+        requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
+
         recyclerView = view.findViewById(R.id.recyclerAktivitas)
         tvEmpty = view.findViewById(R.id.tvEmpty)
 
@@ -28,6 +31,8 @@ class AktivitasFragment : Fragment(R.layout.fragment_aktivitas) {
 
     override fun onResume() {
         super.onResume()
+        // ✅ Tampilkan Bottom Navigation saat kembali ke fragment ini
+        requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
         loadData()
     }
 

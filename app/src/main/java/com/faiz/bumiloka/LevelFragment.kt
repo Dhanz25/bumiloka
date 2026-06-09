@@ -29,7 +29,8 @@ class LevelFragment : Fragment(R.layout.fragment_level) {
 
     private fun loadLevels() {
         LevelHelper.getHighestUnlockedLevel { highest ->
-            highestUnlocked = highest
+            // Pastikan highestUnlocked maksimal 3
+            highestUnlocked = if (highest > 3) 3 else highest
             LevelHelper.getCurrentLevel(requireContext()) { current ->
                 activeLevel = current
                 setupRecyclerView()
@@ -38,12 +39,11 @@ class LevelFragment : Fragment(R.layout.fragment_level) {
     }
 
     private fun setupRecyclerView() {
+        // Hanya tampil 3 level
         val levels = listOf(
-            LevelModel(1, "Eco Beginner", "Belajar dasar kepedulian lingkungan."),
-            LevelModel(2, "Eco Warrior", "Mulai aksi nyata mengelola sampah."),
-            LevelModel(3, "Nature Protector", "Menjaga keseimbangan ekosistem."),
-            LevelModel(4, "Green Ambassador", "Menjadi inspirasi bagi lingkungan."),
-            LevelModel(5, "Earth Savior", "Penyelamat bumi tingkat akhir.")
+            LevelModel(1, "Peduli Lingkungan", "Belajar dasar kepedulian lingkungan."),
+            LevelModel(2, "Tentang Sampah", "Mulai aksi nyata mengelola sampah."),
+            LevelModel(3, "Hemat Air", "Menjaga keseimbangan ekosistem.")
         )
 
         levels.forEach {

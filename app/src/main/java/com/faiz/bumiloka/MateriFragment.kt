@@ -34,131 +34,165 @@ class MateriFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 🔥 TOOLBAR (SESUAI XML)
         val toolbar = view.findViewById<MaterialToolbar>(R.id.toolbar)
-
-        // 🔙 BACK
         toolbar.setNavigationOnClickListener {
             parentFragmentManager.popBackStack()
         }
 
-        // 🔥 VIEW
         val imgMateri = view.findViewById<ImageView>(R.id.imgMateri)
         val tvJudulUtama = view.findViewById<TextView>(R.id.tvJudulUtama)
-
         val tvIsiTitle = view.findViewById<TextView>(R.id.tvIsiTitle)
         val tvIsiMateri = view.findViewById<TextView>(R.id.tvIsiMateri)
-
         val tvPentingTitle = view.findViewById<TextView>(R.id.tvPentingTitle)
         val tvPenting = view.findViewById<TextView>(R.id.tvPenting)
-
         val tvContohTitle = view.findViewById<TextView>(R.id.tvContohTitle)
         val tvContoh = view.findViewById<TextView>(R.id.tvContoh)
-
         val btnMulaiKuis = view.findViewById<Button>(R.id.btnMulaiKuis)
 
-        val materiId = arguments?.getInt(ARG_MATERI_ID) ?: 1
-
-        // 🔥 SET TITLE TOOLBAR
-        toolbar.title = "MATERI $materiId"
-
-        when (materiId) {
-
-            // ================== MATERI 1 ==================
-            1 -> {
-                tvJudulUtama.text = "Dasar : Peduli Lingkungan"
-                imgMateri.setImageResource(R.drawable.img_lingkungan)
-
-                tvIsiTitle.text = "🌿 Apa itu Peduli Lingkungan?"
-                tvPentingTitle.text = "🌍 Kenapa Penting?"
-                tvContohTitle?.text = "♻️ Contoh Perilaku"
-
-                tvIsiMateri.text = "Peduli lingkungan adalah sikap dan kebiasaan untuk menjaga kebersihan serta kelestarian alam di sekitar kita. Sikap ini dapat dimulai dari hal-hal kecil yang dilakukan setiap hari.\n\nContohnya seperti membuang sampah pada tempatnya, menjaga kebersihan rumah, serta tidak merusak lingkungan. Dengan kebiasaan sederhana ini, kita sudah ikut berkontribusi menjaga bumi.\n\nLingkungan yang terjaga akan memberikan kehidupan yang lebih sehat, nyaman, dan aman bagi semua makhluk hidup."
-
-                tvPenting.text = "Lingkungan yang bersih memberikan banyak manfaat bagi kehidupan manusia. Udara menjadi lebih segar, air tetap bersih untuk digunakan, dan kita terhindar dari berbagai penyakit.\n\nSelain itu, menjaga lingkungan juga membantu mencegah bencana seperti banjir yang disebabkan oleh sampah serta kerusakan alam akibat ulah manusia.\n\nJika lingkungan tidak dijaga, maka dampaknya akan kembali ke manusia sendiri dalam bentuk penyakit dan bencana."
-
-                tvContoh.text = "• Membuang sampah pada tempatnya\n" +
-                        "• Menghemat penggunaan air\n" +
-                        "• Mematikan listrik saat tidak digunakan\n" +
-                        "• Mengurangi penggunaan plastik\n" +
-                        "• Membawa botol minum sendiri\n" +
-                        "• Menanam tanaman di sekitar rumah\n\n" +
-                        "💡 Tips: Lakukan kebiasaan kecil ini setiap hari agar menjadi kebiasaan baik."
-            }
-
-            // ================== MATERI 2 ==================
-            2 -> {
-                tvJudulUtama.text = "Kenalan Dulu Sama Sampah!"
-                imgMateri.setImageResource(R.drawable.img_sampah)
-
-                tvIsiTitle.text = "🗑️ Apa itu Sampah?"
-                tvPentingTitle.text = "⚠️ Kenapa Sampah Jadi Masalah?"
-                tvContohTitle.text = "♻️ Jenis-Jenis Sampah"
-
-                tvIsiMateri.text = "Sampah adalah sisa barang atau bahan yang sudah tidak digunakan lagi oleh manusia. Sampah dihasilkan setiap hari dari berbagai aktivitas seperti di rumah, sekolah, dan lingkungan sekitar.\n\nJika tidak dikelola dengan baik, sampah akan menumpuk dan menjadi masalah serius bagi lingkungan."
-
-                tvPenting.text = "Sampah yang tidak dikelola dengan baik dapat menyebabkan pencemaran lingkungan, bau tidak sedap, hingga menjadi sarang penyakit.\n\nSelain itu, sampah yang menumpuk juga dapat menyumbat saluran air dan menyebabkan banjir.\n\nOleh karena itu, penting bagi kita untuk mengelola sampah dengan benar."
-
-                tvContoh.text = "• Sampah Organik (mudah terurai)\n" +
-                        "  Contoh: sisa makanan, daun, kulit buah\n\n" +
-                        "• Sampah Anorganik (sulit terurai)\n" +
-                        "  Contoh: plastik, botol, kaleng\n\n" +
-                        "💡 Tips: Pisahkan sampah agar mudah didaur ulang."
-
-            }
-
-            // ================== MATERI 3 ==================
-            3 -> {
-                tvJudulUtama.text = "Menghemat Air Saat Digunakan"
-                imgMateri.setImageResource(R.drawable.img_air)
-
-                tvIsiTitle.text = "💧 Mengapa Harus Hemat Air?"
-                tvPentingTitle.text = "⚠️ Dampak Jika Boros Air"
-                tvContohTitle.text = "🚿 Cara Menghemat Air"
-
-                tvIsiMateri.text = "Air adalah sumber kehidupan yang sangat penting bagi manusia, hewan, dan tumbuhan. Kita menggunakan air setiap hari untuk berbagai kebutuhan.\n\nNamun, jika digunakan secara berlebihan, ketersediaan air bersih dapat berkurang di masa depan.\n\nKarena itu, kita harus menggunakan air dengan bijak."
-
-                tvPenting.text = "Penggunaan air yang berlebihan dapat menyebabkan kekurangan air bersih dan kekeringan.\n\nSelain itu, pemborosan air juga dapat merusak keseimbangan lingkungan dan mengganggu kehidupan makhluk hidup.\n\nJika tidak mulai menghemat sekarang, masa depan bisa kekurangan air."
-
-                tvContoh.text = "• Menutup keran saat tidak digunakan\n" +
-                        "• Menggunakan air secukupnya\n" +
-                        "• Memperbaiki keran yang bocor\n" +
-                        "• Menggunakan air bekas untuk menyiram tanaman\n" +
-                        "• Tidak membuang air sia-sia\n\n" +
-                        "💡 Tips: Gunakan air seperlunya agar tidak boros."
+        val materiIndex = arguments?.getInt(ARG_MATERI_ID) ?: 1
+        
+        LevelHelper.getCurrentLevel(requireContext()) { level ->
+            toolbar.title = "Level $level - Materi $materiIndex"
+            
+            when (level) {
+                1 -> loadLevel1Materi(materiIndex, tvJudulUtama, imgMateri, tvIsiTitle, tvIsiMateri, tvPentingTitle, tvPenting, tvContohTitle, tvContoh)
+                2 -> loadLevel2Materi(materiIndex, tvJudulUtama, imgMateri, tvIsiTitle, tvIsiMateri, tvPentingTitle, tvPenting, tvContohTitle, tvContoh)
+                3 -> loadLevel3Materi(materiIndex, tvJudulUtama, imgMateri, tvIsiTitle, tvIsiMateri, tvPentingTitle, tvPenting, tvContohTitle, tvContoh)
             }
         }
+
         btnMulaiKuis.setOnClickListener {
             val dariTantangan = arguments?.getBoolean("DARI_TANTANGAN", false) ?: false
-
-            val resultBundle = Bundle().apply {
-                putInt("materi_id", materiId)
-            }
+            val resultBundle = Bundle().apply { putInt("materi_id", materiIndex) }
             parentFragmentManager.setFragmentResult("materi_selesai_result", resultBundle)
 
-            val fragment = when (materiId) {
-                1 -> QuizSoalFragment.newInstance(materiId)
-                2 -> QuizSoal2Fragment.newInstance(materiId)
-                3 -> QuizSoal3Fragment.newInstance(materiId)
-                else -> QuizSoalFragment.newInstance(materiId)
+            LevelHelper.getCurrentLevel(requireContext()) { level ->
+                val fragment = when (materiIndex) {
+                    1 -> QuizSoalFragment.newInstance(materiIndex)
+                    2 -> QuizSoal2Fragment.newInstance(materiIndex)
+                    3 -> QuizSoal3Fragment.newInstance(materiIndex)
+                    else -> QuizSoalFragment.newInstance(materiIndex)
+                }
+                val args = fragment.arguments ?: Bundle()
+                args.putBoolean("DARI_TANTANGAN", dariTantangan)
+                args.putInt("LEVEL", level)
+                fragment.arguments = args
+
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .addToBackStack(null)
+                    .commit()
             }
-
-            // ✅ Teruskan flag DARI_TANTANGAN ke quiz
-            val args = fragment.arguments ?: Bundle()
-            args.putBoolean("DARI_TANTANGAN", dariTantangan)
-            fragment.arguments = args
-
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .addToBackStack(null)
-                .commit()
         }
     }
 
-    // 🔻 SEMBUNYIKAN NAV
+    private fun loadLevel1Materi(index: Int, judul: TextView, img: ImageView, t1: TextView, m1: TextView, t2: TextView, p2: TextView, t3: TextView, c3: TextView) {
+        when (index) {
+            1 -> {
+                judul.text = "Dasar : Peduli Lingkungan"
+                img.setImageResource(R.drawable.img_lingkungan)
+                t1.text = "🌿 Apa itu Peduli Lingkungan?"
+                m1.text = "Peduli lingkungan adalah sikap menjaga kebersihan serta kelestarian alam. Dimulai dari hal kecil setiap hari seperti membuang sampah pada tempatnya."
+                t2.text = "🌍 Kenapa Penting?"
+                p2.text = "Lingkungan bersih memberikan udara segar dan air bersih, serta menjauhkan kita dari penyakit dan bencana banjir."
+                t3.text = "♻️ Contoh Perilaku"
+                c3.text = "• Buang sampah pada tempatnya\n• Hemat listrik\n• Kurangi plastik"
+            }
+            2 -> {
+                judul.text = "Kenalan Sama Sampah"
+                img.setImageResource(R.drawable.img_sampah)
+                t1.text = "🗑️ Apa itu Sampah?"
+                m1.text = "Sampah adalah sisa barang yang sudah tidak digunakan. Jika tidak dikelola, sampah akan menumpuk dan mencemari lingkungan."
+                t2.text = "⚠️ Masalah Sampah"
+                p2.text = "Sampah yang menumpuk menyumbat saluran air dan menjadi sarang penyakit."
+                t3.text = "♻️ Jenis Sampah"
+                c3.text = "• Organik (Sisa makanan)\n• Anorganik (Plastik/Logam)"
+            }
+            3 -> {
+                judul.text = "Dasar Hemat Air"
+                img.setImageResource(R.drawable.img_air)
+                t1.text = "💧 Pentingnya Air"
+                m1.text = "Air adalah sumber kehidupan. Ketersediaan air bersih terbatas, maka kita harus menggunakannya dengan bijak."
+                t2.text = "⚠️ Dampak Boros"
+                p2.text = "Pemborosan air menyebabkan kekeringan dan krisis air bersih di masa depan."
+                t3.text = "🚿 Cara Hemat"
+                c3.text = "• Tutup keran saat sikat gigi\n• Perbaiki keran bocor"
+            }
+        }
+    }
+
+    private fun loadLevel2Materi(index: Int, judul: TextView, img: ImageView, t1: TextView, m1: TextView, t2: TextView, p2: TextView, t3: TextView, c3: TextView) {
+        when (index) {
+            1 -> {
+                judul.text = "Organik vs Anorganik"
+                img.setImageResource(R.drawable.img_sampah)
+                t1.text = "🍏 Sampah Organik"
+                m1.text = "Sampah organik berasal dari makhluk hidup dan mudah membusuk. Bisa diolah menjadi kompos."
+                t2.text = "🧴 Sampah Anorganik"
+                p2.text = "Sampah anorganik berasal dari bahan non-hayati (plastik, kaca). Butuh ratusan tahun untuk terurai."
+                t3.text = "📌 Pemilahan"
+                c3.text = "Memisahkan sampah sejak dari rumah memudahkan proses daur ulang."
+            }
+            2 -> {
+                judul.text = "Konsep 3R (Reduce, Reuse, Recycle)"
+                img.setImageResource(R.drawable.img_sampah)
+                t1.text = "♻️ Mengenal 3R"
+                m1.text = "Reduce (Mengurangi), Reuse (Gunakan kembali), Recycle (Daur ulang) adalah pilar pengelolaan sampah modern."
+                t2.text = "📉 Reduce & Reuse"
+                p2.text = "Kurangi pemakaian barang sekali pakai dan gunakan kembali barang yang masih layak."
+                t3.text = "🛠️ Recycle"
+                c3.text = "Mengolah sampah menjadi produk baru yang bernilai guna."
+            }
+            3 -> {
+                judul.text = "Bahaya Sampah Plastik"
+                img.setImageResource(R.drawable.img_sampah)
+                t1.text = "🚫 Ancaman Plastik"
+                m1.text = "Plastik sulit hancur dan sering berakhir di laut, mengancam ekosistem dan kesehatan hewan laut."
+                t2.text = "🧬 Mikroplastik"
+                p2.text = "Plastik yang hancur menjadi butiran kecil (mikroplastik) bisa masuk ke rantai makanan manusia."
+                t3.text = "✅ Solusi"
+                c3.text = "Gunakan tas belanja kain dan botol minum sendiri (tumbler)."
+            }
+        }
+    }
+
+    private fun loadLevel3Materi(index: Int, judul: TextView, img: ImageView, t1: TextView, m1: TextView, t2: TextView, p2: TextView, t3: TextView, c3: TextView) {
+        when (index) {
+            1 -> {
+                judul.text = "Konservasi Air Bersih"
+                img.setImageResource(R.drawable.img_air)
+                t1.text = "🌊 Krisis Air"
+                m1.text = "Hanya sebagian kecil air di bumi yang layak dikonsumsi. Pencemaran memperburuk krisis air bersih."
+                t2.text = "🛡️ Perlindungan Sumber Air"
+                p2.text = "Menjaga hutan dan sungai adalah kunci menjaga cadangan air tanah kita."
+                t3.text = "🌱 Peran Kita"
+                c3.text = "Menanam pohon membantu tanah menyerap air hujan lebih baik."
+            }
+            2 -> {
+                judul.text = "Siklus Air & Keberlanjutan"
+                img.setImageResource(R.drawable.img_air)
+                t1.text = "☁️ Bagaimana Air Berputar?"
+                m1.text = "Air menguap, menjadi awan, dan jatuh sebagai hujan. Gangguan pada alam merusak siklus alami ini."
+                t2.text = "🌡️ Perubahan Iklim"
+                p2.text = "Pemanasan global mengubah pola hujan, menyebabkan banjir atau kekeringan ekstrem."
+                t3.text = "🔄 Re-use Air"
+                c3.text = "Air bekas cucian beras bisa digunakan untuk menyiram tanaman."
+            }
+            3 -> {
+                judul.text = "Teknik Hemat Air Lanjutan"
+                img.setImageResource(R.drawable.img_air)
+                t1.text = "🛁 Mandi Pintar"
+                m1.text = "Gunakan shower daripada gayung untuk menghemat hingga 50% air setiap kali mandi."
+                t2.text = "🧺 Cuci Efisien"
+                p2.text = "Cucilah pakaian saat mesin cuci penuh untuk meminimalisir pembuangan air."
+                t3.text = "🚰 Cek Kebocoran"
+                c3.text = "Satu tetes air per detik dari keran bocor bisa membuang ribuan liter air setahun."
+            }
+        }
+    }
+
     override fun onResume() {
         super.onResume()
-        val bottomNav = requireActivity().findViewById<View>(R.id.bottom_navigation)
-        bottomNav?.visibility = View.GONE
+        requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
     }
 }

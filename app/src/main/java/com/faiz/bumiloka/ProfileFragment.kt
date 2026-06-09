@@ -30,8 +30,17 @@ class ProfileFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_profile, container, false)
     }
 
+    override fun onResume() {
+        super.onResume()
+        // ✅ Tampilkan Bottom Navigation
+        requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // ✅ Tampilkan Bottom Navigation
+        requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
 
         auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser

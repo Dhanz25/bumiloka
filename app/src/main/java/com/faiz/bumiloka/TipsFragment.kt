@@ -12,6 +12,9 @@ class TipsFragment : Fragment(R.layout.fragment_tips) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // ✅ Tampilkan Bottom Navigation
+        requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
+
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
         val pref = requireActivity().getSharedPreferences("KUIS_$userId", Context.MODE_PRIVATE)
 
@@ -58,8 +61,8 @@ class TipsFragment : Fragment(R.layout.fragment_tips) {
                 .commit()
         }
 
-        card1.setOnClickListener {
-            val level = pref.getString("level_materi1", "BEGINNER")
+        card2.setOnClickListener {
+            val level = pref.getString("level_materi2", "BEGINNER")
 
             val fragment = TipsSampahFragment()
             val bundle = Bundle()
@@ -72,8 +75,8 @@ class TipsFragment : Fragment(R.layout.fragment_tips) {
                 .commit()
         }
 
-        card1.setOnClickListener {
-            val level = pref.getString("level_materi1", "BEGINNER")
+        card3.setOnClickListener {
+            val level = pref.getString("level_materi3", "BEGINNER")
 
             val fragment = TipsHematAirFragment()
             val bundle = Bundle()
@@ -85,5 +88,11 @@ class TipsFragment : Fragment(R.layout.fragment_tips) {
                 .addToBackStack(null)
                 .commit()
         }
-        }
     }
+
+    override fun onResume() {
+        super.onResume()
+        // ✅ Tampilkan Bottom Navigation saat kembali ke fragment ini
+        requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
+    }
+}

@@ -11,6 +11,9 @@ object UnlockLevelHelper {
      * Logika ini bisa disesuaikan dengan kebutuhan (misal: cek SharedPreferences atau Firebase)
      */
     fun checkAndUnlockNextLevel(context: Context, currentLevel: Int) {
+        // Maksimal level adalah 3, tidak perlu unlock level 4
+        if (currentLevel >= 3) return
+
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val prefMisi = context.getSharedPreferences(
             "MISI_${userId}_LEVEL_$currentLevel",
@@ -28,6 +31,8 @@ object UnlockLevelHelper {
     }
 
     private fun unlockNextLevel(context: Context, nextLevel: Int) {
+        // Jangan unlock melebihi level 3
+        if (nextLevel > 3) return
 
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
@@ -64,6 +69,8 @@ object UnlockLevelHelper {
     }
 
     fun isLevelUnlocked(level: Int, highestUnlocked: Int): Boolean {
+        // Pastikan level yang dicek tidak melebihi 3
+        if (level > 3) return false
         return level <= highestUnlocked
     }
 }

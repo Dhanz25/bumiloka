@@ -42,8 +42,8 @@ class QuizUtamaFragment : Fragment(R.layout.fragment_quiz_utama_) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val bottomNav = requireActivity().findViewById<View>(R.id.bottom_navigation)
-        bottomNav.visibility = View.GONE
+        // ❌ Sembunyikan Bottom Navigation
+        requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
 
         val toolbar = view.findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
         tvLevelIndicator = view.findViewById(R.id.tvLevelIndicator)
@@ -75,17 +75,20 @@ class QuizUtamaFragment : Fragment(R.layout.fragment_quiz_utama_) {
         val card2 = view.findViewById<MaterialCardView>(R.id.card2)
         val card3 = view.findViewById<MaterialCardView>(R.id.card3)
 
-        // Ambil Level User
         LevelHelper.getCurrentLevel(requireContext()) { level ->
             userLevel = level
-            tvLevelIndicator.text = "Level $level (${if (level == 1) "Eco Beginner" else "Eco Warrior"})"
+            val levelName = when (level) {
+                1 -> "Eco Beginner"
+                2 -> "Eco Warrior"
+                3 -> "Nature Protector"
+                else -> "Eco Beginner"
+            }
+            tvLevelIndicator.text = "Level $level ($levelName)"
             loadUI()
         }
 
         toolbar.setNavigationOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, HomeFragment())
-                .commit()
+            parentFragmentManager.popBackStack()
         }
 
         fun resetTab() {
@@ -132,6 +135,8 @@ class QuizUtamaFragment : Fragment(R.layout.fragment_quiz_utama_) {
 
     override fun onResume() {
         super.onResume()
+        // ❌ Tetap sembunyikan saat kembali
+        requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
         LevelHelper.getCurrentLevel(requireContext()) { level ->
             userLevel = level
             loadUI()
@@ -140,16 +145,13 @@ class QuizUtamaFragment : Fragment(R.layout.fragment_quiz_utama_) {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        val bottomNav = requireActivity().findViewById<View>(R.id.bottom_navigation)
-        bottomNav.visibility = View.VISIBLE
+        // ✅ Jangan panggil View.VISIBLE di sini!
     }
 
     private fun loadUI() {
-        val currentLevel = LevelHelper.getCurrentLevelLocal(requireContext())
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
         val pref = requireActivity().getSharedPreferences("KUIS_${userId}_LEVEL_$userLevel", Context.MODE_PRIVATE)
 
-        // Update Title & Image berdasarkan Level dari Helper
         tvTitle1.text = LevelHelper.getQuizTitle(userLevel, 1)
         imgQuiz1.setImageResource(LevelHelper.getQuizImage(userLevel, 1))
         
@@ -159,7 +161,6 @@ class QuizUtamaFragment : Fragment(R.layout.fragment_quiz_utama_) {
         tvTitle3.text = LevelHelper.getQuizTitle(userLevel, 3)
         imgQuiz3.setImageResource(LevelHelper.getQuizImage(userLevel, 3))
 
-        // ================= MATERI 1 =================
         val s1 = pref.getBoolean("materi1_selesai", false)
         val n1 = pref.getInt("nilai_materi1", 0)
 
@@ -203,7 +204,6 @@ class QuizUtamaFragment : Fragment(R.layout.fragment_quiz_utama_) {
             btnTips1.visibility = View.GONE
         }
 
-        // ================= MATERI 2 =================
         val s2 = pref.getBoolean("quiz2_selesai", false)
         val n2 = pref.getInt("quiz2_nilai", 0)
 
@@ -247,7 +247,6 @@ class QuizUtamaFragment : Fragment(R.layout.fragment_quiz_utama_) {
             btnTips2.visibility = View.GONE
         }
 
-        // ================= MATERI 3 =================
         val s3 = pref.getBoolean("quiz3_selesai", false)
         val n3 = pref.getInt("quiz3_nilai", 0)
 

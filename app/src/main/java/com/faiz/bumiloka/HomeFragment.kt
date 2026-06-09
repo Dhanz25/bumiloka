@@ -46,17 +46,21 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_home, container, false)
     }
 
     override fun onResume() {
         super.onResume()
+        // ✅ Tampilkan Bottom Navigation di HomeFragment
+        requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
         loadProgressFirebase(pbProgress, tvProgress, tvLevel)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // ✅ Pastikan muncul saat pertama kali dibuat
+        requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
 
         pbProgress = view.findViewById(R.id.pbTargetProgress)
         tvProgress = view.findViewById(R.id.tvProgressPercentage)
@@ -67,7 +71,6 @@ class HomeFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
 
-        // Cek Session: Jika tidak ada user yang login, arahkan ke LoginActivity
         if (currentUser == null) {
             val intent = Intent(requireContext(), LoginActivity::class.java)
             startActivity(intent)
@@ -112,7 +115,6 @@ class HomeFragment : Fragment() {
             prefs.edit().putBoolean("sudah_welcome", true).apply()
         }
 
-        // Fungsi untuk memperbarui tampilan nama
         fun updateUserName(user: FirebaseUser?) {
             val rawName = when {
                 !user?.displayName.isNullOrBlank() -> user?.displayName
@@ -120,18 +122,15 @@ class HomeFragment : Fragment() {
                 else -> "Bumi Lover"
             }
 
-            // Capitalize: Mengubah huruf pertama setiap kata menjadi huruf besar
             val nameToShow = rawName?.split(" ")?.joinToString(" ") { word ->
                 word.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
             } ?: ""
 
             tvGreeting.text = getString(R.string.hello_placeholder, nameToShow)
 
-            // Setup listener profil dengan nama terbaru
             ivProfile.setOnClickListener { profileView ->
                 val popupMenu = PopupMenu(requireContext(), profileView)
 
-                // Membuat username menjadi BOLD menggunakan SpannableString
                 val spannableName = SpannableString(nameToShow)
                 spannableName.setSpan(
                     StyleSpan(Typeface.BOLD),
@@ -140,7 +139,6 @@ class HomeFragment : Fragment() {
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
 
-                // Menyamakan ID Menu dengan ID di Listener
                 popupMenu.menu.add(0, 1, 0, spannableName)
                 popupMenu.menu.add(0, 2, 1, "Pengaturan Profil")
                 popupMenu.menu.add(0, 3, 2, "Keluar")
@@ -159,12 +157,10 @@ class HomeFragment : Fragment() {
                             true
                         }
                         3 -> {
-                            // Konfirmasi Logout
                             AlertDialog.Builder(requireContext())
                                 .setTitle("Konfirmasi Keluar")
                                 .setMessage("Apakah Anda yakin ingin keluar?")
                                 .setPositiveButton("Ya") { _, _ ->
-                                    // Proses Logout
                                     auth.signOut()
                                     googleSignInClient.signOut().addOnCompleteListener {
                                         Toast.makeText(requireContext(), "Berhasil Keluar", Toast.LENGTH_SHORT).show()
@@ -216,45 +212,33 @@ class HomeFragment : Fragment() {
             requireProfile {
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, QuizUtamaFragment())
+                    .addToBackStack(null)
                     .commit()
             }
         }
 
-        // Tampilkan nama awal dari cache session
         updateUserName(currentUser)
 
-        // Reload data dari server Firebase untuk memastikan Nama muncul (sinkronisasi)
         currentUser.reload().addOnCompleteListener {
             if (it.isSuccessful) {
                 updateUserName(auth.currentUser)
             }
         }
-        // TAMBAHAN: Tampilkan rekomendasi harian
         tampilkanRekomendasiHarian(tvRekomendasiHariIni)
     }
 
-    // ===============================
-    // REKOMENDASI HARIAN (1 HARI 1 REKOMENDASI)
-    // ===============================
     private fun tampilkanRekomendasiHarian(tvRekomendasi: TextView) {
-
         val sharedPref = requireActivity().getSharedPreferences(
             "RekomendasiHarian",
             android.content.Context.MODE_PRIVATE
         )
-
         val editor = sharedPref.edit()
-
         val today = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
-
         val savedDate = sharedPref.getString("tanggal", "")
         var rekomendasiHariIni = sharedPref.getString("rekomendasi", "")
 
         if (savedDate != today) {
-
             val daftarRekomendasi = listOf(
-
-                // Edukasi / Materi
                 "📘 Baca materi edukasi baru hari ini!",
                 "📚 Lanjutkan membaca materi berikutnya sekarang!",
                 "🌍 Pelajari tips baru tentang lingkungan hari ini!",
@@ -265,10 +249,8 @@ class HomeFragment : Fragment() {
                 "📘 Mulai baca materi pertamamu hari ini!",
                 "📚 Jangan lupa selesaikan materi yang belum dibaca!",
                 "🌿 Baca satu materi untuk menambah progresmu!",
-
-                // Kuis
                 "❓ Selesaikan kuis hari ini untuk menambah wawasan!",
-                "📝 Kerjakan kuis sekarang dan uji pemahamanmu!",
+                "📝 Kerjakan kuis sekarang and uji pemahamanmu!",
                 "🎯 Yuk lanjutkan kuis yang belum selesai!",
                 "🏆 Tantang dirimu dengan menyelesaikan kuis baru!",
                 "📊 Coba kerjakan kuis dari materi yang sudah dibaca!",
@@ -277,8 +259,6 @@ class HomeFragment : Fragment() {
                 "📍 Jangan lewatkan kuis harianmu!",
                 "🚀 Kerjakan kuis sekarang juga!",
                 "🎓 Lanjutkan kuis berikutnya untuk hasil terbaik!",
-
-                // Tantangan
                 "🚩 Selesaikan tantangan hari ini sekarang!",
                 "🌱 Lanjutkan tantangan lingkunganmu hari ini!",
                 "♻️ Kerjakan tantangan baru untuk bumi yang lebih baik!",
@@ -289,8 +269,6 @@ class HomeFragment : Fragment() {
                 "🚀 Lanjutkan tantangan agar progres meningkat!",
                 "💪 Selesaikan aksi hijau melalui tantangan hari ini!",
                 "🌿 Kerjakan tantangan ramah lingkungan sekarang!",
-
-                // Misi
                 "🎯 Kerjakan misi hari ini untuk menambah pencapaian!",
                 "🚀 Selesaikan misi baru sekarang!",
                 "🏆 Lanjutkan misi yang belum selesai!",
@@ -301,8 +279,6 @@ class HomeFragment : Fragment() {
                 "🎖️ Yuk tuntaskan misi berikutnya!",
                 "📈 Tambah progres dengan menyelesaikan misi!",
                 "🌱 Kerjakan misi sederhana untuk bantu bumi!",
-
-                // Aksi lingkungan umum
                 "🌱 Gunakan tumbler sendiri hari ini untuk menjaga lingkungan!",
                 "♻️ Kurangi penggunaan plastik sekali pakai!",
                 "💡 Matikan lampu yang tidak digunakan!",
@@ -324,28 +300,21 @@ class HomeFragment : Fragment() {
                 "🥗 Habiskan makananmu agar tidak terbuang!",
                 "🌏 Satu aksi kecilmu hari ini bisa bantu bumi!"
             )
-
             rekomendasiHariIni = daftarRekomendasi.random()
-
             editor.putString("tanggal", today)
             editor.putString("rekomendasi", rekomendasiHariIni)
             editor.apply()
         }
-
         tvRekomendasi.text = rekomendasiHariIni
     }
+
     private fun checkProfileOnce() {
         val user = auth.currentUser ?: return
         val userId = user.uid
         val db = com.google.firebase.database.FirebaseDatabase.getInstance().reference
 
-        // Pastikan path-nya benar: users -> userId
         db.child("users").child(userId).get().addOnSuccessListener { snapshot ->
-            // Ambil status profil secara akurat
             val isComplete = snapshot.child("isProfileComplete").getValue(Boolean::class.java) ?: false
-
-            Log.d("BUMILOKA_DEBUG", "Cek profil UID: $userId | Status: $isComplete")
-
             if (!isComplete) {
                 showLengkapiProfilDialog()
             }
@@ -361,7 +330,6 @@ class HomeFragment : Fragment() {
 
         db.child("users").child(userId).get().addOnSuccessListener { snapshot ->
             val isComplete = snapshot.child("isProfileComplete").getValue(Boolean::class.java) ?: false
-
             if (isComplete) {
                 action()
             } else {
@@ -369,49 +337,36 @@ class HomeFragment : Fragment() {
             }
         }
     }
+
     private fun showWelcomeThenProfil() {
         if (!isAdded) return
-
         val user = auth.currentUser
         val nama = user?.displayName?.split(" ")?.first() ?: "Pengguna"
-
-        // 👉 tampilkan toast kecil
         val toastView = layoutInflater.inflate(R.layout.toast_welcome, null)
         val tv = toastView.findViewById<TextView>(R.id.tvToastMessage)
         tv.text = "Selamat Datang, $nama 👋"
-
         val toast = Toast(requireContext())
         toast.duration = Toast.LENGTH_SHORT
         toast.view = toastView
         toast.setGravity(Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, 200)
-
         toast.show()
 
-        // 👉 setelah itu baru cek profil
         Handler(Looper.getMainLooper()).postDelayed({
             checkProfileOnce()
         }, 1500)
     }
 
-    // Fungsi pembantu agar tidak menulis ulang dialog berkali-kali
     private fun showLengkapiProfilDialog() {
         if (!isAdded) return
-
         val view = layoutInflater.inflate(R.layout.pop_up_profile, null)
-
         val dialog = AlertDialog.Builder(requireContext())
             .setView(view)
             .setCancelable(true)
             .create()
-
         dialog.show()
-
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-
-        // 👉 INI LETAKNYA DI SINI
         view.setOnClickListener {
             dialog.dismiss()
-
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, PengaturanFragment())
                 .addToBackStack(null)
@@ -425,36 +380,30 @@ class HomeFragment : Fragment() {
         tvLevel: TextView
     ) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-
         LevelHelper.getCurrentLevel(requireContext()) { level ->
-
-            // ✅ update UI Level instant
             tvLevel.text = "🏅 Level $level"
-
             val db = com.google.firebase.database.FirebaseDatabase.getInstance()
                 .reference.child("users").child(userId)
-
             db.get().addOnSuccessListener { snapshot ->
-
                 val highest = snapshot.child("highestUnlockedLevel").getValue(Int::class.java) ?: 1
                 val xp = snapshot.child("xp").getValue(Int::class.java) ?: 0
-
                 val targetXP = level * 100
                 var progressPercent = ((xp.toDouble() / targetXP) * 100).toInt()
-
-                // Jika level yang dilihat adalah level lama, tampilkan 100%
                 if (level < highest) {
                     progressPercent = 100
                 }
-
-                // SET UI
                 progressBar.progress = progressPercent
                 tvProgress.text = if (level < highest) "Selesai ✓" else "$progressPercent% tercapai"
                 tvLevel.text = "🏅 Level $level ${if (level < highest) "(Riwayat)" else ""}"
-
             }.addOnFailureListener {
                 Log.e("HOME_PROGRESS", "Gagal ambil data: ${it.message}")
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // ✅ Sembunyikan Bottom Navigation saat keluar dari HomeFragment
+        requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
     }
 }

@@ -22,6 +22,9 @@ class EdukasiFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // ❌ Sembunyikan Bottom Navigation
+        requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
+
         val toolbar = view.findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
         val tvEdukasiLevel = view.findViewById<TextView>(R.id.tvEdukasiLevel)
         
@@ -38,41 +41,64 @@ class EdukasiFragment : Fragment() {
             parentFragmentManager.popBackStack()
         }
 
-        // Ambil Level User
         LevelHelper.getCurrentLevel(requireContext()) { level ->
             userLevel = level
-            tvEdukasiLevel.text = "Level $level (${if (level == 1) "Eco Beginner" else "Eco Warrior"})"
+            val levelName = when (level) {
+                1 -> "Eco Beginner"
+                2 -> "Eco Warrior"
+                3 -> "Nature Protector"
+                else -> "Eco Beginner"
+            }
+            tvEdukasiLevel.text = "Level $level ($levelName)"
             
-            if (level >= 2) {
-                tvTitle1.text = "Energi Terbarukan"
-                img1.setImageResource(R.drawable.img) // Placeholder
-                
-                tvTitle2.text = "Pemanasan Global"
-                img2.setImageResource(R.drawable.img) // Placeholder
-                
-                tvTitle3.text = "Ekosistem Laut"
-                img3.setImageResource(R.drawable.img) // Placeholder
+            when (level) {
+                1 -> {
+                    tvTitle1.text = "Peduli Lingkungan"
+                    img1.setImageResource(R.drawable.img_lingkungan)
+                    tvTitle2.text = "Kelola Sampah"
+                    img2.setImageResource(R.drawable.img_sampah)
+                    tvTitle3.text = "Hemat Air"
+                    img3.setImageResource(R.drawable.img_air)
+                }
+                2 -> {
+                    // Fokus SAMPAH
+                    tvTitle1.text = "Jenis Sampah"
+                    img1.setImageResource(R.drawable.img_sampah)
+                    tvTitle2.text = "Konsep 3R"
+                    img2.setImageResource(R.drawable.img_sampah)
+                    tvTitle3.text = "Bahaya Plastik"
+                    img3.setImageResource(R.drawable.img_sampah)
+                }
+                3 -> {
+                    // Fokus HEMAT AIR
+                    tvTitle1.text = "Konservasi Air"
+                    img1.setImageResource(R.drawable.img_air)
+                    tvTitle2.text = "Siklus Air"
+                    img2.setImageResource(R.drawable.img_air)
+                    tvTitle3.text = "Teknik Hemat Air"
+                    img3.setImageResource(R.drawable.img_air)
+                }
             }
         }
 
         view.findViewById<View?>(R.id.materi1)?.setOnClickListener {
-            bukaMateri(if (userLevel == 1) 1 else 4)
+            bukaMateri(1)
         }
 
         view.findViewById<View?>(R.id.materi2)?.setOnClickListener {
-            bukaMateri(if (userLevel == 1) 2 else 5)
+            bukaMateri(2)
         }
 
         view.findViewById<View?>(R.id.materi3)?.setOnClickListener {
-            bukaMateri(if (userLevel == 1) 3 else 6)
+            bukaMateri(3)
         }
     }
 
-    private fun bukaMateri(id: Int) {
+    private fun bukaMateri(index: Int) {
         val dariTantangan = arguments?.getBoolean("DARI_TANTANGAN", false) ?: false
-        val fragment = MateriFragment.newInstance(id)
+        val fragment = MateriFragment.newInstance(index)
         val args = fragment.arguments ?: Bundle()
-        args.putBoolean("DARI_TANTANGAN", dariTantangan) // ✅ teruskan flag
+        args.putBoolean("DARI_TANTANGAN", dariTantangan)
         fragment.arguments = args
         activity?.supportFragmentManager?.beginTransaction()
             ?.replace(R.id.fragment_container, fragment)
@@ -82,13 +108,13 @@ class EdukasiFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        val bottomNav = requireActivity().findViewById<View>(R.id.bottom_navigation)
-        bottomNav?.visibility = View.GONE
+        // ❌ Tetap Sembunyikan Bottom Navigation saat kembali ke fragment ini
+        requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
     }
 
-    override fun onPause() {
-        super.onPause()
-        val bottomNav = requireActivity().findViewById<View>(R.id.bottom_navigation)
-        bottomNav?.visibility = View.VISIBLE
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // 🔺 Tampilkan kembali Bottom Navigation saat keluar fragment
+        requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
     }
 }

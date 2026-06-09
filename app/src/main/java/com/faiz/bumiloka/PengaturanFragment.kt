@@ -106,6 +106,18 @@ class PengaturanFragment : Fragment() {
         return view
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        // ✅ Tampilkan Bottom Navigation
+        requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // ✅ Tampilkan Bottom Navigation
+        requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
+    }
+
     private fun toggleInput(view: View, enabled: Boolean) {
         try {
             view.findViewById<EditText>(R.id.etNama)?.isEnabled = enabled
