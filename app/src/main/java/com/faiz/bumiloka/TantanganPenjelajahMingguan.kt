@@ -124,18 +124,38 @@ class TantanganPenjelajahMingguanFragment : Fragment(R.layout.fragment_tantangan
 
         if (isSemuaSelesai()) {
 
-            pref().edit()
-                .putBoolean("tantangan_selesai", true)
-                .apply()
+            val sudahSelesai =
+                pref().getBoolean(
+                    "tantangan_selesai",
+                    false
+                )
+
+            if (!sudahSelesai) {
+
+                pref().edit()
+                    .putBoolean(
+                        "tantangan_selesai",
+                        true
+                    )
+                    .apply()
+
+                BadgeHelper.tambahBadge(
+                    requireContext(),
+                    "penjelajah_level1"
+                )
+            }
 
             if (!isPopupShown()) {
                 setPopupShown()
                 showPopupSelesai()
             }
         }
+
     }
 
     private fun showPopupSelesai() {
+
+
         val dialogView = layoutInflater.inflate(R.layout.popup_tantanganselesai1, null)
         val tvJudul = dialogView.findViewById<TextView>(R.id.tvJudulPopup)
         val btnLanjut = dialogView.findViewById<Button>(R.id.btnLanjutPopup)

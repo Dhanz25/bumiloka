@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">BumiLoka</string>
     <string name="action_settings">Settings</string>
@@ -89,4 +90,82 @@
     <string name="quiz_result_desc">Terima kasih telah menyelesaikan kuis ini.</string>
     <string name="btn_retake">Ulangi Kuis</string>
     <string name="btn_ok">OK</string>
+
+    <!-- Bantuan & Dukungan Strings -->
+    <string name="title_help_support">Bantuan &amp; Dukungan</string>
+    <string name="app_name_eco">Eco Warrior</string>
+    <string name="app_slogan">Bersama jaga bumi, mulai dari diri sendiri.</string>
+    <string name="title_about">Tentang Aplikasi</string>
+    <string name="desc_about">Eco Warrior adalah aplikasi gamifikasi yang membantu pengguna berkontribusi terhadap lingkungan melalui tantangan dan aktivitas ramah lingkungan.</string>
+    <string name="title_faq">FAQ</string>
+    <string name="desc_faq">Temukan jawaban untuk pertanyaan yang sering diajukan.</string>
+    <string name="title_contact">Hubungi Kami</string>
+    <string name="desc_contact">Punya pertanyaan atau masukan? Hubungi tim kami.</string>
+    <string name="title_info_app">Informasi Aplikasi</string>
+    <string name="label_app_name">Nama Aplikasi</string>
+    <string name="label_version">Versi</string>
+    <string name="value_version">1.0.0</string>
+    <string name="label_platform">Platform</string>
+    <string name="value_platform">Android</string>
+    <string name="label_privacy_policy">Kebijakan Privasi</string>
+    <string name="label_developer">Dikembangkan oleh</string>
+    <string name="value_developer">Tim Eco Warrior</string>
+    <string name="copyright_text">© 2026 Eco Warrior. All Rights Reserved.</string>
+
+    <!-- Tentang Aplikasi Strings -->
+    <string name="title_about_app">Tentang Aplikasi</string>
+    <string name="about_eco_warrior_title">Tentang Eco Warrior</string>
+    <string name="about_eco_warrior_desc">Eco Warrior adalah aplikasi gamifikasi lingkungan yang dirancang untuk meningkatkan kesadaran dan partisipasi pengguna dalam menjaga lingkungan melalui berbagai aktivitas dan tantangan ramah lingkungan.\n\nMelalui sistem poin, lencana, dan level, pengguna dapat memantau perkembangan kontribusi mereka terhadap lingkungan secara menyenangkan dan interaktif.</string>
+    <string name="visi_title">Visi</string>
+    <string name="visi_desc">Menciptakan generasi yang lebih peduli lingkungan melalui pemanfaatan teknologi digital yang edukatif dan interaktif.</string>
+    <string name="misi_title">Misi</string>
+    <string name="misi_desc">• Meningkatkan kesadaran lingkungan.\n• Mendorong aksi nyata dalam menjaga lingkungan.\n• Membentuk kebiasaan ramah lingkungan.\n• Memberikan pengalaman belajar yang menyenangkan melalui gamifikasi.</string>
+    <string name="fitur_utama_title">Fitur Utama</string>
+    <string name="fitur_tantangan_title">Tantangan Lingkungan</string>
+    <string name="fitur_tantangan_desc">Menyelesaikan berbagai misi ramah lingkungan.</string>
+    <string name="fitur_poin_title">Sistem Poin</string>
+    <string name="fitur_poin_desc">Mengumpulkan poin dari aktivitas yang dilakukan.</string>
+    <string name="fitur_lencana_title">Lencana Prestasi</string>
+    <string name="fitur_lencana_desc">Mendapatkan penghargaan berdasarkan pencapaian.</string>
+    <string name="fitur_riwayat_title">Riwayat Aktivitas</string>
+    <string name="fitur_riwayat_desc">Melihat perkembangan aktivitas pengguna.</string>
+
+    <!-- FAQ Strings -->
+    <string name="faq_header_title">Pertanyaan yang Sering Diajukan</string>
+    <string name="faq_header_desc">Temukan jawaban atas pertanyaan yang paling sering ditanyakan pengguna Eco Warrior.</string>
+    <string name="faq_footer_text">Tidak menemukan jawaban yang dicari?</string>
+    <string name="faq_btn_contact">Hubungi Kami</string>
+
+    <!-- FAQ Questions & Answers -->
+    <string name="faq_q1">Bagaimana cara mendapatkan poin?</string>
+    <string name="faq_a1">Poin diperoleh setelah pengguna menyelesaikan aktivitas atau tantangan yang tersedia pada aplikasi Eco Warrior.</string>
+    <string name="faq_q2">Bagaimana cara mendapatkan lencana?</string>
+    <string name="faq_a2">Lencana diberikan secara otomatis ketika pengguna berhasil memenuhi syarat pencapaian tertentu, seperti jumlah poin atau jumlah tantangan yang telah diselesaikan.</string>
+    <string name="faq_q3">Mengapa poin saya belum bertambah?</string>
+    <string name="faq_a3">Pastikan aktivitas atau tantangan telah diselesaikan dan diverifikasi oleh sistem. Jika masih belum bertambah, coba muat ulang aplikasi.</string>
+    <string name="faq_q4">Apakah data aktivitas saya tersimpan?</string>
+    <string name="faq_a4">Ya. Riwayat aktivitas, poin, dan pencapaian pengguna akan disimpan sehingga dapat diakses kembali kapan saja.</string>
+    <string name="faq_q5">Bagaimana cara melihat pencapaian saya?</string>
+    <string name="faq_a5">Buka menu Profil kemudian pilih menu Pencapaian untuk melihat seluruh lencana dan prestasi yang telah diperoleh.</string>
+    <string name="faq_q6">Apakah aplikasi ini dapat digunakan secara offline?</string>
+    <string name="faq_a6">Sebagian fitur dapat digunakan secara offline, namun beberapa fitur memerlukan koneksi internet untuk sinkronisasi data.</string>
+    <string name="faq_q7">Bagaimana cara menghubungi pengembang?</string>
+    <string name="faq_a7">Pengguna dapat menghubungi pengembang melalui menu Hubungi Kami yang tersedia pada halaman Bantuan &amp; Dukungan.</string>
+
+    <!-- Hubungi Kami Strings -->
+    <string name="contact_us_desc">Kami siap menerima pertanyaan, kritik, saran, dan masukan untuk pengembangan Eco Warrior.</string>
+    <string name="contact_email_title">Email</string>
+    <string name="contact_email_address">eco.warrior@gmail.com</string>
+    <string name="contact_email_btn">Kirim Email</string>
+    <string name="contact_whatsapp_title">WhatsApp</string>
+    <string name="contact_whatsapp_number">+62 812-3456-7890</string>
+    <string name="contact_whatsapp_btn">Chat WhatsApp</string>
+    <string name="contact_form_title">Kritik &amp; Saran</string>
+    <string name="contact_form_name_hint">Nama</string>
+    <string name="contact_form_email_hint">Email</string>
+    <string name="contact_form_message_hint">Pesan</string>
+    <string name="contact_form_submit_btn">Kirim Masukan</string>
+    <string name="contact_footer_version">Eco Warrior v1.0.0</string>
+    <string name="contact_form_error_empty">Field ini tidak boleh kosong</string>
+    <string name="contact_form_success">Terima kasih atas masukan Anda.</string>
 </resources>

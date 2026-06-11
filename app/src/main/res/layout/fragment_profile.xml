@@ -539,6 +539,7 @@
 
                     <!-- Bantuan -->
                     <LinearLayout
+                        android:id="@+id/btnBantuan"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
                         android:gravity="center_vertical"

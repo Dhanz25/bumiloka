@@ -79,6 +79,7 @@ class TantanganMasterKuisFragment :
 
     private fun updateProgress() {
 
+
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
 
         LevelHelper.getCurrentLevel(requireContext()) { level ->
@@ -163,8 +164,39 @@ class TantanganMasterKuisFragment :
                 btnMulaiKuis.isEnabled = false
             }
 
-            btnSelesai.isEnabled =
+            val tantanganSelesai =
                 (kuisSelesai == 3 && skor75 == 3)
+
+            btnSelesai.isEnabled = tantanganSelesai
+
+            if (tantanganSelesai) {
+
+                val prefTantangan =
+                    requireActivity().getSharedPreferences(
+                        "MASTER_KUIS_BADGE",
+                        Context.MODE_PRIVATE
+                    )
+
+                val sudahDapat =
+                    prefTantangan.getBoolean(
+                        "masterkuis_level1",
+                        false
+                    )
+
+                if (!sudahDapat) {
+
+                    prefTantangan.edit()
+                        .putBoolean(
+                            "masterkuis_level1",
+                            true
+                        )
+                        .apply()
+
+                    LencanaHelper.tambahLencana(
+                        "masterkuis_level1"
+                    )
+                }
+            }
         }
     }
 

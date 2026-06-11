@@ -51,6 +51,7 @@ class ProfileFragment : Fragment() {
 
         val tvProfileName = view.findViewById<TextView>(R.id.tvProfileName)
         val btnPengaturan = view.findViewById<LinearLayout>(R.id.btnPengaturan)
+        val btnBantuan = view.findViewById<LinearLayout>(R.id.btnBantuan)
         val btnLogout = view.findViewById<LinearLayout>(R.id.btnLogout)
 
 
@@ -83,6 +84,18 @@ class ProfileFragment : Fragment() {
                 .replace(R.id.fragment_container, PengaturanFragment())
                 .addToBackStack(null)
                 .commit()
+        }
+
+        btnBantuan.setOnClickListener {
+
+            parentFragmentManager.beginTransaction()
+                .replace(
+                    R.id.fragment_container,
+                    bantuan_dukungan()
+                )
+                .addToBackStack(null)
+                .commit()
+
         }
         btnLogout.setOnClickListener {
 
@@ -128,7 +141,12 @@ class ProfileFragment : Fragment() {
 
             // --- AMBIL DATA MISI & LENCANA (Default 0) ---
             val misiTercapai = snapshot.child("misiTercapai").getValue(Int::class.java) ?: 0
-            val totalLencana = snapshot.child("totalLencana").getValue(Int::class.java) ?: 0
+            val totalLencana =
+                BadgeHelper.getTotalBadge(requireContext())
+            android.util.Log.d(
+                "BADGE_DEBUG",
+                "TOTAL BADGE = $totalLencana"
+            )
 
             // Atur Gelar berdasarkan level
             val levelTitle = getLevelTitle(currentLevel)
