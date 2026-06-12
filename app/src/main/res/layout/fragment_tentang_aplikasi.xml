@@ -44,27 +44,20 @@
                     android:id="@+id/ivLogoApp"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
-                    android:background="@color/primary_green"
+                    android:background="@drawable/logo_background"
                     android:padding="20dp"
-                    android:src="@drawable/ic_leaf"
+                    android:src="@drawable/logo_tv"
                     app:shapeAppearanceOverlay="@style/CircleImage"
-                    app:tint="@color/white" />
+                    />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="@string/app_name_eco"
+                    android:text="BumiLoka"
                     android:textColor="@color/text_title"
                     android:textSize="26sp"
                     android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/label_version"
-                    android:textColor="@color/text_subtitle"
-                    android:textSize="14sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -75,11 +68,12 @@
                     android:textSize="14sp" />
             </LinearLayout>
 
-            <!-- Card 1: Tentang Eco Warrior -->
+            <!-- Card 1: Tentang Eco Warrior (Soft Green) -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/bg_green"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
                 app:contentPadding="16dp">
@@ -93,26 +87,27 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        android:text="@string/about_eco_warrior_title"
-                        android:textColor="@color/primary_green"
+                        android:text="Tentang BumiLoka"
+                        android:textColor="@color/text_title"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/about_eco_warrior_desc"
+                        android:text="BumiLoka adalah aplikasi edukasi lingkungan yang dirancang untuk meningkatkan kesadaran dan partisipasi remaja dalam menjaga lingkungan. Melalui sistem poin, lencana, dan level, pengguna dapat memantau perkembangan kontribusi mereka terhadap lingkungan secara menyenangkan dan interaktif."
                         android:textColor="@color/text_subtitle"
                         android:lineSpacingExtra="4dp"
                         android:textSize="14sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Card 2: Visi -->
+            <!-- Card 2: Visi (Soft Green) -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/bg_green"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
                 app:contentPadding="16dp">
@@ -140,7 +135,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:text="@string/visi_title"
-                            android:textColor="@color/primary_green"
+                            android:textColor="@color/text_title"
                             android:textSize="18sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -155,11 +150,12 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Card 3: Misi -->
+            <!-- Card 3: Misi (Soft Green) -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/bg_green"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
                 app:contentPadding="16dp">
@@ -187,7 +183,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:text="@string/misi_title"
-                            android:textColor="@color/primary_green"
+                            android:textColor="@color/text_title"
                             android:textSize="18sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -195,18 +191,19 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/misi_desc"
+                        android:text="• Meningkatkan kesadaran lingkungan terhadap remaja. • Membentuk kebiasaan ramah lingkungan. • Memberikan pengalaman belajar yang menyenangkan melalui gamifikasi"
                         android:textColor="@color/text_subtitle"
                         android:lineSpacingExtra="6dp"
                         android:textSize="14sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Card 4: Fitur Utama -->
+            <!-- Card 4: Fitur Utama (Soft Green) -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="@color/bg_green"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
                 app:contentPadding="16dp">
@@ -221,7 +218,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         android:text="@string/fitur_utama_title"
-                        android:textColor="@color/primary_green"
+                        android:textColor="@color/text_title"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -232,6 +229,125 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:layout_marginBottom="12dp">
+
+                        <ImageView
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:background="@drawable/bg_icon_circle_green"
+                            android:padding="8dp"
+                            android:src="@drawable/ic_edukasi"
+                            app:tint="@color/primary_green" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Edukasi"
+                                android:textColor="@color/text_title"
+                                android:textStyle="bold"
+                                android:textSize="14sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Memberikan berbagai materi terkait lingkungan, tiap level memiliki tema yang berbeda"
+                                android:textColor="@color/text_subtitle"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Item 2 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="12dp">
+
+                        <ImageView
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:background="@drawable/bg_icon_circle_green"
+                            android:padding="8dp"
+                            android:src="@drawable/ic_quiz"
+                            app:tint="@color/primary_green" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Kuis"
+                                android:textColor="@color/text_title"
+                                android:textStyle="bold"
+                                android:textSize="14sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Kuis dikerjakan saat materi sudah selesai dibaca, tujuan dari kuis ini mengukur kemampuan dari materi tersebut"
+                                android:textColor="@color/text_subtitle"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Item 3 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="12dp">
+
+                        <ImageView
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:background="@drawable/bg_icon_circle_green"
+                            android:padding="8dp"
+                            android:src="@drawable/ic_misi"
+                            app:tint="@color/primary_green" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Misi"
+                                android:textColor="@color/text_title"
+                                android:textStyle="bold"
+                                android:textSize="14sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Selesaikan misi untuk naik level"
+                                android:textColor="@color/text_subtitle"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Item 4 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
                         <ImageView
                             android:layout_width="36dp"
@@ -251,7 +367,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="@string/fitur_tantangan_title"
+                                android:text="Tantangan"
                                 android:textColor="@color/text_title"
                                 android:textStyle="bold"
                                 android:textSize="14sp" />
@@ -259,126 +375,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="@string/fitur_tantangan_desc"
-                                android:textColor="@color/text_subtitle"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-                    </LinearLayout>
-
-                    <!-- Item 2 -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="12dp">
-
-                        <ImageView
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:background="@drawable/bg_icon_circle_green"
-                            android:padding="8dp"
-                            android:src="@drawable/ic_trophy"
-                            app:tint="@color/primary_green" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/fitur_poin_title"
-                                android:textColor="@color/text_title"
-                                android:textStyle="bold"
-                                android:textSize="14sp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/fitur_poin_desc"
-                                android:textColor="@color/text_subtitle"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-                    </LinearLayout>
-
-                    <!-- Item 3 -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="12dp">
-
-                        <ImageView
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:background="@drawable/bg_icon_circle_green"
-                            android:padding="8dp"
-                            android:src="@drawable/ic_medal"
-                            app:tint="@color/primary_green" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/fitur_lencana_title"
-                                android:textColor="@color/text_title"
-                                android:textStyle="bold"
-                                android:textSize="14sp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/fitur_lencana_desc"
-                                android:textColor="@color/text_subtitle"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-                    </LinearLayout>
-
-                    <!-- Item 4 -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <ImageView
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:background="@drawable/bg_icon_circle_green"
-                            android:padding="8dp"
-                            android:src="@drawable/ic_activity"
-                            app:tint="@color/primary_green" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/fitur_riwayat_title"
-                                android:textColor="@color/text_title"
-                                android:textStyle="bold"
-                                android:textSize="14sp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/fitur_riwayat_desc"
+                                android:text="Selesaikan tantangan untuk mendapatkan badge"
                                 android:textColor="@color/text_subtitle"
                                 android:textSize="12sp" />
                         </LinearLayout>
@@ -392,7 +389,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:gravity="center"
-                android:text="@string/copyright_text"
+                android:text="© 2026 BumiLoka. All Rights Reserved"
                 android:textColor="@color/text_subtitle"
                 android:textSize="12sp" />
 
