@@ -15,7 +15,7 @@
             android:id="@+id/tv_title_tambah_tantangan"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tambah Tantangan"
+            android:text="Tambah Tantangan Bonus"
             android:textSize="22sp"
             android:textStyle="bold"
             android:textColor="#1B5E20"
@@ -50,67 +50,49 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Target Poin"
+            android:hint="Badge ID"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_marginBottom="12dp">
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_target_poin"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="number"/>
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Hadiah / Reward"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_marginBottom="12dp">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_hadiah_tantangan"
+                android:id="@+id/et_badge_id"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Tanggal Mulai -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Tanggal Mulai:"
-            android:textSize="14sp"
-            android:textColor="#333333"
-            android:layout_marginBottom="4dp"/>
-
-        <TextView
-            android:id="@+id/tv_tanggal_mulai"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Pilih Tanggal"
-            android:textSize="16sp"
-            android:textColor="#4CAF50"
-            android:padding="12dp"
-            android:background="@drawable/bg_border_green"
-            android:layout_marginBottom="12dp"/>
+            android:orientation="horizontal"
+            android:baselineAligned="false"
+            android:layout_marginBottom="12dp">
 
-        <!-- Tanggal Selesai -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Tanggal Selesai:"
-            android:textSize="14sp"
-            android:textColor="#333333"
-            android:layout_marginBottom="4dp"/>
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Materi ID"
+                android:layout_marginEnd="8dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_materi_id"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
-            android:id="@+id/tv_tanggal_selesai"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Pilih Tanggal"
-            android:textSize="16sp"
-            android:textColor="#4CAF50"
-            android:padding="12dp"
-            android:background="@drawable/bg_border_green"
-            android:layout_marginBottom="16dp"/>
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Quiz ID"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_quiz_id"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"/>
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
 
         <ProgressBar
             android:id="@+id/progress_tambah_tantangan"
@@ -124,7 +106,7 @@
             android:id="@+id/btn_simpan_tantangan"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Simpan"
+            android:text="Simpan Tantangan"
             android:backgroundTint="#4CAF50"
             android:textColor="#FFFFFF"
             android:textStyle="bold"/>

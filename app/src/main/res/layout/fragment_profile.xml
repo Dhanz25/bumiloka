@@ -291,96 +291,6 @@
 
             </LinearLayout>
 
-            <!-- ACTIVITY CHART CARD -->
-            <!--            <androidx.cardview.widget.CardView-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_marginTop="16dp"-->
-            <!--                app:cardCornerRadius="24dp"-->
-            <!--                app:cardElevation="4dp">-->
-
-            <!--                <LinearLayout-->
-            <!--                    android:layout_width="match_parent"-->
-            <!--                    android:layout_height="wrap_content"-->
-            <!--                    android:orientation="vertical"-->
-            <!--                    android:padding="20dp">-->
-
-            <!--                    <TextView-->
-            <!--                        android:layout_width="wrap_content"-->
-            <!--                        android:layout_height="wrap_content"-->
-            <!--                        android:text="Aktivitas 7 Hari Terakhir"-->
-            <!--                        android:textColor="@color/black"-->
-            <!--                        android:textSize="18sp"-->
-            <!--                        android:textStyle="bold" />-->
-
-            <!--                    &lt;!&ndash; CHART PLACEHOLDER (MATCHING ORIGINAL DESIGN) &ndash;&gt;-->
-            <!--                    <RelativeLayout-->
-            <!--                        android:layout_width="match_parent"-->
-            <!--                        android:layout_height="220dp"-->
-            <!--                        android:layout_marginTop="16dp">-->
-
-            <!--                        &lt;!&ndash; Background Grid/Lines &ndash;&gt;-->
-            <!--                        <View-->
-            <!--                            android:layout_width="match_parent"-->
-            <!--                            android:layout_height="1dp"-->
-            <!--                            android:layout_marginTop="40dp"-->
-            <!--                            android:background="#1A000000"/>-->
-            <!--                        <View-->
-            <!--                            android:layout_width="match_parent"-->
-            <!--                            android:layout_height="1dp"-->
-            <!--                            android:layout_marginTop="80dp"-->
-            <!--                            android:background="#1A000000"/>-->
-            <!--                        <View-->
-            <!--                            android:layout_width="match_parent"-->
-            <!--                            android:layout_height="1dp"-->
-            <!--                            android:layout_marginTop="120dp"-->
-            <!--                            android:background="#1A000000"/>-->
-            <!--                        <View-->
-            <!--                            android:layout_width="match_parent"-->
-            <!--                            android:layout_height="1dp"-->
-            <!--                            android:layout_marginTop="160dp"-->
-            <!--                            android:background="#1A000000"/>-->
-
-            <!--                        &lt;!&ndash; The Curve Image &ndash;&gt;-->
-            <!--                        <ImageView-->
-            <!--                            android:layout_width="match_parent"-->
-            <!--                            android:layout_height="match_parent"-->
-            <!--                            android:scaleType="fitXY"-->
-            <!--                            android:src="@drawable/ic_activity"-->
-            <!--                            android:alpha="0.8"-->
-            <!--                            app:tint="#12A150"-->
-            <!--                            android:contentDescription="Activity Curve" />-->
-
-            <!--                        &lt;!&ndash; Labels &ndash;&gt;-->
-            <!--                        <TextView-->
-            <!--                            android:layout_width="wrap_content"-->
-            <!--                            android:layout_height="wrap_content"-->
-            <!--                            android:text="360" android:textSize="11sp" android:layout_alignParentTop="true" />-->
-            <!--                        <TextView-->
-            <!--                            android:layout_width="wrap_content"-->
-            <!--                            android:layout_height="wrap_content"-->
-            <!--                            android:text="0" android:textSize="11sp" android:layout_alignParentBottom="true"-->
-            <!--                            android:layout_marginBottom="25dp" />-->
-
-            <!--                    </RelativeLayout>-->
-
-            <!--                    &lt;!&ndash; Days Labels &ndash;&gt;-->
-            <!--                    <LinearLayout-->
-            <!--                        android:layout_width="match_parent"-->
-            <!--                        android:layout_height="wrap_content"-->
-            <!--                        android:orientation="horizontal"-->
-            <!--                        android:weightSum="7">-->
-            <!--                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Sen" android:gravity="center" android:textSize="11sp" />-->
-            <!--                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Sel" android:gravity="center" android:textSize="11sp" />-->
-            <!--                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Rab" android:gravity="center" android:textSize="11sp" />-->
-            <!--                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Kam" android:gravity="center" android:textSize="11sp" />-->
-            <!--                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Jum" android:gravity="center" android:textSize="11sp" />-->
-            <!--                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Sab" android:gravity="center" android:textSize="11sp" />-->
-            <!--                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Min" android:gravity="center" android:textSize="11sp" />-->
-            <!--                    </LinearLayout>-->
-            <!--                </LinearLayout>-->
-            <!--            </androidx.cardview.widget.CardView>-->
-
             <!-- LENCANA TITLE -->
             <TextView
                 android:layout_width="wrap_content"
@@ -390,31 +300,6 @@
                 android:textColor="@color/black"
                 android:textSize="18sp"
                 android:textStyle="bold" />
-
-            <!-- HORIZONTAL SCROLLING BADGES -->
-<!--            <HorizontalScrollView-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginTop="12dp"-->
-<!--                android:scrollbars="none">-->
-
-<!--                <LinearLayout-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:orientation="horizontal"-->
-<!--                    android:paddingEnd="20dp"-->
-<!--                    tools:ignore="RtlSymmetry">-->
-
-<!--                    <include layout="@layout/item_badge"/>-->
-<!--                    <include layout="@layout/item_badge"/>-->
-<!--                    <include layout="@layout/item_badge"/>-->
-<!--                    <include layout="@layout/item_badge"/>-->
-<!--                    <include layout="@layout/item_badge"/>-->
-<!--                    <include layout="@layout/item_badge"/>-->
-<!--                    <include layout="@layout/item_badge"/>-->
-
-<!--                </LinearLayout>-->
-<!--            </HorizontalScrollView>-->
 
             <!-- SETTINGS MENU LIST -->
             <androidx.cardview.widget.CardView
@@ -561,6 +446,40 @@
                             android:text="Bantuan &amp; Dukungan"
                             android:textSize="14sp"
                             android:textColor="@color/black"/>
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_arrow"
+                            android:contentDescription="Go"/>
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="0.5dp" android:background="#DDDDDD"/>
+
+                    <!-- Reset Data -->
+                    <LinearLayout
+                        android:id="@+id/btnResetData"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="16dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground">
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_help"
+                            app:tint="#D32F2F"
+                            android:contentDescription="Reset"/>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:text="Reset Semua Data"
+                            android:textColor="#D32F2F"
+                            android:textSize="14sp"
+                            android:textStyle="bold"/>
                         <ImageView
                             android:layout_width="18dp"
                             android:layout_height="18dp"

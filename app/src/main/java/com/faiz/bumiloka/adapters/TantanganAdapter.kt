@@ -18,7 +18,6 @@ class TantanganAdapter(
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvJudul: TextView = view.findViewById(R.id.tv_judul_tantangan)
         val tvDeskripsi: TextView = view.findViewById(R.id.tv_deskripsi_tantangan)
-        val tvTarget: TextView = view.findViewById(R.id.tv_target_poin)
         val tvStatus: TextView = view.findViewById(R.id.tv_status_tantangan)
         val swAktif: Switch = view.findViewById(R.id.switch_aktif)
         val btnEdit: ImageButton = view.findViewById(R.id.btn_edit_tantangan)
@@ -35,16 +34,18 @@ class TantanganAdapter(
         val tantangan = list[position]
         holder.tvJudul.text = tantangan.judul
         holder.tvDeskripsi.text = tantangan.deskripsi
-        holder.tvTarget.text = "Target: ${tantangan.targetPoin} poin"
+        
         holder.tvStatus.text = if (tantangan.aktif) "● Aktif" else "● Nonaktif"
         holder.tvStatus.setTextColor(
             if (tantangan.aktif) android.graphics.Color.parseColor("#4CAF50")
             else android.graphics.Color.parseColor("#F44336")
         )
+        
         // Reset listener dulu supaya tidak trigger saat bind
         holder.swAktif.setOnCheckedChangeListener(null)
         holder.swAktif.isChecked = tantangan.aktif
         holder.swAktif.setOnCheckedChangeListener { _, _ -> onToggleAktif(tantangan) }
+
         holder.btnEdit.setOnClickListener { onEdit(tantangan) }
         holder.btnDelete.setOnClickListener { onDelete(tantangan) }
     }
