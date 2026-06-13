@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
+    app:cardBackgroundColor="@color/bg_green"
     app:cardCornerRadius="16dp"
     app:cardElevation="2dp">
 
@@ -23,6 +24,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
+                android:contentDescription="Help Icon"
                 android:src="@drawable/ic_help"
                 app:tint="@color/primary_green" />
 
@@ -41,6 +43,7 @@
                 android:id="@+id/ivExpand"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
+                android:contentDescription="Expand Arrow"
                 android:src="@drawable/ic_arrow"
                 app:tint="@color/text_subtitle"
                 android:rotation="90"/>
@@ -58,7 +61,7 @@
                 android:layout_height="1dp"
                 android:layout_marginTop="12dp"
                 android:layout_marginBottom="12dp"
-                android:background="#EEEEEE" />
+                android:background="#D1E7D3" />
 
             <TextView
                 android:id="@+id/tvAnswer"

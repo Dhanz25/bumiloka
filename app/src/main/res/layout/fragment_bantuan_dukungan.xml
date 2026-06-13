@@ -44,17 +44,17 @@
                     android:id="@+id/ivLogoApp"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
-                    android:background="@color/primary_green"
+                    android:background="@drawable/logo_background"
                     android:padding="20dp"
-                    android:src="@drawable/ic_leaf"
+                    android:src="@drawable/logo_tv"
                     app:shapeAppearanceOverlay="@style/CircleImage"
-                    app:tint="@color/white" />
+                     />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="@string/app_name_eco"
+                    android:text="BumiLoka"
                     android:textColor="@color/text_title"
                     android:textSize="26sp"
                     android:textStyle="bold" />
@@ -74,9 +74,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
+                app:cardBackgroundColor="@color/bg_green"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
                 app:contentPadding="16dp">
@@ -112,7 +112,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="@string/desc_about"
+                            android:text="BumiLoka adalah aplikasi edukasi lingkungan "
                             android:textColor="@color/text_subtitle"
                             android:textSize="13sp" />
                     </LinearLayout>
@@ -133,9 +133,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
+                app:cardBackgroundColor="@color/bg_green"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
                 app:contentPadding="16dp">
@@ -192,9 +192,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
+                app:cardBackgroundColor="@color/bg_green"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
                 app:contentPadding="16dp">
@@ -251,6 +251,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
                 android:layout_marginTop="8dp"
+                app:cardBackgroundColor="@color/bg_green"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
                 app:contentPadding="16dp">
@@ -286,7 +287,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/app_name_eco"
+                            android:text="BumiLoka"
                             android:textColor="@color/text_title"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -383,7 +384,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:layout_marginBottom="12dp"
-                        android:background="#EEEEEE" />
+                        android:background="@color/white" />
 
                     <!-- Developer -->
                     <LinearLayout
@@ -401,7 +402,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/value_developer"
+                            android:text="Tim BumiLoka"
                             android:textColor="@color/text_title"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -414,7 +415,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:gravity="center"
-                android:text="@string/copyright_text"
+                android:text="© 2026 BumiLoka. All Rights Reserved."
                 android:textColor="@color/text_subtitle"
                 android:textSize="12sp" />
 

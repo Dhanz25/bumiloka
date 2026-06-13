@@ -67,15 +67,22 @@ class AktivitasFragment : Fragment(R.layout.fragment_aktivitas) {
     }
 
     private fun getHariLabel(timestamp: Long): String {
+
         val now = System.currentTimeMillis()
         val diff = now - timestamp
 
-        val oneDay = 24 * 60 * 60 * 1000
+        val oneDay = 24 * 60 * 60 * 1000L
 
         return when {
-            diff < oneDay -> "Hari ini"
+            diff < oneDay -> "Hari Ini"
             diff < 2 * oneDay -> "Kemarin"
-            else -> "Beberapa hari lalu"
+            else -> {
+                val sdf = java.text.SimpleDateFormat(
+                    "dd MMMM yyyy",
+                    java.util.Locale("id", "ID")
+                )
+                sdf.format(java.util.Date(timestamp))
+            }
         }
     }
 }

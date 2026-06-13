@@ -138,19 +138,15 @@
 
     <!-- FAQ Questions & Answers -->
     <string name="faq_q1">Bagaimana cara mendapatkan poin?</string>
-    <string name="faq_a1">Poin diperoleh setelah pengguna menyelesaikan aktivitas atau tantangan yang tersedia pada aplikasi Eco Warrior.</string>
+    <string name="faq_a1">Poin diperoleh setelah berhasil menyelesaikan Misi yang tersedia.</string>
     <string name="faq_q2">Bagaimana cara mendapatkan lencana?</string>
-    <string name="faq_a2">Lencana diberikan secara otomatis ketika pengguna berhasil memenuhi syarat pencapaian tertentu, seperti jumlah poin atau jumlah tantangan yang telah diselesaikan.</string>
+    <string name="faq_a2">Lencana diperoleh setelah berhasil menyelesaikan Tantangan yang tersedia.</string>
     <string name="faq_q3">Mengapa poin saya belum bertambah?</string>
-    <string name="faq_a3">Pastikan aktivitas atau tantangan telah diselesaikan dan diverifikasi oleh sistem. Jika masih belum bertambah, coba muat ulang aplikasi.</string>
+    <string name="faq_a3">Pastikan Misi telah diselesaikan dan diverifikasi oleh sistem. Jika masih belum bertambah, coba muat ulang aplikasi.</string>
     <string name="faq_q4">Apakah data aktivitas saya tersimpan?</string>
-    <string name="faq_a4">Ya. Riwayat aktivitas, poin, dan pencapaian pengguna akan disimpan sehingga dapat diakses kembali kapan saja.</string>
-    <string name="faq_q5">Bagaimana cara melihat pencapaian saya?</string>
-    <string name="faq_a5">Buka menu Profil kemudian pilih menu Pencapaian untuk melihat seluruh lencana dan prestasi yang telah diperoleh.</string>
-    <string name="faq_q6">Apakah aplikasi ini dapat digunakan secara offline?</string>
-    <string name="faq_a6">Sebagian fitur dapat digunakan secara offline, namun beberapa fitur memerlukan koneksi internet untuk sinkronisasi data.</string>
-    <string name="faq_q7">Bagaimana cara menghubungi pengembang?</string>
-    <string name="faq_a7">Pengguna dapat menghubungi pengembang melalui menu Hubungi Kami yang tersedia pada halaman Bantuan &amp; Dukungan.</string>
+    <string name="faq_a4">Ya. Riwayat aktivitas akan disimpan sehingga dapat diakses kembali kapan saja.</string>
+    <string name="faq_q5">Bagaimana cara menghubungi pengembang?</string>
+    <string name="faq_a5">Pengguna dapat menghubungi pengembang melalui menu Hubungi Kami yang tersedia pada halaman Bantuan &amp; Dukungan.</string>
 
     <!-- Hubungi Kami Strings -->
     <string name="contact_us_desc">Kami siap menerima pertanyaan, kritik, saran, dan masukan untuk pengembangan Eco Warrior.</string>

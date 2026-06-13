@@ -58,35 +58,22 @@ class faqfragment : Fragment() {
             Faq(
                 getString(R.string.faq_q5),
                 getString(R.string.faq_a5)
-            ),
-            Faq(
-                getString(R.string.faq_q6),
-                getString(R.string.faq_a6)
-            ),
-            Faq(
-                getString(R.string.faq_q7),
-                getString(R.string.faq_a7)
             )
         )
 
         binding.rvFaq.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = FaqAdapter(faqList)
-            // Optional: for smoother scrolling with NestedScrollView
             isNestedScrollingEnabled = false
         }
     }
 
     private fun setupFooter() {
         binding.btnContactUs.setOnClickListener {
-            // Replace R.id.fragment_container with your actual container ID
-            // and ensure HubungiKamiFragment exists.
-            /*
             parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, HubungiKamiFragment())
+                .replace(R.id.fragment_container, hubungi_kami.newInstance())
                 .addToBackStack(null)
                 .commit()
-            */
         }
     }
 

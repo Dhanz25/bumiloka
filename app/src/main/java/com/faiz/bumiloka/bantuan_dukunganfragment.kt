@@ -6,6 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
+import android.content.Intent
+import android.net.Uri
+import androidx.appcompat.widget.Toolbar
 
 class bantuan_dukungan : Fragment() {
 
@@ -36,6 +39,16 @@ class bantuan_dukungan : Fragment() {
 
         val cardHubungi =
             view.findViewById<View>(R.id.cardContact)
+
+        val privacyPolicy =
+            view.findViewById<View>(R.id.rowPrivacyPolicy)
+
+        val toolbar = view.findViewById<Toolbar>(R.id.toolbar)
+
+        toolbar.setNavigationOnClickListener {
+            parentFragmentManager.popBackStack()
+        }
+
 
         cardTentang.setOnClickListener {
 
@@ -68,6 +81,16 @@ class bantuan_dukungan : Fragment() {
                 )
                 .addToBackStack(null)
                 .commit()
+        }
+
+        privacyPolicy.setOnClickListener {
+
+            val intent = Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("https://doc-hosting.flycricket.io/bumiloka-terms-of-use/5e84f1f7-aba9-4217-bb44-41ba44a902e7/terms")
+            )
+
+            startActivity(intent)
         }
     }
 }
