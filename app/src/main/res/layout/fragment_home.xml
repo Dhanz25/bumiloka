@@ -1,18 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/home_background"
     tools:context=".HomeFragment">
 
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        ads:adSize="BANNER"
+        ads:adUnitId="ca-app-pub-3940256099942544/6300978111"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:clipToPadding="false"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/adView"
         android:layout_marginTop="28dp">
 
         <LinearLayout
@@ -519,7 +532,7 @@
                             android:textAllCaps="false"
                             android:textColor="@android:color/white"
                             android:textStyle="bold"
-                            android:backgroundTint="#7E57C2"
+                            android:backgroundTint="#2E7D32"
                             app:cornerRadius="16dp"
                             app:icon="@drawable/ic_arrow"/>
 
@@ -527,9 +540,9 @@
                             android:id="@+id/imgMaskotJawa"
                             android:layout_width="100dp"
                             android:layout_height="100dp"
-                            android:layout_marginStart="16dp"
+                            android:layout_marginStart="40dp"
                             android:layout_gravity="end"
-                            android:src="@drawable/ic_eco"/>
+                            android:src="@drawable/maskot"/>
 
                     </LinearLayout>
 

@@ -3,12 +3,14 @@ package com.faiz.bumiloka
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.google.android.gms.ads.MobileAds
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        MobileAds.initialize(this) {}
         setContentView(R.layout.activity_main)
 
         // KODE db.updateChildren(...) SUDAH DIHAPUS DARI SINI!

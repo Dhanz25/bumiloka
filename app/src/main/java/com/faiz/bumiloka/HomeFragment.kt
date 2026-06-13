@@ -32,10 +32,17 @@ import android.os.Looper
 import android.view.Gravity
 import android.widget.Button
 import android.widget.ProgressBar
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.MobileAds
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class HomeFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
+
+    private lateinit var mAdView: AdView
 
     private lateinit var pbProgress: ProgressBar
     private lateinit var tvProgress: TextView
@@ -46,7 +53,31 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_home, container, false)
+        val view = inflater.inflate(
+            R.layout.fragment_home,
+            container,
+            false
+        )
+
+
+        mAdView = view.findViewById(R.id.adView)
+
+        val adRequest = AdRequest.Builder().build()
+
+        mAdView.adListener = object : AdListener() {
+
+            override fun onAdLoaded() {
+                Log.d("ADMOB", "Banner Loaded")
+            }
+
+            override fun onAdFailedToLoad(error: LoadAdError) {
+                Log.e("ADMOB", "Error : ${error.message}")
+            }
+        }
+        Log.d("ADMOB", "Mulai load iklan")
+        mAdView.loadAd(adRequest)
+
+        return view
     }
 
     override fun onResume() {
