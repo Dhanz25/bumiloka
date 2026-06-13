@@ -18,7 +18,6 @@ class KuisAdapter(
         val tvPertanyaan: TextView = view.findViewById(R.id.tv_pertanyaan)
         val tvKategori: TextView = view.findViewById(R.id.tv_kategori_kuis)
         val tvJawaban: TextView = view.findViewById(R.id.tv_jawaban_benar)
-        val tvPoin: TextView = view.findViewById(R.id.tv_target_poin)
         val btnEdit: ImageButton = view.findViewById(R.id.btn_edit_kuis)
         val btnDelete: ImageButton = view.findViewById(R.id.btn_delete_kuis)
     }
@@ -34,7 +33,6 @@ class KuisAdapter(
         holder.tvPertanyaan.text = kuis.pertanyaan
         holder.tvKategori.text = kuis.kategori
         holder.tvJawaban.text = "✓ Jawaban: ${kuis.jawabanBenar}"
-        holder.tvPoin.text = "${kuis.poin} poin"
         holder.btnEdit.setOnClickListener { onEdit(kuis) }
         holder.btnDelete.setOnClickListener { onDelete(kuis) }
     }

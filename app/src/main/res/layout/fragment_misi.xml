@@ -59,12 +59,12 @@
             android:layout_marginBottom="24dp"
             android:background="#81C784" />
 
-<!--        <Button-->
-<!--            android:id="@+id/btnResetMisi"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Reset Test"-->
-<!--            android:layout_marginTop="16dp"/>-->
+        <Button
+            android:id="@+id/btnResetMisi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset Test"
+            android:layout_marginTop="16dp"/>
 
         <!-- Card 1: Explore Materials -->
         <com.google.android.material.card.MaterialCardView

@@ -1,12 +1,12 @@
 package com.faiz.bumiloka.model
+
 data class Tantangan(
     val id: String = "",
     val judul: String = "",
     val deskripsi: String = "",
-    val targetPoin: Int = 0,
-    val hadiah: String = "",
-    val tanggalMulai: Long = System.currentTimeMillis(),
-    val tanggalSelesai: Long = System.currentTimeMillis(),
+    val materiId: String = "", // Untuk syarat: materi[materiId]_selesai
+    val quizId: String = "",   // Untuk syarat: quiz[quizId]_selesai
+    val badgeId: String = "",
     val aktif: Boolean = true,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = 0L
 )

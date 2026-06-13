@@ -20,4 +20,8 @@
     <color name="text_black">#212121</color>
     <color name="light_brown">#A1887F</color>
     <color name="grey_button">#D9D9D9</color>
+
+    <!-- Bantuan & Dukungan Colors -->
+    <color name="primary_green">#16A34A</color>
+    <color name="bg_help">#F5F7F5</color>
 </resources>

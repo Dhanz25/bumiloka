@@ -12,10 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.faiz.bumiloka.R
 import com.faiz.bumiloka.adapters.TantanganAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.*
 import com.faiz.bumiloka.model.Tantangan
 
 class TantanganFragment : Fragment() {
@@ -84,21 +81,13 @@ class TantanganFragment : Fragment() {
             .setMessage("Yakin ingin menghapus \"${tantangan.judul}\"?")
             .setPositiveButton("Hapus") { _, _ ->
                 db.child(tantangan.id).removeValue()
-                    .addOnSuccessListener {
-                        Toast.makeText(requireContext(), "Tantangan berhasil dihapus", Toast.LENGTH_SHORT).show()
-                    }
             }
             .setNegativeButton("Batal", null)
             .show()
     }
 
     private fun toggleAktif(tantangan: Tantangan) {
-        val newStatus = !tantangan.aktif
-        db.child(tantangan.id).child("aktif").setValue(newStatus)
-            .addOnSuccessListener {
-                val status = if (newStatus) "diaktifkan" else "dinonaktifkan"
-                Toast.makeText(requireContext(), "Tantangan $status", Toast.LENGTH_SHORT).show()
-            }
+        db.child(tantangan.id).child("aktif").setValue(!tantangan.aktif)
     }
 
     private fun navigateToTambah(tantangan: Tantangan?) {
@@ -108,10 +97,9 @@ class TantanganFragment : Fragment() {
                     putString("id", it.id)
                     putString("judul", it.judul)
                     putString("deskripsi", it.deskripsi)
-                    putInt("targetPoin", it.targetPoin)
-                    putString("hadiah", it.hadiah)
-                    putLong("tanggalMulai", it.tanggalMulai)
-                    putLong("tanggalSelesai", it.tanggalSelesai)
+                    putString("badgeId", it.badgeId)
+                    putString("materiId", it.materiId)
+                    putString("quizId", it.quizId)
                 }
             }
         }

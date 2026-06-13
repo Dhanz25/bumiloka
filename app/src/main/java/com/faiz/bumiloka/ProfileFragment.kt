@@ -16,7 +16,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase // PASTIKAN IMPORT INI ADA
+import com.google.firebase.database.FirebaseDatabase
 import java.util.Locale
 
 class ProfileFragment : Fragment() {
@@ -32,14 +32,12 @@ class ProfileFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        // ✅ Tampilkan Bottom Navigation
         requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // ✅ Tampilkan Bottom Navigation
         requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
 
         auth = FirebaseAuth.getInstance()
@@ -51,13 +49,13 @@ class ProfileFragment : Fragment() {
 
         val tvProfileName = view.findViewById<TextView>(R.id.tvProfileName)
         val btnPengaturan = view.findViewById<LinearLayout>(R.id.btnPengaturan)
+        val btnBantuan = view.findViewById<LinearLayout>(R.id.btnBantuan)
+        val btnResetData = view.findViewById<LinearLayout>(R.id.btnResetData)
         val btnLogout = view.findViewById<LinearLayout>(R.id.btnLogout)
 
-
-        // Asumsi ID dari layout XML-mu (SESUAIKAN DENGAN ID DI fragment_profile.xml KAMU)
-        val tvGelarUser = view.findViewById<TextView>(R.id.tvGelarUser) // Untuk teks "📍 Eco Warrior"
-        val tvTotalPoinBanner = view.findViewById<TextView>(R.id.tvTotalPoinBanner) // Untuk teks poin besar di kartu hijau
-        val tvTotalPoinGrid = view.findViewById<TextView>(R.id.tvTotalPoinGrid) // Untuk teks poin kecil di bawah piala
+        val tvGelarUser = view.findViewById<TextView>(R.id.tvGelarUser)
+        val tvTotalPoinBanner = view.findViewById<TextView>(R.id.tvTotalPoinBanner)
+        val tvTotalPoinGrid = view.findViewById<TextView>(R.id.tvTotalPoinGrid)
         val tvTotalMisi = view.findViewById<TextView>(R.id.tvTotalMisi)
         val tvTotalLencana = view.findViewById<TextView>(R.id.tvTotalLencana)
 
@@ -73,8 +71,6 @@ class ProfileFragment : Fragment() {
             } ?: ""
 
             tvProfileName.text = nameToShow
-
-            // --- PANGGIL FUNGSI LOAD DATA FIREBASE DI SINI ---
             loadDataProfil(user.uid, tvGelarUser, tvTotalPoinBanner, tvTotalPoinGrid, tvTotalMisi, tvTotalLencana)
         }
 
@@ -84,14 +80,40 @@ class ProfileFragment : Fragment() {
                 .addToBackStack(null)
                 .commit()
         }
-        btnLogout.setOnClickListener {
 
-            // Konfirmasi Logout
+        btnBantuan.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, bantuan_dukungan())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        // --- LOGIKA RESET DATA ---
+        btnResetData.setOnClickListener {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Reset Data")
+                .setMessage("Semua progres, badge, level, quiz, materi, tantangan, dan poin akan dihapus. Lanjutkan?")
+                .setPositiveButton("Reset") { _, _ ->
+                    AppResetHelper.resetSemuaData(requireContext()) { success ->
+                        if (success) {
+                            Toast.makeText(requireContext(), "Data berhasil direset", Toast.LENGTH_SHORT).show()
+                            currentUser?.let { user ->
+                                loadDataProfil(user.uid, tvGelarUser, tvTotalPoinBanner, tvTotalPoinGrid, tvTotalMisi, tvTotalLencana)
+                            }
+                        } else {
+                            Toast.makeText(requireContext(), "Gagal mereset data", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+                .setNegativeButton("Batal", null)
+                .show()
+        }
+
+        btnLogout.setOnClickListener {
             AlertDialog.Builder(requireContext())
                 .setTitle("Konfirmasi Keluar")
                 .setMessage("Apakah Anda yakin ingin keluar?")
                 .setPositiveButton("Ya") { _, _ ->
-                    // Proses Logout
                     auth.signOut()
                     googleSignInClient.signOut().addOnCompleteListener {
                         Toast.makeText(requireContext(), "Berhasil Keluar", Toast.LENGTH_SHORT).show()
@@ -103,11 +125,9 @@ class ProfileFragment : Fragment() {
                 }
                 .setNegativeButton("Tidak", null)
                 .show()
-            true
         }
     }
 
-    // Fungsi untuk mengambil data XP dan Level dari Firebase
     private fun loadDataProfil(
         userId: String,
         tvGelarUser: TextView?,
@@ -119,21 +139,15 @@ class ProfileFragment : Fragment() {
         val db = FirebaseDatabase.getInstance().reference.child("users").child(userId)
 
         db.get().addOnSuccessListener { snapshot ->
-            if (!isAdded) return@addOnSuccessListener // Keamanan fragment agar tidak crash
+            if (!isAdded) return@addOnSuccessListener
 
-            // Ambil data XP dan Level (Default: 0 XP, Level 1)
-            val totalPoint = snapshot.child("totalPoint")
-                .getValue(Int::class.java) ?: 0
+            val totalPoint = snapshot.child("totalPoint").getValue(Int::class.java) ?: 0
             val currentLevel = snapshot.child("level").getValue(Int::class.java) ?: 1
-
-            // --- AMBIL DATA MISI & LENCANA (Default 0) ---
             val misiTercapai = snapshot.child("misiTercapai").getValue(Int::class.java) ?: 0
-            val totalLencana = snapshot.child("totalLencana").getValue(Int::class.java) ?: 0
+            val totalLencana = BadgeHelper.getTotalBadge(requireContext())
 
-            // Atur Gelar berdasarkan level
             val levelTitle = getLevelTitle(currentLevel)
 
-            // Update teks di layar
             tvGelarUser?.text = "📍 $levelTitle"
             tvTotalPoinBanner?.text = totalPoint.toString()
             tvTotalPoinGrid?.text = totalPoint.toString()
@@ -145,7 +159,6 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    // Fungsi untuk memberikan nama gelar berdasarkan level (Sama seperti di HomeFragment)
     private fun getLevelTitle(level: Int): String {
         return when (level) {
             1 -> "Pemula"
