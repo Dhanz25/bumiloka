@@ -50,6 +50,10 @@ class MateriFragment : Fragment() {
         val btnMulaiKuis = view.findViewById<Button>(R.id.btnMulaiKuis)
 
         val materiIndex = arguments?.getInt(ARG_MATERI_ID) ?: 1
+        val challengeId = arguments?.getString("challenge_id") ?: ""
+        val quizIdFromTantangan = arguments?.getInt("quiz_id", -1) ?: -1
+        val badgeIdFromTantangan = arguments?.getInt("badge_id", 0) ?: 0
+        val isTantanganBonus = arguments?.getBoolean("IS_TANTANGAN_BONUS", false) ?: false
         
         LevelHelper.getCurrentLevel(requireContext()) { level ->
             toolbar.title = "Level $level - Materi $materiIndex"
@@ -62,20 +66,26 @@ class MateriFragment : Fragment() {
         }
 
         btnMulaiKuis.setOnClickListener {
-            val dariTantangan = arguments?.getBoolean("DARI_TANTANGAN", false) ?: false
             val resultBundle = Bundle().apply { putInt("materi_id", materiIndex) }
             parentFragmentManager.setFragmentResult("materi_selesai_result", resultBundle)
 
             LevelHelper.getCurrentLevel(requireContext()) { level ->
-                val fragment = when (materiIndex) {
-                    1 -> QuizSoalFragment.newInstance(materiIndex)
-                    2 -> QuizSoal2Fragment.newInstance(materiIndex)
-                    3 -> QuizSoal3Fragment.newInstance(materiIndex)
-                    else -> QuizSoalFragment.newInstance(materiIndex)
+                val targetQuizId = if (isTantanganBonus && quizIdFromTantangan != -1) quizIdFromTantangan else materiIndex
+                
+                val fragment = when (targetQuizId) {
+                    1 -> QuizSoalFragment.newInstance(targetQuizId)
+                    2 -> QuizSoal2Fragment.newInstance(targetQuizId)
+                    3 -> QuizSoal3Fragment.newInstance(targetQuizId)
+                    else -> QuizSoalFragment.newInstance(targetQuizId)
                 }
+                
                 val args = fragment.arguments ?: Bundle()
-                args.putBoolean("DARI_TANTANGAN", dariTantangan)
+                args.putBoolean("IS_TANTANGAN_BONUS", isTantanganBonus)
+                args.putString("challenge_id", challengeId)
+                args.putInt("quiz_id", targetQuizId)
+                args.putInt("badge_id", badgeIdFromTantangan)
                 args.putInt("LEVEL", level)
+                args.putInt("materi_id", materiIndex)
                 fragment.arguments = args
 
                 parentFragmentManager.beginTransaction()

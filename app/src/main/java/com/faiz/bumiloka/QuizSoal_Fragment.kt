@@ -38,7 +38,6 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // ❌ Sembunyikan Bottom Navigation
         requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
 
         val materiId = arguments?.getInt("materi_id") ?: 1
@@ -80,13 +79,11 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
 
     override fun onResume() {
         super.onResume()
-        // ❌ Sembunyikan Bottom Navigation
         requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // 🔺 Tampilkan kembali saat keluar fragment
         requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
     }
 
@@ -115,7 +112,6 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
     }
 
     private fun getLevel2Questions(index: Int): List<Question> {
-        // Fokus SAMPAH
         return listOf(
             Question("Manakah yang termasuk sampah organik?", listOf("Botol plastik", "Sisa sayuran", "Kaleng bekas", "Kaca pecah"), 1),
             Question("Sampah anorganik sebaiknya dikelola dengan cara?", listOf("Dikubur dalam tanah", "Dibuat kompos", "Didaur ulang", "Dibiarkan saja"), 2),
@@ -131,7 +127,6 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
     }
 
     private fun getLevel3Questions(index: Int): List<Question> {
-        // Fokus HEMAT AIR
         return listOf(
             Question("Mengapa air bersih disebut sumber daya yang terbatas?", listOf("Karena air sangat banyak di laut", "Karena air tawar yang bisa diminum jumlahnya sedikit", "Karena air tidak pernah habis", "Karena air mudah dibuat"), 1),
             Question("Tindakan hemat air saat mencuci tangan adalah?", listOf("Membiarkan keran mengalir terus", "Menutup keran saat menyabuni tangan", "Menggunakan air sebanyak-banyaknya", "Mencuci di sungai"), 1),
@@ -169,24 +164,12 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
     }
 
     private fun pindahKeHasil(level: Int, index: Int) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
-        val prefs = requireActivity().getSharedPreferences("KUIS_${userId}_LEVEL_$level", Context.MODE_PRIVATE)
-        
-        val keySelesai = if (index == 1) "materi1_selesai" else "quiz${index}_selesai"
-        val keyNilai = if (index == 1) "nilai_materi1" else "quiz${index}_nilai"
-
-        prefs.edit()
-            .putBoolean(keySelesai, true)
-            .putInt(keyNilai, skor)
-            .apply()
-
         val bundle = Bundle().apply {
             putInt("BENAR", skor / 10)
             putInt("SALAH", 10 - (skor / 10))
             putInt("SKOR", skor)
             putString("QUIZ_TYPE", "QUIZ$index")
-            putBoolean("DARI_MISI", arguments?.getString("FROM") == "MISI")
-            putBoolean("DARI_TANTANGAN", arguments?.getBoolean("DARI_TANTANGAN", false) ?: false)
+            putAll(arguments ?: Bundle())
         }
 
         val fragment = QuizMenang1Fragment()

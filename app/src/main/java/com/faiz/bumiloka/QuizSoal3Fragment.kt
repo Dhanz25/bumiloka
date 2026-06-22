@@ -230,30 +230,45 @@ class QuizSoal3Fragment : Fragment(R.layout.fragment_quiz_soal3) {
         val salah = totalSoal - benar
 
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
-        
-        LevelHelper.getCurrentLevel(requireContext()) { levelUser ->
-            val prefs = requireActivity().getSharedPreferences("KUIS_${userId}_LEVEL_$levelUser", Context.MODE_PRIVATE)
-            prefs.edit()
-                .putBoolean("quiz3_selesai", true)
-                .putInt("quiz3_nilai", skor)
+        val isTantanganBonus = arguments?.getBoolean("IS_TANTANGAN_BONUS", false) ?: false
+        val badgeId = arguments?.getInt("badge_id", 0) ?: 0
+        val materiId = arguments?.getInt("materi_id", 3) ?: 3
+        val quizId = 3
+
+        if (isTantanganBonus) {
+            val bonusPrefs = requireActivity().getSharedPreferences("BONUS_CHALLENGES_$userId", Context.MODE_PRIVATE)
+            bonusPrefs.edit()
+                .putBoolean("quiz_${quizId}_selesai", true)
+                .putInt("quiz_${quizId}_nilai", skor)
                 .apply()
-
-            val dariMisi = arguments?.getBoolean("DARI_MISI", false) ?: false
-            val bundle = Bundle()
-            bundle.putInt("BENAR", benar)
-            bundle.putInt("SALAH", salah)
-            bundle.putInt("SKOR", skor)
-            bundle.putString("QUIZ_TYPE", "QUIZ3")
-            bundle.putBoolean("DARI_MISI", dariMisi)
-
-            val fragment = QuizMenang1Fragment()
-            fragment.arguments = bundle
-
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .addToBackStack(null)
-                .commit()
+        } else {
+            LevelHelper.getCurrentLevel(requireContext()) { levelUser ->
+                val prefs = requireActivity().getSharedPreferences("KUIS_${userId}_LEVEL_$levelUser", Context.MODE_PRIVATE)
+                prefs.edit()
+                    .putBoolean("quiz3_selesai", true)
+                    .putInt("quiz3_nilai", skor)
+                    .apply()
+            }
         }
+
+        val dariMisi = arguments?.getBoolean("DARI_MISI", false) ?: false
+        val bundle = Bundle()
+        bundle.putInt("BENAR", benar)
+        bundle.putInt("SALAH", salah)
+        bundle.putInt("SKOR", skor)
+        bundle.putString("QUIZ_TYPE", "QUIZ3")
+        bundle.putBoolean("DARI_MISI", dariMisi)
+        bundle.putBoolean("IS_TANTANGAN_BONUS", isTantanganBonus)
+        bundle.putInt("badge_id", badgeId)
+        bundle.putInt("materi_id", materiId)
+
+        val fragment = QuizMenang1Fragment()
+        fragment.arguments = bundle
+
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun showExitDialog() {

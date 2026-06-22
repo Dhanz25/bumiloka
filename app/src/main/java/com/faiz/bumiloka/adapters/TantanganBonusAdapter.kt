@@ -42,8 +42,9 @@ class TantanganBonusAdapter(
             holder.btnAksi.isEnabled = false
             
             // Berikan badge jika belum punya
-            if (item.badgeId.isNotEmpty() && !BadgeHelper.punyaBadge(context, item.badgeId)) {
-                BadgeHelper.tambahBadge(context, item.badgeId)
+            // Karena badgeId sekarang Int, kita cek != 0 dan convert ke String untuk BadgeHelper
+            if (item.badgeId != 0 && !BadgeHelper.punyaBadge(context, item.badgeId.toString())) {
+                BadgeHelper.tambahBadge(context, item.badgeId.toString())
             }
         } else {
             holder.btnAksi.text = "Mulai"

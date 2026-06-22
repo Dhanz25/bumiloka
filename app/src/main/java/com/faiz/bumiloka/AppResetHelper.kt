@@ -12,12 +12,15 @@ object AppResetHelper {
 
         // 1. Reset Firebase Realtime Database
         val dbRef = FirebaseDatabase.getInstance().reference.child("users").child(userId)
-        val updates = hashMapOf<String, Any>(
+        val updates = hashMapOf<String, Any?>(
             "totalPoint" to 0,
             "xp" to 0,
             "level" to 1,
             "highestUnlockedLevel" to 1,
-            "misiTercapai" to 0
+            "misiTercapai" to 0,
+            "totalLencana" to 0,
+            "lencana_dimiliki" to null,
+            "tantangan_bonus_selesai" to null
         )
 
         dbRef.updateChildren(updates).addOnCompleteListener { task ->
@@ -47,7 +50,8 @@ object AppResetHelper {
             "AKTIVITAS_PREF",
             "BumilokaPrefs",
             "KUIS_$userId",
-            "APP"
+            "APP",
+            "BONUS_CHALLENGES_$userId"
         )
 
         prefsToReset.forEach { prefName ->
