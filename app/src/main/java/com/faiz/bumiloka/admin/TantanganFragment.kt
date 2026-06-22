@@ -55,8 +55,12 @@ class TantanganFragment : Fragment() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 tantanganList.clear()
                 for (child in snapshot.children) {
-                    val t = child.getValue(Tantangan::class.java)?.copy(id = child.key ?: "")
-                    t?.let { tantanganList.add(it) }
+                    try {
+                        val t = child.getValue(Tantangan::class.java)?.copy(id = child.key ?: "")
+                        t?.let { tantanganList.add(it) }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
                 tantanganList.sortByDescending { it.createdAt }
                 adapter.notifyDataSetChanged()
@@ -97,9 +101,9 @@ class TantanganFragment : Fragment() {
                     putString("id", it.id)
                     putString("judul", it.judul)
                     putString("deskripsi", it.deskripsi)
-                    putString("badgeId", it.badgeId)
-                    putString("materiId", it.materiId)
-                    putString("quizId", it.quizId)
+                    putInt("badgeId", it.badgeId)
+                    putInt("materiId", it.materiId)
+                    putInt("quizId", it.quizId)
                 }
             }
         }

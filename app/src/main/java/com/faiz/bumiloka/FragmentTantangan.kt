@@ -73,11 +73,14 @@ class TantanganFragment : Fragment(R.layout.fragment_tantangan) {
     private fun setupBonusRecyclerView() {
         bonusAdapter = TantanganBonusAdapter(bonusList) { tantangan ->
             // Logika "Mulai" Tantangan Bonus
-            // Navigasi ke materi detail berdasarkan materiId
-            val fragment = Jelajahi_MateriDetail().apply {
-                arguments = Bundle().apply {
-                    putString("materi_id", tantangan.materiId)
-                }
+            // Navigasi ke MateriFragment berdasarkan materiId dari Firebase
+            val fragment = MateriFragment.newInstance(tantangan.materiId).apply {
+                val bundle = arguments ?: Bundle()
+                bundle.putString("challenge_id", tantangan.id)
+                bundle.putInt("quiz_id", tantangan.quizId)
+                bundle.putInt("badge_id", tantangan.badgeId)
+                bundle.putBoolean("IS_TANTANGAN_BONUS", true)
+                arguments = bundle
             }
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, fragment)
@@ -90,18 +93,25 @@ class TantanganFragment : Fragment(R.layout.fragment_tantangan) {
     private fun loadTantanganBonus() {
         db.orderByChild("aktif").equalTo(true).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                if (!isAdded) return
                 bonusList.clear()
                 for (data in snapshot.children) {
-                    val t = data.getValue(Tantangan::class.java)
-                    if (t != null) {
-                        bonusList.add(t)
+                    try {
+                        val t = data.getValue(Tantangan::class.java)?.copy(id = data.key ?: "")
+                        if (t != null) {
+                            bonusList.add(t)
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                     }
                 }
                 bonusAdapter.notifyDataSetChanged()
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(requireContext(), "Gagal memuat tantangan bonus", Toast.LENGTH_SHORT).show()
+                if (isAdded) {
+                    Toast.makeText(requireContext(), "Gagal memuat tantangan bonus", Toast.LENGTH_SHORT).show()
+                }
             }
         })
     }

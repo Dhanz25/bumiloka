@@ -1,13 +1,11 @@
 package com.faiz.bumiloka.model
 
-data class Tantangan(
+data class BonusChallengeModel(
     val id: String = "",
     val judul: String = "",
     val deskripsi: String = "",
+    val badgeId: String = "",
     val materiId: Int = 0,
     val quizId: Int = 0,
-    val badgeId: Int = 0,
-    val aktif: Boolean = true,
-    val status: String = "aktif",
-    val createdAt: Long = 0L
+    val aktif: Boolean = true
 )

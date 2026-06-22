@@ -2,6 +2,7 @@ package com.faiz.bumiloka
 
 import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 
 object TantanganStatusHelper {
 
@@ -26,20 +27,31 @@ object TantanganStatusHelper {
             .getBoolean("tantangan_selesai", false)
     }
 
-    fun isTantanganBonusSelesai(context: Context, materiId: String, quizId: String): Boolean {
+    fun isTantanganBonusSelesai(context: Context, materiId: Int, quizId: Int): Boolean {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+        val bonusPrefs = context.getSharedPreferences("BONUS_CHALLENGES_$userId", Context.MODE_PRIVATE)
         
-        // Cek progress materi dari SharedPreferences MISI
-        // Menggunakan "LEVEL_1" sesuai standar yang ada di project saat ini
-        val prefMisi = context.getSharedPreferences("MISI_${userId}_LEVEL_1", Context.MODE_PRIVATE)
-        val materiSelesai = prefMisi.getBoolean("misi${materiId}_selesai", false)
+        val materiSelesai = bonusPrefs.getBoolean("materi_${materiId}_selesai", false)
+        val quizSelesai = bonusPrefs.getBoolean("quiz_${quizId}_selesai", false)
+        val nilaiQuiz = bonusPrefs.getInt("quiz_${quizId}_nilai", 0)
 
-        // Cek progress quiz dari SharedPreferences KUIS
-        val prefKuis = context.getSharedPreferences("KUIS_${userId}_LEVEL_1", Context.MODE_PRIVATE)
-        val quizSelesai = prefKuis.getBoolean("quiz${quizId}_selesai", false)
-        val nilaiQuiz = prefKuis.getInt("quiz${quizId}_nilai", 0)
-
-        // Tantangan selesai jika materi OK dan kuis OK (nilai >= 75)
         return materiSelesai && quizSelesai && nilaiQuiz >= 75
+    }
+
+    fun setTantanganBonusSelesai(context: Context, challengeId: String, materiId: Int, quizId: Int, skor: Int) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        
+        // Simpan Lokal
+        val bonusPrefs = context.getSharedPreferences("BONUS_CHALLENGES_$userId", Context.MODE_PRIVATE)
+        bonusPrefs.edit()
+            .putBoolean("challenge_${challengeId}_selesai", true)
+            .putBoolean("materi_${materiId}_selesai", true)
+            .putBoolean("quiz_${quizId}_selesai", true)
+            .putInt("quiz_${quizId}_nilai", skor)
+            .apply()
+
+        // Simpan Firebase
+        val db = FirebaseDatabase.getInstance().reference.child("users").child(userId)
+        db.child("tantangan_bonus_selesai").child(challengeId).setValue(true)
     }
 }

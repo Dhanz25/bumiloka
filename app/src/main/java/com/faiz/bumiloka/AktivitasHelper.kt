@@ -11,36 +11,48 @@ import android.widget.Button
 
 object AktivitasHelper {
 
-    fun tambahPoint(context: Context, tambahanXP: Int) {
+    private fun safeToInt(value: Any?): Int {
+        return when (value) {
+            is Long -> value.toInt()
+            is Int -> value
+            is Double -> value.toInt()
+            is String -> value.toIntOrNull() ?: 0
+            else -> 0
+        }
+    }
+
+    fun tambahPoint(context: Context?, tambahanXP: Int) {
+        val ctx = context ?: return
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseDatabase.getInstance().reference.child("users").child(userId)
 
         db.get().addOnSuccessListener { snapshot ->
-            var currentLevel = snapshot.child("level").getValue(Int::class.java) ?: 1
-            var currentXP = snapshot.child("xp").getValue(Int::class.java) ?: 0
-            var totalPoint = snapshot.child("totalPoint").getValue(Int::class.java) ?: 0
+            if (snapshot.exists()) {
+                var currentLevel = safeToInt(snapshot.child("level").value).let { if (it <= 0) 1 else it }
+                var currentXP = safeToInt(snapshot.child("xp").value)
+                var totalPoint = safeToInt(snapshot.child("totalPoint").value)
 
-            val targetXP = 100
-            currentXP += tambahanXP
-            totalPoint += tambahanXP
+                currentXP += tambahanXP
+                totalPoint += tambahanXP
 
-            var naikLevel = false
-            while (currentXP >= targetXP) {
-                currentXP -= targetXP
-                currentLevel++
-                naikLevel = true
-            }
+                var naikLevel = false
+                while (currentXP >= 100) {
+                    currentXP -= 100
+                    currentLevel++
+                    naikLevel = true
+                }
 
-            val updates = mapOf(
-                "level" to currentLevel,
-                "xp" to currentXP,
-                "totalPoint" to totalPoint
-            )
+                val updates = mapOf(
+                    "level" to currentLevel,
+                    "xp" to currentXP,
+                    "totalPoint" to totalPoint
+                )
 
-            db.updateChildren(updates)
+                db.updateChildren(updates)
 
-            if (naikLevel) {
-                showLevelUpPopup(context, userId, currentLevel, currentXP)
+                if (naikLevel) {
+                    showLevelUpPopup(ctx, userId, currentLevel, currentXP)
+                }
             }
         }
     }
@@ -57,10 +69,8 @@ object AktivitasHelper {
         notifDialog.window?.setGravity(Gravity.CENTER)
 
         val btnLanjut = notifView.findViewById<Button>(R.id.btnLanjutPopup)
-        btnLanjut.setOnClickListener {
+        btnLanjut?.setOnClickListener {
             notifDialog.dismiss()
-            
-            // Gunakan LevelHelper untuk reset progress
             LevelHelper.resetProgressPerLevel(context, userId, nextLevel, sisaXP) {
                 val intent = Intent(context, MainActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -74,7 +84,7 @@ object AktivitasHelper {
         val db = FirebaseDatabase.getInstance().reference.child("users").child(userId)
 
         db.child("misiTercapai").get().addOnSuccessListener { snapshot ->
-            val currentMisi = snapshot.getValue(Int::class.java) ?: 0
+            val currentMisi = safeToInt(snapshot.value)
             db.child("misiTercapai").setValue(currentMisi + 1)
         }
     }
@@ -83,10 +93,15 @@ object AktivitasHelper {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseDatabase.getInstance().reference.child("users").child(userId)
 
-        db.child("lencana_dimiliki").child(idLencana).setValue(true)
-        db.child("totalLencana").get().addOnSuccessListener { snapshot ->
-            val currentTotal = snapshot.getValue(Int::class.java) ?: 0
-            db.child("totalLencana").setValue(currentTotal + 1)
+        // Prevent duplicate badge logic
+        db.child("lencana_dimiliki").child(idLencana).get().addOnSuccessListener { snapshot ->
+            if (!snapshot.exists()) {
+                db.child("lencana_dimiliki").child(idLencana).setValue(true)
+                db.child("totalLencana").get().addOnSuccessListener { totalSnap ->
+                    val currentTotal = safeToInt(totalSnap.value)
+                    db.child("totalLencana").setValue(currentTotal + 1)
+                }
+            }
         }
     }
 }
