@@ -30,9 +30,9 @@ class KuisAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val kuis = list[position]
-        holder.tvPertanyaan.text = kuis.pertanyaan
-        holder.tvKategori.text = kuis.kategori
-        holder.tvJawaban.text = "✓ Jawaban: ${kuis.jawabanBenar}"
+        holder.tvPertanyaan.text = kuis.judul
+        holder.tvKategori.text = kuis.deskripsi
+        holder.tvJawaban.text = "Poin: ${kuis.poinReward}"
         holder.btnEdit.setOnClickListener { onEdit(kuis) }
         holder.btnDelete.setOnClickListener { onDelete(kuis) }
     }

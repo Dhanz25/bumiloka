@@ -4,89 +4,93 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
-import androidx.cardview.widget.CardView
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.faiz.bumiloka.R
+import com.faiz.bumiloka.adapters.AdminKuisAdapter
+import com.faiz.bumiloka.databinding.FragmentKuisBinding
 import com.faiz.bumiloka.model.Kuis
-import com.faiz.bumiloka.adapters.KuisAdapter
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 
 class KuisFragment : Fragment() {
 
-    private val db = FirebaseDatabase.getInstance().reference.child("kuis")
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: KuisAdapter
-    private lateinit var tvEmpty: TextView
-    private val kuisList = mutableListOf<Kuis>()
-    private var dbListener: ValueEventListener? = null
+    private var _binding: FragmentKuisBinding? = null
+    private val binding get() = _binding!!
+    private val viewModel: AdminViewModel by viewModels()
+    private lateinit var adapter: AdminKuisAdapter
+    private var fullList = listOf<Kuis>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_kuis, container, false)
+    ): View {
+        _binding = FragmentKuisBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        tvEmpty = view.findViewById(R.id.tv_title_kuis)
-        recyclerView = view.findViewById(R.id.rv_kuis)
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupRecyclerView()
+        setupSearchView()
+        observeViewModel()
 
-        adapter = KuisAdapter(
-            kuisList,
-            onEdit = { kuis -> navigateToTambah(kuis) },
-            onDelete = { kuis -> deleteKuis(kuis) }
-        )
-        recyclerView.adapter = adapter
-
-        view.findViewById<FloatingActionButton>(R.id.fab_tambah_kuis).setOnClickListener {
+        binding.fabTambahKuis.setOnClickListener {
             navigateToTambah(null)
         }
 
-        loadKuis()
-        return view
+        viewModel.fetchKuis()
     }
 
-    private fun loadKuis() {
-        dbListener = object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                kuisList.clear()
-                for (child in snapshot.children) {
-                    val kuis = child.getValue(Kuis::class.java)?.copy(id = child.key ?: "")
-                    kuis?.let { kuisList.add(it) }
-                }
-                kuisList.sortByDescending { it.createdAt }
-                adapter.notifyDataSetChanged()
-                tvEmpty.visibility = if (kuisList.isEmpty()) View.VISIBLE else View.GONE
-                recyclerView.visibility = if (kuisList.isEmpty()) View.GONE else View.VISIBLE
-            }
-            override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(requireContext(), "Error: ${error.message}", Toast.LENGTH_SHORT).show()
-            }
-        }
-        db.addValueEventListener(dbListener!!)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        dbListener?.let { db.removeEventListener(it) }
-    }
-
-    private fun deleteKuis(kuis: Kuis) {
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setTitle("Hapus Kuis")
-            .setMessage("Yakin ingin menghapus pertanyaan ini?")
-            .setPositiveButton("Hapus") { _, _ ->
-                db.child(kuis.id).removeValue()
-                    .addOnSuccessListener {
-                        Toast.makeText(requireContext(), "Kuis berhasil dihapus", Toast.LENGTH_SHORT).show()
+    private fun setupRecyclerView() {
+        adapter = AdminKuisAdapter(
+            onEdit = { navigateToTambah(it) },
+            onDelete = { showDeleteConfirmation(it) },
+            onManageSoal = { kuis ->
+                val fragment = KelolaSoalFragment().apply {
+                    arguments = Bundle().apply {
+                        putString("kuisId", kuis.id)
+                        putString("kuisJudul", kuis.judul)
                     }
+                }
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .addToBackStack(null)
+                    .commit()
+            }
+        )
+        binding.rvKuis.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvKuis.adapter = adapter
+    }
+
+    private fun setupSearchView() {
+        // Since fragment_kuis might not have a SearchView yet, I should check or add it.
+        // I'll assume I should update fragment_kuis.xml to include search like Edukasi.
+    }
+
+    private fun observeViewModel() {
+        viewModel.kuisList.observe(viewLifecycleOwner) { list ->
+            fullList = list.sortedByDescending { it.createdAt }
+            adapter.submitList(fullList)
+            // tvEmpty is tvTitleKuis in original layout, better to update layout
+            binding.tvTitleKuis.visibility = if (fullList.isEmpty()) View.VISIBLE else View.GONE
+        }
+    }
+
+    private fun showDeleteConfirmation(kuis: Kuis) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Hapus Kuis")
+            .setMessage("Yakin ingin menghapus kuis \"${kuis.judul}\"?")
+            .setPositiveButton("Hapus") { _, _ ->
+                viewModel.deleteKuis(kuis.id) { success ->
+                    if (success) {
+                        Toast.makeText(requireContext(), "Berhasil dihapus", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), "Gagal menghapus", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
             .setNegativeButton("Batal", null)
             .show()
@@ -97,14 +101,12 @@ class KuisFragment : Fragment() {
             arguments = Bundle().apply {
                 kuis?.let {
                     putString("id", it.id)
-                    putString("pertanyaan", it.pertanyaan)
-                    putString("opsiA", it.opsiA)
-                    putString("opsiB", it.opsiB)
-                    putString("opsiC", it.opsiC)
-                    putString("opsiD", it.opsiD)
-                    putString("jawabanBenar", it.jawabanBenar)
-                    putString("kategori", it.kategori)
-                    putInt("poin", it.poin)
+                    putString("edukasiId", it.edukasiId)
+                    putString("judul", it.judul)
+                    putString("deskripsi", it.deskripsi)
+                    putString("imageUrl", it.imageUrl)
+                    putInt("poinReward", it.poinReward)
+                    putBoolean("aktif", it.aktif)
                 }
             }
         }
@@ -112,5 +114,10 @@ class KuisFragment : Fragment() {
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

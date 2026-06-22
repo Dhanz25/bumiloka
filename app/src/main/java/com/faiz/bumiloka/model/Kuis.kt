@@ -2,13 +2,11 @@ package com.faiz.bumiloka.model
 
 data class Kuis(
     var id: String = "",
-    var pertanyaan: String = "",
-    var opsiA: String = "",
-    var opsiB: String = "",
-    var opsiC: String = "",
-    var opsiD: String = "",
-    var jawabanBenar: String = "",
-    var kategori: String = "",
-    var poin: Int = 10,
+    var edukasiId: String = "",
+    var judul: String = "",
+    var deskripsi: String = "",
+    var imageUrl: String = "",
+    var poinReward: Int = 0,
+    var aktif: Boolean = true,
     var createdAt: Long = System.currentTimeMillis()
 )

@@ -4,108 +4,125 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.faiz.bumiloka.R
+import com.faiz.bumiloka.adapters.AdminEdukasiAdapter
+import com.faiz.bumiloka.databinding.FragmentEdukasiAdminBinding
 import com.faiz.bumiloka.model.Edukasi
-import com.faiz.bumiloka.adapters.MateriAdapter
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 
 class EdukasiFragment : Fragment() {
 
-    private val db = FirebaseDatabase.getInstance().reference.child("materi")
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: MateriAdapter
-    private lateinit var tvEmpty: TextView
-    private val materiList = mutableListOf<Edukasi>()
-    private var dbListener: ValueEventListener? = null
+    private var _binding: FragmentEdukasiAdminBinding? = null
+    private val binding get() = _binding!!
+    private val viewModel: AdminViewModel by viewModels()
+    private lateinit var adapter: AdminEdukasiAdapter
+    private var fullList = listOf<Edukasi>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Changed from fragment_materi to fragment_edukasi2 for admin list view
-        val view = inflater.inflate(R.layout.fragment_edukasi2, container, false)
+    ): View {
+        _binding = FragmentEdukasiAdminBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        tvEmpty = view.findViewById(R.id.tv_empty_edukasi)
-        recyclerView = view.findViewById(R.id.rv_edukasi)
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupRecyclerView()
+        setupSearchView()
+        observeViewModel()
 
-        adapter = MateriAdapter(
-            materiList,
-            onEdit = { materi -> navigateToTambah(materi) },
-            onDelete = { materi -> deleteMateri(materi) }
-        )
-        recyclerView.adapter = adapter
-
-        view.findViewById<FloatingActionButton>(R.id.fab_tambah_edukasi).setOnClickListener {
+        binding.fabAdd.setOnClickListener {
             navigateToTambah(null)
         }
 
-        loadMateri()
-        return view
+        viewModel.fetchEdukasi()
     }
 
-    private fun loadMateri() {
-        dbListener = object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                materiList.clear()
-                for (child in snapshot.children) {
-                    val materi = child.getValue(Edukasi::class.java)?.copy(id = child.key ?: "")
-                    materi?.let { materiList.add(it) }
-                }
-                materiList.sortByDescending { it.createdAt }
-                adapter.notifyDataSetChanged()
-                tvEmpty.visibility = if (materiList.isEmpty()) View.VISIBLE else View.GONE
-                recyclerView.visibility = if (materiList.isEmpty()) View.GONE else View.VISIBLE
+    private fun setupRecyclerView() {
+        adapter = AdminEdukasiAdapter(
+            onEdit = { navigateToTambah(it) },
+            onDelete = { showDeleteConfirmation(it) },
+            onDetail = { showDetail(it) }
+        )
+        binding.rvEdukasi.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvEdukasi.adapter = adapter
+    }
+
+    private fun setupSearchView() {
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean = false
+            override fun onQueryTextChange(newText: String?): Boolean {
+                filterList(newText)
+                return true
             }
-            override fun onCancelled(error: DatabaseError) {
-                if (isAdded) {
-                    Toast.makeText(requireContext(), "Error: ${error.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
+        })
+    }
+
+    private fun filterList(query: String?) {
+        val filtered = if (query.isNullOrBlank()) {
+            fullList
+        } else {
+            fullList.filter { it.title.contains(query, ignoreCase = true) }
         }
-        db.addValueEventListener(dbListener!!)
+        adapter.submitList(filtered)
+        binding.tvEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        dbListener?.let { db.removeEventListener(it) }
+    private fun observeViewModel() {
+        viewModel.edukasiList.observe(viewLifecycleOwner) { list ->
+            fullList = list.sortedByDescending { it.createdAt }
+            filterList(binding.searchView.query.toString())
+        }
     }
 
-    private fun deleteMateri(materi: Edukasi) {
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+    private fun showDeleteConfirmation(edukasi: Edukasi) {
+        AlertDialog.Builder(requireContext())
             .setTitle("Hapus Materi")
-            .setMessage("Yakin ingin menghapus \"${materi.judul}\"?")
+            .setMessage("Yakin ingin menghapus \"${edukasi.title}\"?")
             .setPositiveButton("Hapus") { _, _ ->
-                db.child(materi.id).removeValue()
-                    .addOnSuccessListener {
-                        Toast.makeText(requireContext(), "Materi berhasil dihapus", Toast.LENGTH_SHORT).show()
-                    }
-                    .addOnFailureListener {
+                viewModel.deleteEdukasi(edukasi.id) { success ->
+                    if (success) {
+                        Toast.makeText(requireContext(), "Berhasil dihapus", Toast.LENGTH_SHORT).show()
+                    } else {
                         Toast.makeText(requireContext(), "Gagal menghapus", Toast.LENGTH_SHORT).show()
                     }
+                }
             }
             .setNegativeButton("Batal", null)
             .show()
     }
 
-    private fun navigateToTambah(materi: Edukasi?) {
+    private fun showDetail(edukasi: Edukasi) {
+        val detailView = LayoutInflater.from(requireContext()).inflate(R.layout.fragment_jelajahi__materi_detail, null)
+        // Set data to detailView here if needed, but since the request asks for "Detail Materi" feature,
+        // using a dialog or a new fragment is fine. Let's just use a simple AlertDialog for detail for now or navigate.
+        // The prompt says "Detail Materi" as part of CRUD.
+        
+        AlertDialog.Builder(requireContext())
+            .setTitle(edukasi.title)
+            .setMessage("Deskripsi: ${edukasi.description}\n\nKonten: ${edukasi.content}\n\nBadge: ${edukasi.badgeName}\n\nAktif: ${edukasi.aktif}")
+            .setPositiveButton("Tutup", null)
+            .show()
+    }
+
+    private fun navigateToTambah(edukasi: Edukasi?) {
         val fragment = TambahEdukasiFragment().apply {
             arguments = Bundle().apply {
-                materi?.let {
+                edukasi?.let {
                     putString("id", it.id)
-                    putString("judul", it.judul)
-                    putString("konten", it.konten)
-                    putString("kategori", it.kategori)
+                    putString("title", it.title)
+                    putString("description", it.description)
+                    putString("content", it.content)
                     putString("imageUrl", it.imageUrl)
+                    putString("badgeName", it.badgeName)
+                    putString("badgeImage", it.badgeImage)
+                    putBoolean("aktif", it.aktif)
                 }
             }
         }
@@ -113,5 +130,10 @@ class EdukasiFragment : Fragment() {
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

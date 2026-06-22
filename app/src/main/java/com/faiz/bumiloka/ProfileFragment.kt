@@ -50,7 +50,7 @@ class ProfileFragment : Fragment() {
         val tvProfileName = view.findViewById<TextView>(R.id.tvProfileName)
         val btnPengaturan = view.findViewById<LinearLayout>(R.id.btnPengaturan)
         val btnBantuan = view.findViewById<LinearLayout>(R.id.btnBantuan)
-        val btnResetData = view.findViewById<LinearLayout>(R.id.btnResetData)
+        val btnNotifikasi = view.findViewById<LinearLayout>(R.id.btnNotifikasi)
         val btnLogout = view.findViewById<LinearLayout>(R.id.btnLogout)
 
         val tvGelarUser = view.findViewById<TextView>(R.id.tvGelarUser)
@@ -87,26 +87,15 @@ class ProfileFragment : Fragment() {
                 .addToBackStack(null)
                 .commit()
         }
-
-        // --- LOGIKA RESET DATA ---
-        btnResetData.setOnClickListener {
-            AlertDialog.Builder(requireContext())
-                .setTitle("Reset Data")
-                .setMessage("Semua progres, badge, level, quiz, materi, tantangan, dan poin akan dihapus. Lanjutkan?")
-                .setPositiveButton("Reset") { _, _ ->
-                    AppResetHelper.resetSemuaData(requireContext()) { success ->
-                        if (success) {
-                            Toast.makeText(requireContext(), "Data berhasil direset", Toast.LENGTH_SHORT).show()
-                            currentUser?.let { user ->
-                                loadDataProfil(user.uid, tvGelarUser, tvTotalPoinBanner, tvTotalPoinGrid, tvTotalMisi, tvTotalLencana)
-                            }
-                        } else {
-                            Toast.makeText(requireContext(), "Gagal mereset data", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
-                .setNegativeButton("Batal", null)
-                .show()
+        
+        btnNotifikasi.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(
+                    R.id.fragment_container,
+                    NotificationFragment()
+                )
+                .addToBackStack(null)
+                .commit()
         }
 
         btnLogout.setOnClickListener {

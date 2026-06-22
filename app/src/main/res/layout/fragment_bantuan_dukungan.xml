@@ -17,7 +17,8 @@
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_back_arrow"
             app:title="@string/title_help_support"
-            app:titleTextColor="@color/white" />
+            app:titleTextColor="@color/white"
+            android:layout_marginTop="20dp"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 

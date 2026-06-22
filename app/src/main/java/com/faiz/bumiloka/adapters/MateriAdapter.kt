@@ -30,10 +30,10 @@ class MateriAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val materi = list[position]
-        holder.tvJudul.text = materi.judul
-        holder.tvKategori.text = materi.kategori
-        holder.tvPreview.text = if (materi.konten.length > 80)
-            materi.konten.substring(0, 80) + "..." else materi.konten
+        holder.tvJudul.text = materi.title
+        holder.tvKategori.text = materi.description
+        holder.tvPreview.text = if (materi.content.length > 80)
+            materi.content.substring(0, 80) + "..." else materi.content
         holder.btnEdit.setOnClickListener { onEdit(materi) }
         holder.btnDelete.setOnClickListener { onDelete(materi) }
     }

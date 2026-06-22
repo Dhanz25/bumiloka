@@ -4,96 +4,93 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.faiz.bumiloka.R
+import androidx.fragment.app.viewModels
+import com.faiz.bumiloka.databinding.FragmentTambahEdukasiBinding
 import com.faiz.bumiloka.model.Edukasi
-import com.google.firebase.database.FirebaseDatabase
 
 class TambahEdukasiFragment : Fragment() {
 
-    private val db = FirebaseDatabase.getInstance().reference.child("materi")
+    private var _binding: FragmentTambahEdukasiBinding? = null
+    private val binding get() = _binding!!
+    private val viewModel: AdminViewModel by viewModels()
     private var editId: String? = null
-
-    private lateinit var etJudul: EditText
-    private lateinit var etKonten: EditText
-    private lateinit var etKategori: EditText
-    private lateinit var etImageUrl: EditText
-    private lateinit var btnSimpan: Button
-    private lateinit var progressBar: ProgressBar
-    private lateinit var tvTitle: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_tambah_edukasi, container, false)
+    ): View {
+        _binding = FragmentTambahEdukasiBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        etJudul = view.findViewById(R.id.et_judul_edukasi)
-        etKonten = view.findViewById(R.id.et_konten_edukasi)
-        etKategori = view.findViewById(R.id.et_kategori_edukasi)
-        etImageUrl = view.findViewById(R.id.et_image_url_edukasi)
-        btnSimpan = view.findViewById(R.id.btn_simpan_edukasi)
-        progressBar = view.findViewById(R.id.progress_tambah_edukasi)
-        tvTitle = view.findViewById(R.id.tv_title_tambah_edukasi)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        // Cek mode edit
+        binding.toolbar.setNavigationOnClickListener { parentFragmentManager.popBackStack() }
+
         arguments?.let { args ->
             editId = args.getString("id")
             if (editId != null) {
-                tvTitle.text = "Edit Materi"
-                btnSimpan.text = "Update"
-                etJudul.setText(args.getString("judul"))
-                etKonten.setText(args.getString("konten"))
-                etKategori.setText(args.getString("kategori"))
-                etImageUrl.setText(args.getString("imageUrl"))
+                binding.toolbar.title = "Edit Materi Edukasi"
+                binding.etTitle.setText(args.getString("title"))
+                binding.etDescription.setText(args.getString("description"))
+                binding.etContent.setText(args.getString("content"))
+                binding.etImageUrl.setText(args.getString("imageUrl"))
+                binding.etBadgeName.setText(args.getString("badgeName"))
+                binding.etBadgeImage.setText(args.getString("badgeImage"))
+                binding.switchAktif.isChecked = args.getBoolean("aktif", true)
+                binding.btnSave.text = "UPDATE MATERI"
             }
         }
 
-        btnSimpan.setOnClickListener { simpanMateri() }
-        return view
+        binding.btnSave.setOnClickListener { saveEdukasi() }
     }
 
-    private fun simpanMateri() {
-        val judul = etJudul.text.toString().trim()
-        val konten = etKonten.text.toString().trim()
-        val kategori = etKategori.text.toString().trim()
-        val imageUrl = etImageUrl.text.toString().trim()
+    private fun saveEdukasi() {
+        val title = binding.etTitle.text.toString().trim()
+        val description = binding.etDescription.text.toString().trim()
+        val content = binding.etContent.text.toString().trim()
+        val imageUrl = binding.etImageUrl.text.toString().trim()
+        val badgeName = binding.etBadgeName.text.toString().trim()
+        val badgeImage = binding.etBadgeImage.text.toString().trim()
+        val aktif = binding.switchAktif.isChecked
 
-        if (judul.isEmpty()) { etJudul.error = "Judul tidak boleh kosong"; return }
-        if (konten.isEmpty()) { etKonten.error = "Konten tidak boleh kosong"; return }
-        if (kategori.isEmpty()) { etKategori.error = "Kategori tidak boleh kosong"; return }
+        if (title.isEmpty() || description.isEmpty() || content.isEmpty()) {
+            Toast.makeText(requireContext(), "Harap isi semua field wajib", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-        progressBar.visibility = View.VISIBLE
-        btnSimpan.isEnabled = false
+        binding.progressBar.visibility = View.VISIBLE
+        binding.btnSave.isEnabled = false
 
-        val materi = Edukasi(
+        val edukasi = Edukasi(
             id = editId ?: "",
-            judul = judul,
-            konten = konten,
-            kategori = kategori,
+            title = title,
+            description = description,
+            content = content,
             imageUrl = imageUrl,
-            createdAt = System.currentTimeMillis()
+            badgeName = badgeName,
+            badgeImage = badgeImage,
+            aktif = aktif,
+            createdAt = if (editId == null) System.currentTimeMillis() else arguments?.getLong("createdAt") ?: System.currentTimeMillis()
         )
 
-        val task = if (editId != null) {
-            // Mode Update: gunakan ID yang sudah ada
-            db.child(editId!!).setValue(materi)
-        } else {
-            // Mode Tambah: push() buat ID unik otomatis
-            val newRef = db.push()
-            newRef.setValue(materi.copy(id = newRef.key ?: ""))
+        viewModel.saveEdukasi(edukasi) { success ->
+            binding.progressBar.visibility = View.GONE
+            binding.btnSave.isEnabled = true
+            if (success) {
+                Toast.makeText(requireContext(), "Berhasil disimpan", Toast.LENGTH_SHORT).show()
+                parentFragmentManager.popBackStack()
+            } else {
+                Toast.makeText(requireContext(), "Gagal menyimpan", Toast.LENGTH_SHORT).show()
+            }
         }
+    }
 
-        task.addOnSuccessListener {
-            progressBar.visibility = View.GONE
-            val msg = if (editId != null) "Materi berhasil diupdate!" else "Materi berhasil ditambahkan!"
-            Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
-            parentFragmentManager.popBackStack()
-        }.addOnFailureListener { e ->
-            progressBar.visibility = View.GONE
-            btnSimpan.isEnabled = true
-            Toast.makeText(requireContext(), "Gagal: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

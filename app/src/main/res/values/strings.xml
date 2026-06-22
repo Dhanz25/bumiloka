@@ -164,4 +164,15 @@
     <string name="contact_footer_version">Eco Warrior v1.0.0</string>
     <string name="contact_form_error_empty">Field ini tidak boleh kosong</string>
     <string name="contact_form_success">Terima kasih atas masukan Anda.</string>
+
+    <!-- Notification Strings -->
+    <string name="notification_title">Notifikasi</string>
+    <string name="notification_subtitle">Tetap update aktivitas hijau Anda</string>
+    <string name="notification_icon_desc">Ikon Notifikasi</string>
+    <string name="unread_label">Belum Dibaca</string>
+    <string name="unread_count_placeholder">%1$d Notifikasi</string>
+    <string name="chip_reward">Reward</string>
+    <string name="chip_activity">Aktivitas</string>
+    <string name="chip_system">Sistem</string>
+    <string name="sample_badge_count">3</string>
 </resources>

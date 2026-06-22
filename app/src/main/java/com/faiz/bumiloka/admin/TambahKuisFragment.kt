@@ -4,124 +4,90 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.faiz.bumiloka.R
+import androidx.fragment.app.viewModels
+import com.faiz.bumiloka.databinding.FragmentTambahKuisBinding
 import com.faiz.bumiloka.model.Kuis
-import com.google.firebase.database.FirebaseDatabase
 
 class TambahKuisFragment : Fragment() {
 
-    private val db = FirebaseDatabase.getInstance().reference.child("kuis")
+    private var _binding: FragmentTambahKuisBinding? = null
+    private val binding get() = _binding!!
+    private val viewModel: AdminViewModel by viewModels()
     private var editId: String? = null
-
-    private lateinit var etPertanyaan: EditText
-    private lateinit var etOpsiA: EditText
-    private lateinit var etOpsiB: EditText
-    private lateinit var etOpsiC: EditText
-    private lateinit var etOpsiD: EditText
-    private lateinit var spinnerJawaban: Spinner
-    private lateinit var etKategori: EditText
-    private lateinit var etPoin: EditText
-    private lateinit var btnSimpan: Button
-    private lateinit var progressBar: ProgressBar
-    private lateinit var tvTitle: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_tambah_kuis, container, false)
+    ): View {
+        _binding = FragmentTambahKuisBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        etPertanyaan = view.findViewById(R.id.et_pertanyaan)
-        etOpsiA = view.findViewById(R.id.et_opsi_a)
-        etOpsiB = view.findViewById(R.id.et_opsi_b)
-        etOpsiC = view.findViewById(R.id.et_opsi_c)
-        etOpsiD = view.findViewById(R.id.et_opsi_d)
-        spinnerJawaban = view.findViewById(R.id.spinner_jawaban_benar)
-        etKategori = view.findViewById(R.id.et_kategori_kuis)
-        etPoin = view.findViewById(R.id.et_poin_kuis)
-        btnSimpan = view.findViewById(R.id.btn_simpan_kuis)
-        progressBar = view.findViewById(R.id.progress_tambah_kuis)
-        tvTitle = view.findViewById(R.id.tv_title_tambah_kuis)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        val opsiJawaban = arrayOf("A", "B", "C", "D")
-        spinnerJawaban.adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_dropdown_item,
-            opsiJawaban
-        )
+        binding.toolbar.setNavigationOnClickListener { parentFragmentManager.popBackStack() }
 
         arguments?.let { args ->
             editId = args.getString("id")
             if (editId != null) {
-                tvTitle.text = "Edit Kuis"
-                btnSimpan.text = "Update"
-                etPertanyaan.setText(args.getString("pertanyaan"))
-                etOpsiA.setText(args.getString("opsiA"))
-                etOpsiB.setText(args.getString("opsiB"))
-                etOpsiC.setText(args.getString("opsiC"))
-                etOpsiD.setText(args.getString("opsiD"))
-                etKategori.setText(args.getString("kategori"))
-                etPoin.setText(args.getInt("poin", 10).toString())
-                val idx = opsiJawaban.indexOf(args.getString("jawabanBenar", "A"))
-                spinnerJawaban.setSelection(if (idx >= 0) idx else 0)
+                binding.toolbar.title = "Edit Kuis"
+                binding.etEdukasiId.setText(args.getString("edukasiId"))
+                binding.etJudul.setText(args.getString("judul"))
+                binding.etDeskripsi.setText(args.getString("deskripsi"))
+                binding.etImageUrl.setText(args.getString("imageUrl"))
+                binding.etPoinReward.setText(args.getInt("poinReward").toString())
+                binding.switchAktif.isChecked = args.getBoolean("aktif", true)
+                binding.btnSave.text = "UPDATE KUIS"
             }
         }
 
-        btnSimpan.setOnClickListener { simpanKuis() }
-        return view
+        binding.btnSave.setOnClickListener { saveKuis() }
     }
 
-    private fun simpanKuis() {
-        val pertanyaan = etPertanyaan.text.toString().trim()
-        val opsiA = etOpsiA.text.toString().trim()
-        val opsiB = etOpsiB.text.toString().trim()
-        val opsiC = etOpsiC.text.toString().trim()
-        val opsiD = etOpsiD.text.toString().trim()
-        val jawaban = spinnerJawaban.selectedItem.toString()
-        val kategori = etKategori.text.toString().trim()
-        val poin = etPoin.text.toString().trim().toIntOrNull() ?: 10
+    private fun saveKuis() {
+        val edukasiId = binding.etEdukasiId.text.toString().trim()
+        val judul = binding.etJudul.text.toString().trim()
+        val deskripsi = binding.etDeskripsi.text.toString().trim()
+        val imageUrl = binding.etImageUrl.text.toString().trim()
+        val poinReward = binding.etPoinReward.text.toString().trim().toIntOrNull() ?: 0
+        val aktif = binding.switchAktif.isChecked
 
-        if (pertanyaan.isEmpty()) { etPertanyaan.error = "Pertanyaan tidak boleh kosong"; return }
-        if (opsiA.isEmpty()) { etOpsiA.error = "Opsi A wajib diisi"; return }
-        if (opsiB.isEmpty()) { etOpsiB.error = "Opsi B wajib diisi"; return }
-        if (opsiC.isEmpty()) { etOpsiC.error = "Opsi C wajib diisi"; return }
-        if (opsiD.isEmpty()) { etOpsiD.error = "Opsi D wajib diisi"; return }
-        if (kategori.isEmpty()) { etKategori.error = "Kategori tidak boleh kosong"; return }
+        if (judul.isEmpty() || deskripsi.isEmpty()) {
+            Toast.makeText(requireContext(), "Judul dan deskripsi wajib diisi", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-        progressBar.visibility = View.VISIBLE
-        btnSimpan.isEnabled = false
+        binding.progressBar.visibility = View.VISIBLE
+        binding.btnSave.isEnabled = false
 
         val kuis = Kuis(
             id = editId ?: "",
-            pertanyaan = pertanyaan,
-            opsiA = opsiA,
-            opsiB = opsiB,
-            opsiC = opsiC,
-            opsiD = opsiD,
-            jawabanBenar = jawaban,
-            kategori = kategori,
-            poin = poin,
-            createdAt = System.currentTimeMillis()
+            edukasiId = edukasiId,
+            judul = judul,
+            deskripsi = deskripsi,
+            imageUrl = imageUrl,
+            poinReward = poinReward,
+            aktif = aktif,
+            createdAt = if (editId == null) System.currentTimeMillis() else arguments?.getLong("createdAt") ?: System.currentTimeMillis()
         )
 
-        val task = if (editId != null) {
-            db.child(editId!!).setValue(kuis)
-        } else {
-            val newRef = db.push()
-            newRef.setValue(kuis.copy(id = newRef.key ?: ""))
+        viewModel.saveKuis(kuis) { success ->
+            binding.progressBar.visibility = View.GONE
+            binding.btnSave.isEnabled = true
+            if (success) {
+                Toast.makeText(requireContext(), "Kuis berhasil disimpan", Toast.LENGTH_SHORT).show()
+                parentFragmentManager.popBackStack()
+            } else {
+                Toast.makeText(requireContext(), "Gagal menyimpan kuis", Toast.LENGTH_SHORT).show()
+            }
         }
+    }
 
-        task.addOnSuccessListener {
-            progressBar.visibility = View.GONE
-            val msg = if (editId != null) "Kuis berhasil diupdate!" else "Kuis berhasil ditambahkan!"
-            Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
-            parentFragmentManager.popBackStack()
-        }.addOnFailureListener { e ->
-            progressBar.visibility = View.GONE
-            btnSimpan.isEnabled = true
-            Toast.makeText(requireContext(), "Gagal: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

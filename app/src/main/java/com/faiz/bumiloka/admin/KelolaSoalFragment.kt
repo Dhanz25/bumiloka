@@ -1,60 +1,119 @@
 package com.faiz.bumiloka.admin
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.faiz.bumiloka.R
+import com.faiz.bumiloka.adapters.AdminSoalAdapter
+import com.faiz.bumiloka.databinding.FragmentKelolaSoalBinding
+import com.faiz.bumiloka.model.SoalKuis
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [KelolaSoalFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class KelolaSoalFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+
+    private var _binding: FragmentKelolaSoalBinding? = null
+    private val binding get() = _binding!!
+    private val viewModel: AdminViewModel by viewModels()
+    private lateinit var adapter: AdminSoalAdapter
+    private var kuisId: String = ""
+    private var kuisJudul: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+            kuisId = it.getString("kuisId") ?: ""
+            kuisJudul = it.getString("kuisJudul") ?: "Kuis"
         }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_kelola_soal, container, false)
+    ): View {
+        _binding = FragmentKelolaSoalBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment KelolaSoalFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            KelolaSoalFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        
+        binding.toolbar.title = "Kelola Soal"
+        binding.toolbar.setNavigationOnClickListener { parentFragmentManager.popBackStack() }
+        binding.tvKuisJudul.text = "Kuis: $kuisJudul"
+
+        setupRecyclerView()
+        observeViewModel()
+
+        binding.fabAdd.setOnClickListener {
+            navigateToTambah(null)
+        }
+
+        if (kuisId.isNotEmpty()) {
+            viewModel.fetchSoal(kuisId)
+        }
+    }
+
+    private fun setupRecyclerView() {
+        adapter = AdminSoalAdapter(
+            onEdit = { navigateToTambah(it) },
+            onDelete = { showDeleteConfirmation(it) }
+        )
+        binding.rvSoal.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvSoal.adapter = adapter
+    }
+
+    private fun observeViewModel() {
+        viewModel.soalList.observe(viewLifecycleOwner) { list ->
+            adapter.submitList(list)
+            binding.tvEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
+        }
+    }
+
+    private fun showDeleteConfirmation(soal: SoalKuis) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Hapus Soal")
+            .setMessage("Yakin ingin menghapus soal ini?")
+            .setPositiveButton("Hapus") { _, _ ->
+                viewModel.deleteSoal(kuisId, soal.id) { success ->
+                    if (success) {
+                        Toast.makeText(requireContext(), "Berhasil dihapus", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), "Gagal menghapus", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
+            .setNegativeButton("Batal", null)
+            .show()
+    }
+
+    private fun navigateToTambah(soal: SoalKuis?) {
+        val fragment = TambahSoalFragment().apply {
+            arguments = Bundle().apply {
+                putString("kuisId", kuisId)
+                soal?.let {
+                    putString("id", it.id)
+                    putString("pertanyaan", it.pertanyaan)
+                    putString("opsiA", it.opsiA)
+                    putString("opsiB", it.opsiB)
+                    putString("opsiC", it.opsiC)
+                    putString("opsiD", it.opsiD)
+                    putString("jawabanBenar", it.jawabanBenar)
+                }
+            }
+        }
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
