@@ -49,6 +49,12 @@ class PengaturanFragment : Fragment() {
         val etNama = view.findViewById<EditText>(R.id.etNama)
         val etNis = view.findViewById<EditText>(R.id.etNis)
         val btnSimpan = view.findViewById<Button>(R.id.btnSimpan)
+        val btnBack = view.findViewById<ImageButton>(R.id.btnBack)
+
+        // Tombol Back Berfungsi
+        btnBack.setOnClickListener {
+            parentFragmentManager.popBackStack()
+        }
 
         // 1. Setup Dropdown Agama
         val listAgama = listOf("Islam", "Kristen", "Katolik", "Hindu", "Budha", "Khonghucu")
@@ -102,7 +108,6 @@ class PengaturanFragment : Fragment() {
                 saveDataToFirebase(view, btnSimpan)
             }
         }
-
         return view
     }
 

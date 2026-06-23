@@ -22,8 +22,9 @@ class QuizMenang1Fragment : Fragment(R.layout.fragment_quiz_menang1_) {
 
         val args = arguments ?: Bundle()
         val quizType = args.getString("QUIZ_TYPE") ?: "QUIZ1"
-        val dariMisi = args.getBoolean("DARI_MISI", false) ?: false
-        val isTantanganBonus = args.getBoolean("IS_TANTANGAN_BONUS", false) ?: false
+        val level = args.getInt("LEVEL", 1)
+        val dariMisi = args.getBoolean("DARI_MISI", false)
+        val isTantanganBonus = args.getBoolean("IS_TANTANGAN_BONUS", false)
         val badgeId = args.getInt("badge_id", 0)
         val challengeId = args.getString("challenge_id") ?: ""
         val quizId = args.getInt("quiz_id", 1)
@@ -31,7 +32,9 @@ class QuizMenang1Fragment : Fragment(R.layout.fragment_quiz_menang1_) {
 
         val toolbar = view.findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
-        val pref = requireActivity().getSharedPreferences("KUIS_$userId", Context.MODE_PRIVATE)
+        
+        // Gunakan SharedPref yang sama dengan QuizUtamaFragment agar status tersinkron
+        val prefKuis = requireActivity().getSharedPreferences("KUIS_${userId}_LEVEL_$level", Context.MODE_PRIVATE)
 
         val skorBundle = args.getInt("SKOR", -1)
         val benarBundle = args.getInt("BENAR", -1)
@@ -47,9 +50,9 @@ class QuizMenang1Fragment : Fragment(R.layout.fragment_quiz_menang1_) {
             salah = salahBundle
         } else {
             skor = when (quizType) {
-                "QUIZ1" -> pref.getInt("nilai_materi1", 0)
-                "QUIZ2" -> pref.getInt("quiz2_nilai", 0)
-                "QUIZ3" -> pref.getInt("quiz3_nilai", 0)
+                "QUIZ1" -> prefKuis.getInt("nilai_materi1", 0)
+                "QUIZ2" -> prefKuis.getInt("quiz2_nilai", 0)
+                "QUIZ3" -> prefKuis.getInt("quiz3_nilai", 0)
                 else -> 0
             }
             benar = skor / 10
@@ -60,30 +63,52 @@ class QuizMenang1Fragment : Fragment(R.layout.fragment_quiz_menang1_) {
         tvSalah.text = "$salah"
         tvSkor.text = "Skor: $skor/100"
 
-        // LOGIKA REWARD & PROGRESS
+        // SIMPAN STATUS KUIS SELESAI (Penting agar UI di QuizUtamaFragment berubah)
+        if (!isTantanganBonus) {
+            val editor = prefKuis.edit()
+            when (quizType) {
+                "QUIZ1" -> {
+                    editor.putBoolean("materi1_selesai", true)
+                    editor.putInt("nilai_materi1", skor)
+                }
+                "QUIZ2" -> {
+                    editor.putBoolean("quiz2_selesai", true)
+                    editor.putInt("quiz2_nilai", skor)
+                }
+                "QUIZ3" -> {
+                    editor.putBoolean("quiz3_selesai", true)
+                    editor.putInt("quiz3_nilai", skor)
+                }
+            }
+            editor.apply()
+        }
+
+        // LOGIKA REWARD & PROGRESS FIREBASE
         if (isTantanganBonus) {
             if (skor >= 75) {
-                // 1. Berikan Badge
                 if (badgeId != 0) {
                     BadgeHelper.tambahBadge(requireContext(), badgeId.toString())
-                    AktivitasHelper.tambahLencana(badgeId.toString()) // Simpan ke Firebase
+                    AktivitasManager.tambahAktivitas(requireContext(), "Berhasil mendapatkan Lencana baru dari Tantangan Bonus", "Lencana", 50)
+                    AktivitasHelper.tambahPoint(requireContext(), 50, "Tantangan Bonus")
+                    // Notifikasi lencana tetap muncul karena ini pencapaian besar
+                    AktivitasHelper.tambahLencana(requireContext(), badgeId.toString())
                 }
                 
-                // 2. Set Status Selesai
                 if (challengeId.isNotEmpty()) {
                     TantanganStatusHelper.setTantanganBonusSelesai(requireContext(), challengeId, materiId, quizId, skor)
                 }
             }
         } else {
-            // PROGRESS LEVEL/MISI UTAMA
             LevelHelper.getCurrentLevel(requireContext()) { currentLevel ->
                 val prefMisi = requireActivity().getSharedPreferences("MISI_${userId}_LEVEL_$currentLevel", Context.MODE_PRIVATE)
 
                 if (quizType == "QUIZ1" && skor > 0) {
                     if (!prefMisi.getBoolean("misi2_selesai", false)) {
                         prefMisi.edit().putBoolean("misi2_selesai", true).apply()
-                        AktivitasHelper.tambahPoint(requireContext(), 30)
-                        AktivitasHelper.tambahMisiSelesai()
+                        // Tampilkan notifikasi poin (ini juga akan mencakup info Level Up jika ada)
+                        AktivitasHelper.tambahPoint(requireContext(), 30, "Kuis 1")
+                        // Matikan notifikasi misi selesai agar tidak spam, karena notif poin sudah cukup
+                        AktivitasHelper.tambahMisiSelesai(requireContext(), showNotification = false)
                         AktivitasManager.tambahAktivitas(requireContext(), "Berhasil menyelesaikan Misi Tantangan Diri", "Misi", 30)
                         showNotifMisiSelesai()
                         UnlockLevelHelper.checkAndUnlockNextLevel(requireContext(), currentLevel)
@@ -93,8 +118,10 @@ class QuizMenang1Fragment : Fragment(R.layout.fragment_quiz_menang1_) {
                 if (quizType == "QUIZ3" && skor >= 75) {
                     if (!prefMisi.getBoolean("misi3_selesai", false)) {
                         prefMisi.edit().putBoolean("misi3_selesai", true).apply()
-                        AktivitasHelper.tambahPoint(requireContext(), 40)
-                        AktivitasHelper.tambahMisiSelesai()
+                        // Tampilkan notifikasi poin
+                        AktivitasHelper.tambahPoint(requireContext(), 40, "Kuis 3")
+                        // Matikan notifikasi misi selesai agar tidak spam
+                        AktivitasHelper.tambahMisiSelesai(requireContext(), showNotification = false)
                         AktivitasManager.tambahAktivitas(requireContext(), "Berhasil menyelesaikan Misi Raih Skor 75", "Misi", 40)
                         showNotifMisiSelesai()
                         UnlockLevelHelper.checkAndUnlockNextLevel(requireContext(), currentLevel)
@@ -107,9 +134,6 @@ class QuizMenang1Fragment : Fragment(R.layout.fragment_quiz_menang1_) {
 
         btnOk.setOnClickListener {
             if (isTantanganBonus) {
-                if (skor >= 75) {
-                    Toast.makeText(requireContext(), "Selamat! Badge berhasil didapatkan.", Toast.LENGTH_SHORT).show()
-                }
                 parentFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, TantanganFragment())
@@ -148,7 +172,6 @@ class QuizMenang1Fragment : Fragment(R.layout.fragment_quiz_menang1_) {
         notifDialog.window?.attributes = notifDialog.window?.attributes?.apply { x = 30; y = 120 }
         notifView.postDelayed({ if (notifDialog.isShowing) notifDialog.dismiss() }, 2000)
     }
-
     private fun showBelumRaihSkorPopup() {
         if (!isAdded) return
         val dialogView = layoutInflater.inflate(R.layout.popup_belumraihskor, null)

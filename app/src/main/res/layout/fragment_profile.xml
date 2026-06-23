@@ -488,14 +488,16 @@
                             android:textSize="14sp"
                             android:textColor="@color/black"/>
                         <TextView
+                            android:id="@+id/tvNotificationBadge"
                             android:layout_width="22dp"
                             android:layout_height="22dp"
                             android:background="@drawable/bg_badge_circle"
-                            android:text="3"
+                            android:text="0"
                             android:textColor="@android:color/white"
                             android:gravity="center"
                             android:textSize="11sp"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold"
+                            android:visibility="gone"/>
                         <ImageView
                             android:layout_width="18dp"
                             android:layout_height="18dp"

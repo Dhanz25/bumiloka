@@ -53,8 +53,8 @@ class Jelajahi_MateriDetail : Fragment(R.layout.fragment_jelajahi__materi_detail
                 "Misi",
                 20
             )
-            AktivitasHelper.tambahPoint(requireContext(), 30) // ← WAJIB (ini yang ngaruh ke progress bar)
-            AktivitasHelper.tambahMisiSelesai() // ← opsional tapi bagus untuk tracking
+            AktivitasHelper.tambahPoint(requireContext(), 30, "Misi Jelajahi")
+            AktivitasHelper.tambahMisiSelesai(requireContext())
 
             // simpan status misi selesai
             val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"

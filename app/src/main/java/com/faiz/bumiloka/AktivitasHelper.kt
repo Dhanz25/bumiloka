@@ -8,6 +8,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import android.content.Intent
 import android.widget.Button
+import com.faiz.bumiloka.data.local.NotificationDatabase
+import com.faiz.bumiloka.data.model.NotificationEntity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 object AktivitasHelper {
 
@@ -21,7 +26,22 @@ object AktivitasHelper {
         }
     }
 
-    fun tambahPoint(context: Context?, tambahanXP: Int) {
+    private fun saveLocalNotification(context: Context, title: String, body: String, category: String = "Sistem") {
+        val database = NotificationDatabase.getDatabase(context.applicationContext)
+        val dao = database.notificationDao()
+        CoroutineScope(Dispatchers.IO).launch {
+            dao.insertNotification(
+                NotificationEntity(
+                    title = title,
+                    body = body,
+                    timestamp = System.currentTimeMillis(),
+                    category = category
+                )
+            )
+        }
+    }
+
+    fun tambahPoint(context: Context?, tambahanXP: Int, sumber: String = "Aktivitas", showNotification: Boolean = true) {
         val ctx = context ?: return
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseDatabase.getInstance().reference.child("users").child(userId)
@@ -48,7 +68,25 @@ object AktivitasHelper {
                     "totalPoint" to totalPoint
                 )
 
-                db.updateChildren(updates)
+                db.updateChildren(updates).addOnSuccessListener {
+                    if (showNotification) {
+                        if (naikLevel) {
+                            saveLocalNotification(
+                                ctx,
+                                "Naik Level!",
+                                "Luar biasa! Kamu mendapatkan +$tambahanXP XP dan sekarang mencapai Level $currentLevel!",
+                                "Reward"
+                            )
+                        } else {
+                            saveLocalNotification(
+                                ctx,
+                                "Poin Didapat!",
+                                "Selamat! Kamu mendapatkan +$tambahanXP XP dari $sumber.",
+                                "Reward"
+                            )
+                        }
+                    }
+                }
 
                 if (naikLevel) {
                     showLevelUpPopup(ctx, userId, currentLevel, currentXP)
@@ -79,27 +117,38 @@ object AktivitasHelper {
         }
     }
 
-    fun tambahMisiSelesai() {
+    fun tambahMisiSelesai(context: Context?, showNotification: Boolean = true) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseDatabase.getInstance().reference.child("users").child(userId)
 
         db.child("misiTercapai").get().addOnSuccessListener { snapshot ->
             val currentMisi = safeToInt(snapshot.value)
-            db.child("misiTercapai").setValue(currentMisi + 1)
+            db.child("misiTercapai").setValue(currentMisi + 1).addOnSuccessListener {
+                if (showNotification) {
+                    context?.let {
+                        saveLocalNotification(it, "Misi Selesai", "Satu misi lagi telah kamu selesaikan. Terus semangat!", "Aktivitas")
+                    }
+                }
+            }
         }
     }
 
-    fun tambahLencana(idLencana: String) {
+    fun tambahLencana(context: Context?, idLencana: String, namaLencana: String = "Lencana Baru", showNotification: Boolean = true) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseDatabase.getInstance().reference.child("users").child(userId)
 
-        // Prevent duplicate badge logic
         db.child("lencana_dimiliki").child(idLencana).get().addOnSuccessListener { snapshot ->
             if (!snapshot.exists()) {
                 db.child("lencana_dimiliki").child(idLencana).setValue(true)
                 db.child("totalLencana").get().addOnSuccessListener { totalSnap ->
                     val currentTotal = safeToInt(totalSnap.value)
-                    db.child("totalLencana").setValue(currentTotal + 1)
+                    db.child("totalLencana").setValue(currentTotal + 1).addOnSuccessListener {
+                        if (showNotification) {
+                            context?.let {
+                                saveLocalNotification(it, "Lencana Baru!", "Selamat! Kamu telah mendapatkan lencana: $namaLencana.", "Reward")
+                            }
+                        }
+                    }
                 }
             }
         }

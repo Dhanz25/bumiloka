@@ -12,7 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:layout_marginTop="20dp">
 
         <!-- Header -->
         <LinearLayout
@@ -129,22 +130,30 @@
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipAll"
                 style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:checked="true"
                 android:text="@string/tab_all"/>
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipReward"
                 style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="@string/chip_reward"/>
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipAktivitas"
                 style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="@string/chip_activity"/>
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipSistem"
                 style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="@string/chip_system"/>
 
         </com.google.android.material.chip.ChipGroup>

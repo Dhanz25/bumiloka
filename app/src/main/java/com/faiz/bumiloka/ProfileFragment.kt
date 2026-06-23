@@ -11,17 +11,25 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.faiz.bumiloka.ui.login.LoginActivity
+import com.faiz.bumiloka.ui.notification.NotificationViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 class ProfileFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
+    private val notificationViewModel: NotificationViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,6 +60,7 @@ class ProfileFragment : Fragment() {
         val btnBantuan = view.findViewById<LinearLayout>(R.id.btnBantuan)
         val btnNotifikasi = view.findViewById<LinearLayout>(R.id.btnNotifikasi)
         val btnLogout = view.findViewById<LinearLayout>(R.id.btnLogout)
+        val tvNotificationBadge = view.findViewById<TextView>(R.id.tvNotificationBadge)
 
         val tvGelarUser = view.findViewById<TextView>(R.id.tvGelarUser)
         val tvTotalPoinBanner = view.findViewById<TextView>(R.id.tvTotalPoinBanner)
@@ -72,6 +81,20 @@ class ProfileFragment : Fragment() {
 
             tvProfileName.text = nameToShow
             loadDataProfil(user.uid, tvGelarUser, tvTotalPoinBanner, tvTotalPoinGrid, tvTotalMisi, tvTotalLencana)
+        }
+
+        // Amati unreadCount untuk memperbarui badge notifikasi
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                notificationViewModel.unreadCount.collectLatest { count ->
+                    if (count > 0) {
+                        tvNotificationBadge.visibility = View.VISIBLE
+                        tvNotificationBadge.text = count.toString()
+                    } else {
+                        tvNotificationBadge.visibility = View.GONE
+                    }
+                }
+            }
         }
 
         btnPengaturan.setOnClickListener {

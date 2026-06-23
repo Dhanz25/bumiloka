@@ -10,5 +10,6 @@ data class NotificationEntity(
     val title: String,
     val body: String,
     val timestamp: Long,
-    val isRead: Boolean = false
+    val isRead: Boolean = false,
+    val category: String = "Sistem" // Kategori: Reward, Aktivitas, Sistem
 )

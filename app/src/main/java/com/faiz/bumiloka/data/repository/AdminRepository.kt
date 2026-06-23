@@ -14,9 +14,13 @@ class AdminRepository {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val list = mutableListOf<Edukasi>()
                 snapshot.children.forEach { child ->
-                    child.getValue(Edukasi::class.java)?.let {
-                        it.id = child.key ?: ""
-                        list.add(it)
+                    try {
+                        child.getValue(Edukasi::class.java)?.let {
+                            it.id = child.key ?: ""
+                            list.add(it)
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                     }
                 }
                 onResult(list)
@@ -41,9 +45,16 @@ class AdminRepository {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val list = mutableListOf<Kuis>()
                 snapshot.children.forEach { child ->
-                    child.getValue(Kuis::class.java)?.let {
-                        it.id = child.key ?: ""
-                        list.add(it)
+                    try {
+                        // Cek apakah child adalah sebuah object (bukan String)
+                        if (child.value is Map<*, *>) {
+                            child.getValue(Kuis::class.java)?.let {
+                                it.id = child.key ?: ""
+                                list.add(it)
+                            }
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                     }
                 }
                 onResult(list)
@@ -68,9 +79,15 @@ class AdminRepository {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val list = mutableListOf<SoalKuis>()
                 snapshot.children.forEach { child ->
-                    child.getValue(SoalKuis::class.java)?.let {
-                        it.id = child.key ?: ""
-                        list.add(it)
+                    try {
+                        if (child.value is Map<*, *>) {
+                            child.getValue(SoalKuis::class.java)?.let {
+                                it.id = child.key ?: ""
+                                list.add(it)
+                            }
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                     }
                 }
                 onResult(list)

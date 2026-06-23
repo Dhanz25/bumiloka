@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.faiz.bumiloka.data.model.NotificationEntity
 
-@Database(entities = [NotificationEntity::class], version = 1, exportSchema = false)
+@Database(entities = [NotificationEntity::class], version = 2, exportSchema = false)
 abstract class NotificationDatabase : RoomDatabase() {
 
     abstract fun notificationDao(): NotificationDao
@@ -21,7 +21,9 @@ abstract class NotificationDatabase : RoomDatabase() {
                     context.applicationContext,
                     NotificationDatabase::class.java,
                     "bumiloka_notification_db"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 instance
             }

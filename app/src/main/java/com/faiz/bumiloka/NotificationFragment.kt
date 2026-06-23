@@ -55,7 +55,18 @@ class NotificationFragment : Fragment() {
             parentFragmentManager.popBackStack()
         }
 
-        // Feature: Mark all as read when clicking unread text area or add a button if needed
+        // Filter chips logic
+        binding.chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
+            val category = when (checkedIds.firstOrNull()) {
+                binding.chipReward.id -> "Reward"
+                binding.chipAktivitas.id -> "Aktivitas"
+                binding.chipSistem.id -> "Sistem"
+                else -> "Semua"
+            }
+            viewModel.setCategory(category)
+        }
+
+        // Feature: Mark all as read when clicking unread text area
         binding.txtUnread.setOnClickListener {
             viewModel.markAllAsRead()
         }
