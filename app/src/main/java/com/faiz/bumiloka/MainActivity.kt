@@ -2,52 +2,36 @@ package com.faiz.bumiloka
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
-import com.google.android.gms.ads.MobileAds
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
+        // ✅ Paksa aplikasi menggunakan Light Mode
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        
         super.onCreate(savedInstanceState)
-        MobileAds.initialize(this) {}
         setContentView(R.layout.activity_main)
 
-        // KODE db.updateChildren(...) SUDAH DIHAPUS DARI SINI!
-        // Jangan pernah mereset database di MainActivity ya!
-
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-
-        // default fragment
+        val navView: BottomNavigationView = findViewById(R.id.bottom_navigation)
+        
         if (savedInstanceState == null) {
-            replaceFragment(HomeFragment())
+            loadFragment(HomeFragment())
         }
 
-        bottomNav.setOnItemSelectedListener {
-            when (it.itemId) {
-                R.id.navigation_home -> {
-                    replaceFragment(HomeFragment())
-                    true
-                }
-                R.id.navigation_activities -> {
-                    replaceFragment(AktivitasFragment())
-                    true
-                }
-                R.id.navigation_tips -> {
-                    // Assuming TipsFragment exists or create it
-                    replaceFragment(TipsFragment()) // Placeholder
-                    true
-                }
-                R.id.navigation_profile -> {
-                    replaceFragment(ProfileFragment())
-                    true
-                }
-                else -> false
+        navView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.navigation_home -> loadFragment(HomeFragment())
+                R.id.navigation_activities -> loadFragment(AktivitasFragment())
+                R.id.navigation_tips -> loadFragment(TipsFragment())
+                R.id.navigation_profile -> loadFragment(ProfileFragment())
             }
+            true
         }
     }
 
-    private fun replaceFragment(fragment: Fragment) {
+    private fun loadFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .commit()

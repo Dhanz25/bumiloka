@@ -10,11 +10,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import com.faiz.bumiloka.ui.login.LoginActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -27,414 +25,217 @@ import android.util.Log
 import java.text.SimpleDateFormat
 import java.util.Date
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Handler
 import android.os.Looper
 import android.view.Gravity
 import android.widget.Button
 import android.widget.ProgressBar
+import android.widget.RelativeLayout
+import android.widget.PopupWindow
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.MobileAds
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class HomeFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
-
     private lateinit var mAdView: AdView
-
     private lateinit var pbProgress: ProgressBar
     private lateinit var tvProgress: TextView
     private lateinit var tvLevel: TextView
+    private lateinit var rlLevelBackground: RelativeLayout
+    private lateinit var ivOrnamen1: ImageView
+    private lateinit var ivOrnamen2: ImageView
     private lateinit var googleSignInClient: GoogleSignInClient
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(
-            R.layout.fragment_home,
-            container,
-            false
-        )
-
-
+        val view = inflater.inflate(R.layout.fragment_home, container, false)
         mAdView = view.findViewById(R.id.adView)
-
         val adRequest = AdRequest.Builder().build()
-
         mAdView.adListener = object : AdListener() {
-
-            override fun onAdLoaded() {
-                Log.d("ADMOB", "Banner Loaded")
-            }
-
-            override fun onAdFailedToLoad(error: LoadAdError) {
-                Log.e("ADMOB", "Error : ${error.message}")
-            }
+            override fun onAdLoaded() { Log.d("ADMOB", "Banner Loaded") }
+            override fun onAdFailedToLoad(error: LoadAdError) { Log.e("ADMOB", "Error : ${error.message}") }
         }
-        Log.d("ADMOB", "Mulai load iklan")
         mAdView.loadAd(adRequest)
-
         return view
     }
 
     override fun onResume() {
         super.onResume()
-        // ✅ Tampilkan Bottom Navigation di HomeFragment
         requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
-        loadProgressFirebase(pbProgress, tvProgress, tvLevel)
+        loadProgressFirebase()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // ✅ Pastikan muncul saat pertama kali dibuat
         requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
 
         pbProgress = view.findViewById(R.id.pbTargetProgress)
         tvProgress = view.findViewById(R.id.tvProgressPercentage)
         tvLevel = view.findViewById(R.id.tvLevelTitle)
-
-        loadProgressFirebase(pbProgress, tvProgress, tvLevel)
+        rlLevelBackground = view.findViewById(R.id.rlLevelBackground)
+        ivOrnamen1 = view.findViewById(R.id.ivOrnamen1)
+        ivOrnamen2 = view.findViewById(R.id.ivOrnamen2)
 
         auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
 
         if (currentUser == null) {
-            val intent = Intent(requireContext(), LoginActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(requireContext(), LoginActivity::class.java))
             activity?.finish()
             return
         }
 
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestEmail()
-            .build()
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build()
         googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
+
+        // ✅ Gunakan tipe 'View' umum untuk menghindari ClassCastException
+        view.findViewById<View>(R.id.btnEdukasi).setOnClickListener {
+            requireProfile { parentFragmentManager.beginTransaction().replace(R.id.fragment_container, EdukasiFragment()).addToBackStack(null).commit() }
+        }
+        view.findViewById<View>(R.id.btnMisi).setOnClickListener {
+            requireProfile { parentFragmentManager.beginTransaction().replace(R.id.fragment_container, MisiFragment()).addToBackStack(null).commit() }
+        }
+        view.findViewById<View>(R.id.btnTantangan).setOnClickListener {
+            requireProfile { parentFragmentManager.beginTransaction().replace(R.id.fragment_container, TantanganFragment()).addToBackStack(null).commit() }
+        }
+        view.findViewById<View>(R.id.btnKuis).setOnClickListener {
+            requireProfile { parentFragmentManager.beginTransaction().replace(R.id.fragment_container, QuizUtamaFragment()).addToBackStack(null).commit() }
+        }
+        view.findViewById<View>(R.id.btnLevelDashboard).setOnClickListener {
+            parentFragmentManager.beginTransaction().replace(R.id.fragment_container, LevelFragment()).addToBackStack(null).commit()
+        }
+        
+        view.findViewById<Button>(R.id.btnMulaiKuisJawa).setOnClickListener {
+            parentFragmentManager.beginTransaction().replace(R.id.fragment_container, BahasaJawaFragment()).addToBackStack(null).commit()
+        }
 
         val tvGreeting = view.findViewById<TextView>(R.id.tvGreeting)
         val ivProfile = view.findViewById<ImageView>(R.id.ivProfile)
-        val btnEdukasi = view.findViewById<CardView>(R.id.btnEdukasi)
-        val btnMisi = view.findViewById<CardView>(R.id.btnMisi)
-        val btnTantangan = view.findViewById<CardView>(R.id.btnTantangan)
-        val btnKuis = view.findViewById<CardView>(R.id.btnKuis)
-        val btnLevelDashboard = view.findViewById<CardView>(R.id.btnLevelDashboard)
-        val btnMulaiKuisJawa = view.findViewById<Button>(R.id.btnMulaiKuisJawa)
+        
+        updateUserName(currentUser, tvGreeting, ivProfile)
+        tampilkanRekomendasiHarian(view.findViewById(R.id.tvRekomendasiHariIni))
 
-        btnMulaiKuisJawa.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, BahasaJawaFragment())
-                .addToBackStack(null)
-                .commit()
-        }
-
-        btnLevelDashboard.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, LevelFragment())
-                .addToBackStack(null)
-                .commit()
-        }
-
-        val tvRekomendasiHariIni = view.findViewById<TextView>(R.id.tvRekomendasiHariIni)
         val prefs = requireContext().getSharedPreferences("APP", Context.MODE_PRIVATE)
-        val sudah = prefs.getBoolean("sudah_welcome", false)
-
-        if (!sudah) {
+        if (!prefs.getBoolean("sudah_welcome", false)) {
             showWelcomeThenProfil()
             prefs.edit().putBoolean("sudah_welcome", true).apply()
         }
+    }
 
-        fun updateUserName(user: FirebaseUser?) {
-            val rawName = when {
-                !user?.displayName.isNullOrBlank() -> user?.displayName
-                !user?.email.isNullOrBlank() -> user?.email?.substringBefore("@")
-                else -> "Bumi Lover"
+    private fun updateUserName(user: FirebaseUser?, tvGreeting: TextView, ivProfile: ImageView) {
+        val rawName = user?.displayName ?: user?.email?.substringBefore("@") ?: "Bumi Lover"
+        val nameToShow = rawName.split(" ").joinToString(" ") { it.replaceFirstChar { char -> char.titlecase() } }
+        tvGreeting.text = "Halo, $nameToShow! 👋"
+
+        ivProfile.setOnClickListener { profileView ->
+            val menuView = layoutInflater.inflate(R.layout.layout_profile_menu, null)
+            val popupWindow = PopupWindow(menuView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true)
+
+            menuView.findViewById<TextView>(R.id.menuUserName).text = nameToShow
+            menuView.findViewById<View>(R.id.menuPengaturan).setOnClickListener {
+                popupWindow.dismiss()
+                parentFragmentManager.beginTransaction().replace(R.id.fragment_container, PengaturanFragment()).addToBackStack(null).commit()
             }
 
-            val nameToShow = rawName?.split(" ")?.joinToString(" ") { word ->
-                word.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-            } ?: ""
-
-            tvGreeting.text = getString(R.string.hello_placeholder, nameToShow)
-
-            ivProfile.setOnClickListener { profileView ->
-                val popupMenu = PopupMenu(requireContext(), profileView)
-
-                val spannableName = SpannableString(nameToShow)
-                spannableName.setSpan(
-                    StyleSpan(Typeface.BOLD),
-                    0,
-                    spannableName.length,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-
-                popupMenu.menu.add(0, 1, 0, spannableName)
-                popupMenu.menu.add(0, 2, 1, "Pengaturan Profil")
-                popupMenu.menu.add(0, 3, 2, "Keluar")
-
-                popupMenu.setOnMenuItemClickListener { item ->
-                    when (item.itemId) {
-                        1 -> {
-                            Toast.makeText(requireContext(), "Logged in as $nameToShow", Toast.LENGTH_SHORT).show()
-                            true
+            menuView.findViewById<View>(R.id.menuKeluar).setOnClickListener {
+                popupWindow.dismiss()
+                AlertDialog.Builder(requireContext()).setTitle("Konfirmasi Keluar").setMessage("Apakah Anda yakin ingin keluar?")
+                    .setPositiveButton("Ya") { _, _ ->
+                        auth.signOut()
+                        googleSignInClient.signOut().addOnCompleteListener { 
+                            startActivity(Intent(requireContext(), LoginActivity::class.java).apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK })
+                            activity?.finish()
                         }
-                        2 -> {
-                            parentFragmentManager.beginTransaction()
-                                .replace(R.id.fragment_container, PengaturanFragment())
-                                .addToBackStack(null)
-                                .commit()
-                            true
-                        }
-                        3 -> {
-                            AlertDialog.Builder(requireContext())
-                                .setTitle("Konfirmasi Keluar")
-                                .setMessage("Apakah Anda yakin ingin keluar?")
-                                .setPositiveButton("Ya") { _, _ ->
-                                    auth.signOut()
-                                    googleSignInClient.signOut().addOnCompleteListener {
-                                        Toast.makeText(requireContext(), "Berhasil Keluar", Toast.LENGTH_SHORT).show()
-                                        val intent = Intent(requireContext(), LoginActivity::class.java)
-                                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                                        startActivity(intent)
-                                        activity?.finish()
-                                    }
-                                }
-                                .setNegativeButton("Tidak", null)
-                                .show()
-                            true
-                        }
-                        else -> false
-                    }
-                }
-                popupMenu.show()
+                    }.setNegativeButton("Tidak", null).show()
             }
-        }
 
-        btnEdukasi.setOnClickListener {
-            requireProfile {
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, EdukasiFragment())
-                    .addToBackStack(null)
-                    .commit()
-            }
-        }
-
-        btnMisi.setOnClickListener {
-            requireProfile {
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, MisiFragment())
-                    .addToBackStack(null)
-                    .commit()
-            }
-        }
-
-        btnTantangan.setOnClickListener {
-            requireProfile {
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, TantanganFragment())
-                    .addToBackStack(null)
-                    .commit()
-            }
-        }
-
-        btnKuis.setOnClickListener {
-            requireProfile {
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, QuizUtamaFragment())
-                    .addToBackStack(null)
-                    .commit()
-            }
-        }
-
-        updateUserName(currentUser)
-
-        currentUser.reload().addOnCompleteListener {
-            if (it.isSuccessful) {
-                updateUserName(auth.currentUser)
-            }
-        }
-        tampilkanRekomendasiHarian(tvRekomendasiHariIni)
-    }
-
-    private fun tampilkanRekomendasiHarian(tvRekomendasi: TextView) {
-        val sharedPref = requireActivity().getSharedPreferences(
-            "RekomendasiHarian",
-            android.content.Context.MODE_PRIVATE
-        )
-        val editor = sharedPref.edit()
-        val today = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
-        val savedDate = sharedPref.getString("tanggal", "")
-        var rekomendasiHariIni = sharedPref.getString("rekomendasi", "")
-
-        if (savedDate != today) {
-            val daftarRekomendasi = listOf(
-                "📘 Baca materi edukasi baru hari ini!",
-                "📚 Lanjutkan membaca materi berikutnya sekarang!",
-                "🌍 Pelajari tips baru tentang lingkungan hari ini!",
-                "📖 Review kembali materi yang sudah kamu pelajari!",
-                "🧠 Tambah wawasanmu dengan membaca materi terbaru!",
-                "📗 Yuk lanjutkan edukasi lingkunganmu hari ini!",
-                "🌱 Baca materi tentang gaya hidup ramah lingkungan!",
-                "📘 Mulai baca materi pertamamu hari ini!",
-                "📚 Jangan lupa selesaikan materi yang belum dibaca!",
-                "🌿 Baca satu materi untuk menambah progresmu!",
-                "❓ Selesaikan kuis hari ini untuk menambah wawasan!",
-                "📝 Kerjakan kuis sekarang and uji pemahamanmu!",
-                "🎯 Yuk lanjutkan kuis yang belum selesai!",
-                "🏆 Tantang dirimu dengan menyelesaikan kuis baru!",
-                "📊 Coba kerjakan kuis dari materi yang sudah dibaca!",
-                "🔥 Selesaikan kuis agar progresmu bertambah!",
-                "💡 Uji pengetahuanmu lewat kuis hari ini!",
-                "📍 Jangan lewatkan kuis harianmu!",
-                "🚀 Kerjakan kuis sekarang juga!",
-                "🎓 Lanjutkan kuis berikutnya untuk hasil terbaik!",
-                "🚩 Selesaikan tantangan hari ini sekarang!",
-                "🌱 Lanjutkan tantangan lingkunganmu hari ini!",
-                "♻️ Kerjakan tantangan baru untuk bumi yang lebih baik!",
-                "🏅 Yuk selesaikan tantangan yang tersedia!",
-                "🔥 Jangan berhenti, lanjutkan tantanganmu!",
-                "🌍 Tantangan hari ini menunggumu!",
-                "🎯 Coba selesaikan satu tantangan sekarang!",
-                "🚀 Lanjutkan tantangan agar progres meningkat!",
-                "💪 Selesaikan aksi hijau melalui tantangan hari ini!",
-                "🌿 Kerjakan tantangan ramah lingkungan sekarang!",
-                "🎯 Kerjakan misi hari ini untuk menambah pencapaian!",
-                "🚀 Selesaikan misi baru sekarang!",
-                "🏆 Lanjutkan misi yang belum selesai!",
-                "📍 Coba satu misi baru hari ini!",
-                "🔥 Jangan lupa kerjakan misi harianmu!",
-                "🌍 Selesaikan misi lingkungan untuk progres lebih baik!",
-                "💡 Misi baru siap kamu selesaikan!",
-                "🎖️ Yuk tuntaskan misi berikutnya!",
-                "📈 Tambah progres dengan menyelesaikan misi!",
-                "🌱 Kerjakan misi sederhana untuk bantu bumi!",
-                "🌱 Gunakan tumbler sendiri hari ini untuk menjaga lingkungan!",
-                "♻️ Kurangi penggunaan plastik sekali pakai!",
-                "💡 Matikan lampu yang tidak digunakan!",
-                "🚶 Jalan kaki ke tempat dekat!",
-                "🛍️ Gunakan tas belanja reusable!",
-                "🚿 Gunakan air secukupnya!",
-                "🪥 Matikan keran saat menyikat gigi!",
-                "🥤 Tolak sedotan plastik hari ini!",
-                "🗑️ Buang sampah pada tempatnya!",
-                "♻️ Pisahkan sampah organik dan anorganik!",
-                "🌿 Rawat tanaman di rumah hari ini!",
-                "🚲 Gunakan sepeda untuk perjalanan dekat!",
-                "🔌 Cabut charger jika tidak digunakan!",
-                "📄 Gunakan kertas seperlunya!",
-                "🍱 Bawa bekal sendiri untuk kurangi sampah!",
-                "🌞 Manfaatkan cahaya alami di siang hari!",
-                "🧴 Gunakan botol isi ulang!",
-                "🧹 Bersihkan area sekitarmu hari ini!",
-                "🥗 Habiskan makananmu agar tidak terbuang!",
-                "🌏 Satu aksi kecilmu hari ini bisa bantu bumi!"
-            )
-            rekomendasiHariIni = daftarRekomendasi.random()
-            editor.putString("tanggal", today)
-            editor.putString("rekomendasi", rekomendasiHariIni)
-            editor.apply()
-        }
-        tvRekomendasi.text = rekomendasiHariIni
-    }
-
-    private fun checkProfileOnce() {
-        val user = auth.currentUser ?: return
-        val userId = user.uid
-        val db = com.google.firebase.database.FirebaseDatabase.getInstance().reference
-
-        db.child("users").child(userId).get().addOnSuccessListener { snapshot ->
-            val isComplete = snapshot.child("isProfileComplete").getValue(Boolean::class.java) ?: false
-            if (!isComplete) {
-                showLengkapiProfilDialog()
-            }
-        }.addOnFailureListener {
-            Log.e("BUMILOKA_DEBUG", "Gagal koneksi Firebase: ${it.message}")
+            popupWindow.elevation = 0f
+            popupWindow.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            popupWindow.showAsDropDown(profileView, -320, 10, Gravity.END)
         }
     }
 
-    private fun requireProfile(action: () -> Unit) {
-        val user = auth.currentUser ?: return
-        val userId = user.uid
-        val db = com.google.firebase.database.FirebaseDatabase.getInstance().reference
-
-        db.child("users").child(userId).get().addOnSuccessListener { snapshot ->
-            val isComplete = snapshot.child("isProfileComplete").getValue(Boolean::class.java) ?: false
-            if (isComplete) {
-                action()
-            } else {
-                showLengkapiProfilDialog()
-            }
-        }
-    }
-
-    private fun showWelcomeThenProfil() {
-        if (!isAdded) return
-        val user = auth.currentUser
-        val nama = user?.displayName?.split(" ")?.first() ?: "Pengguna"
-        val toastView = layoutInflater.inflate(R.layout.toast_welcome, null)
-        val tv = toastView.findViewById<TextView>(R.id.tvToastMessage)
-        tv.text = "Selamat Datang, $nama 👋"
-        val toast = Toast(requireContext())
-        toast.duration = Toast.LENGTH_SHORT
-        toast.view = toastView
-        toast.setGravity(Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, 200)
-        toast.show()
-
-        Handler(Looper.getMainLooper()).postDelayed({
-            checkProfileOnce()
-        }, 1500)
-    }
-
-    private fun showLengkapiProfilDialog() {
-        if (!isAdded) return
-        val view = layoutInflater.inflate(R.layout.pop_up_profile, null)
-        val dialog = AlertDialog.Builder(requireContext())
-            .setView(view)
-            .setCancelable(true)
-            .create()
-        dialog.show()
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-        view.setOnClickListener {
-            dialog.dismiss()
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, PengaturanFragment())
-                .addToBackStack(null)
-                .commit()
-        }
-    }
-
-    private fun loadProgressFirebase(
-        progressBar: ProgressBar,
-        tvProgress: TextView,
-        tvLevel: TextView
-    ) {
+    private fun loadProgressFirebase() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         LevelHelper.getCurrentLevel(requireContext()) { level ->
-            tvLevel.text = "🏅 Level $level"
-            val db = com.google.firebase.database.FirebaseDatabase.getInstance()
-                .reference.child("users").child(userId)
+            when(level) {
+                1 -> {
+                    rlLevelBackground.setBackgroundResource(R.drawable.bg_level1)
+                    ivOrnamen1.setImageResource(R.drawable.ic_leaf)
+                    ivOrnamen2.setImageResource(R.drawable.ic_eco)
+                    pbProgress.progressTintList = ColorStateList.valueOf(Color.parseColor("#00E676"))
+                }
+                2 -> {
+                    rlLevelBackground.setBackgroundResource(R.drawable.bg_level2)
+                    ivOrnamen1.setImageResource(R.drawable.ic_water)
+                    ivOrnamen2.setImageResource(R.drawable.ic_bolt)
+                    pbProgress.progressTintList = ColorStateList.valueOf(Color.parseColor("#448AFF"))
+                }
+                3 -> {
+                    rlLevelBackground.setBackgroundResource(R.drawable.bg_level3)
+                    ivOrnamen1.setImageResource(R.drawable.ic_trophy)
+                    ivOrnamen2.setImageResource(R.drawable.ic_medal)
+                    pbProgress.progressTintList = ColorStateList.valueOf(Color.parseColor("#FFD600"))
+                }
+            }
+
+            val db = com.google.firebase.database.FirebaseDatabase.getInstance().reference.child("users").child(userId)
             db.get().addOnSuccessListener { snapshot ->
+                if (!isAdded) return@addOnSuccessListener
                 val highest = snapshot.child("highestUnlockedLevel").getValue(Int::class.java) ?: 1
                 val xp = snapshot.child("xp").getValue(Int::class.java) ?: 0
                 val targetXP = level * 100
                 var progressPercent = ((xp.toDouble() / targetXP) * 100).toInt()
-                if (level < highest) {
-                    progressPercent = 100
-                }
-                progressBar.progress = progressPercent
+                if (level < highest) progressPercent = 100
+                
+                pbProgress.progress = progressPercent
                 tvProgress.text = if (level < highest) "Selesai ✓" else "$progressPercent% tercapai"
                 tvLevel.text = "🏅 Level $level ${if (level < highest) "(Riwayat)" else ""}"
-            }.addOnFailureListener {
-                Log.e("HOME_PROGRESS", "Gagal ambil data: ${it.message}")
             }
         }
     }
 
+    private fun tampilkanRekomendasiHarian(tvRekomendasi: TextView) {
+        val sharedPref = requireActivity().getSharedPreferences("RekomendasiHarian", Context.MODE_PRIVATE)
+        val today = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
+        if (sharedPref.getString("tanggal", "") != today) {
+            val rekomendasi = listOf("🌱 Gunakan tumbler sendiri hari ini!", "♻️ Kurangi plastik sekali pakai!", "💡 Matikan lampu yang tidak digunakan!", "🚶 Jalan kaki ke tempat dekat!", "🛍️ Gunakan tas belanja reusable!").random()
+            sharedPref.edit().putString("tanggal", today).putString("rekomendasi", rekomendasi).apply()
+        }
+        tvRekomendasi.text = sharedPref.getString("rekomendasi", "Ayo jaga bumi!")
+    }
+
+    private fun requireProfile(action: () -> Unit) {
+        val userId = auth.currentUser?.uid ?: return
+        com.google.firebase.database.FirebaseDatabase.getInstance().reference.child("users").child(userId).get().addOnSuccessListener { snapshot ->
+            if (snapshot.child("isProfileComplete").getValue(Boolean::class.java) == true) action() else showLengkapiProfilDialog()
+        }
+    }
+
+    private fun showWelcomeThenProfil() {
+        val toastView = layoutInflater.inflate(R.layout.toast_welcome, null)
+        toastView.findViewById<TextView>(R.id.tvToastMessage).text = "Selamat Datang! 👋"
+        Toast(requireContext()).apply { duration = Toast.LENGTH_SHORT; view = toastView; setGravity(Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, 200); show() }
+        Handler(Looper.getMainLooper()).postDelayed({ if(isAdded) requireProfile {} }, 1500)
+    }
+
+    private fun showLengkapiProfilDialog() {
+        val view = layoutInflater.inflate(R.layout.pop_up_profile, null)
+        val dialog = AlertDialog.Builder(requireContext()).setView(view).create()
+        dialog.show()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        view.setOnClickListener { dialog.dismiss(); parentFragmentManager.beginTransaction().replace(R.id.fragment_container, PengaturanFragment()).addToBackStack(null).commit() }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
-        // ✅ Sembunyikan Bottom Navigation saat keluar dari HomeFragment
         requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
     }
 }

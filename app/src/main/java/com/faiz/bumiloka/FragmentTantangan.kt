@@ -74,14 +74,14 @@ class TantanganFragment : Fragment(R.layout.fragment_tantangan) {
         bonusAdapter = TantanganBonusAdapter(bonusList) { tantangan ->
             // Logika "Mulai" Tantangan Bonus
             // Navigasi ke MateriFragment berdasarkan materiId dari Firebase
-            val fragment = MateriFragment.newInstance(tantangan.materiId).apply {
-                val bundle = arguments ?: Bundle()
-                bundle.putString("challenge_id", tantangan.id)
-                bundle.putInt("quiz_id", tantangan.quizId)
-                bundle.putInt("badge_id", tantangan.badgeId)
-                bundle.putBoolean("IS_TANTANGAN_BONUS", true)
-                arguments = bundle
-            }
+            val fragment = MateriFragment.newInstanceLegacy(tantangan.materiId)
+            val bundle = fragment.arguments ?: Bundle()
+            bundle.putString("challenge_id", tantangan.id)
+            bundle.putInt("quiz_id", tantangan.quizId)
+            bundle.putInt("badge_id", tantangan.badgeId)
+            bundle.putBoolean("IS_TANTANGAN_BONUS", true)
+            fragment.arguments = bundle
+
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, fragment)
                 .addToBackStack(null)

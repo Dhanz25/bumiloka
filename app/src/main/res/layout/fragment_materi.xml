@@ -2,12 +2,12 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:fitsSystemWindows="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_utama">
 
-    <!-- 🔝 APP BAR -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -19,17 +19,15 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-
-            app:title="MATERI 1"
+            app:title="MATERI"
             app:titleCentered="true"
             app:titleTextColor="@color/black"
-
             app:navigationIcon="@drawable/ic_back_arrow"
             app:navigationIconTint="@android:color/black"/>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- 🔽 CONTENT -->
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nsvMateri"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
@@ -39,17 +37,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp"
-            android:paddingTop="20dp">
+            android:padding="16dp">
 
-            <!-- CARD -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="8dp"
-                app:cardBackgroundColor="#558B2F">
+                app:cardBackgroundColor="#2E7D32">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -57,91 +53,105 @@
                     android:orientation="vertical"
                     android:padding="20dp">
 
-                    <!-- IMAGE -->
-                    <ImageView
-                        android:id="@+id/imgMateri"
+                    <com.google.android.material.card.MaterialCardView
                         android:layout_width="match_parent"
-                        android:layout_height="170dp"
-                        android:scaleType="centerCrop"
-                        android:layout_marginBottom="16dp"/>
+                        android:layout_height="180dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        android:layout_marginBottom="20dp"
+                        app:strokeWidth="0dp">
+                        <ImageView
+                            android:id="@+id/imgMateri"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/img_lingkungan" />
+                    </com.google.android.material.card.MaterialCardView>
 
-                    <!-- TITLE -->
                     <TextView
                         android:id="@+id/tvJudulUtama"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textAlignment="center"
                         android:textColor="#FFEB3B"
-                        android:textSize="18sp"
+                        android:textSize="22sp"
                         android:textStyle="bold"
-                        android:layout_marginBottom="16dp"/>
+                        android:layout_marginBottom="24dp"
+                        tools:text="Judul Materi"/>
 
-                    <!-- SECTION 1 -->
                     <TextView
                         android:id="@+id/tvIsiTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/white"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold"
+                        android:textSize="18sp"
+                        tools:text="🌿 Apa itu..."/>
 
                     <TextView
                         android:id="@+id/tvIsiMateri"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textColor="@color/white"
-                        android:lineSpacingExtra="6dp"
-                        android:layout_marginTop="6dp"/>
+                        android:lineSpacingMultiplier="1.2"
+                        android:layout_marginTop="8dp"
+                        tools:text="Konten seksi 1..."/>
 
-                    <!-- SECTION 2 -->
                     <TextView
                         android:id="@+id/tvPentingTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/white"
                         android:textStyle="bold"
-                        android:layout_marginTop="18dp"/>
+                        android:layout_marginTop="24dp"
+                        android:textSize="18sp"
+                        tools:text="🌍 Kenapa Penting?"/>
 
                     <TextView
                         android:id="@+id/tvPenting"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textColor="@color/white"
-                        android:lineSpacingExtra="6dp"
-                        android:layout_marginTop="6dp"/>
+                        android:lineSpacingMultiplier="1.2"
+                        android:layout_marginTop="8dp"
+                        tools:text="Konten seksi 2..."/>
 
-                    <!-- SECTION 3 -->
                     <TextView
                         android:id="@+id/tvContohTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/white"
                         android:textStyle="bold"
-                        android:layout_marginTop="18dp"/>
+                        android:layout_marginTop="24dp"
+                        android:textSize="18sp"
+                        tools:text="♻️ Contoh Perilaku"/>
 
                     <TextView
                         android:id="@+id/tvContoh"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textColor="@color/white"
-                        android:lineSpacingExtra="6dp"
-                        android:layout_marginTop="6dp"/>
-
-                    <!-- BUTTON -->
-                    <Button
-                        android:id="@+id/btnMulaiKuis"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginTop="28dp"
-                        android:backgroundTint="#E0E0E0"
-                        android:text="Mulai Kuis"
-                        android:textColor="@color/black"
-                        android:textStyle="bold"/>
-
+                        android:lineSpacingMultiplier="1.2"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="16dp"
+                        tools:text="Konten seksi 3..."/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
+            <Button
+                android:id="@+id/btnMulaiKuis"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="32dp"
+                android:backgroundTint="#1B5E20"
+                android:text="Mulai Kuis"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                app:cornerRadius="30dp"
+                android:elevation="4dp"/>
+
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

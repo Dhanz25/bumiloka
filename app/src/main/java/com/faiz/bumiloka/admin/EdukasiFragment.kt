@@ -99,14 +99,22 @@ class EdukasiFragment : Fragment() {
     }
 
     private fun showDetail(edukasi: Edukasi) {
-        val detailView = LayoutInflater.from(requireContext()).inflate(R.layout.fragment_jelajahi__materi_detail, null)
-        // Set data to detailView here if needed, but since the request asks for "Detail Materi" feature,
-        // using a dialog or a new fragment is fine. Let's just use a simple AlertDialog for detail for now or navigate.
-        // The prompt says "Detail Materi" as part of CRUD.
+        val detailMsg = StringBuilder()
+        detailMsg.append("Level: ${edukasi.level}\n\n")
+        detailMsg.append("Deskripsi: ${edukasi.description}\n\n")
         
+        detailMsg.append("Section 1: ${edukasi.section1Title.ifEmpty { edukasi.isiTitle }}\n")
+        detailMsg.append("Content: ${edukasi.section1Content.ifEmpty { edukasi.content }}\n\n")
+        
+        detailMsg.append("Section 2: ${edukasi.section2Title.ifEmpty { edukasi.pentingTitle }}\n")
+        detailMsg.append("Content: ${edukasi.section2Content.ifEmpty { edukasi.pentingContent }}\n\n")
+        
+        detailMsg.append("Section 3: ${edukasi.section3Title.ifEmpty { edukasi.contohTitle }}\n")
+        detailMsg.append("Content: ${edukasi.section3Content.ifEmpty { edukasi.contohContent }}")
+
         AlertDialog.Builder(requireContext())
             .setTitle(edukasi.title)
-            .setMessage("Deskripsi: ${edukasi.description}\n\nKonten: ${edukasi.content}\n\nBadge: ${edukasi.badgeName}\n\nAktif: ${edukasi.aktif}")
+            .setMessage(detailMsg.toString())
             .setPositiveButton("Tutup", null)
             .show()
     }
@@ -116,13 +124,21 @@ class EdukasiFragment : Fragment() {
             arguments = Bundle().apply {
                 edukasi?.let {
                     putString("id", it.id)
+                    putInt("level", it.level)
                     putString("title", it.title)
                     putString("description", it.description)
-                    putString("content", it.content)
                     putString("imageUrl", it.imageUrl)
-                    putString("badgeName", it.badgeName)
-                    putString("badgeImage", it.badgeImage)
+                    
+                    // Gunakan field seksi baru, fallback ke field lama jika kosong
+                    putString("section1Title", it.section1Title.ifEmpty { it.isiTitle })
+                    putString("section1Content", it.section1Content.ifEmpty { it.content })
+                    putString("section2Title", it.section2Title.ifEmpty { it.pentingTitle })
+                    putString("section2Content", it.section2Content.ifEmpty { it.pentingContent })
+                    putString("section3Title", it.section3Title.ifEmpty { it.contohTitle })
+                    putString("section3Content", it.section3Content.ifEmpty { it.contohContent })
+
                     putBoolean("aktif", it.aktif)
+                    putLong("createdAt", it.createdAt)
                 }
             }
         }

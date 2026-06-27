@@ -6,7 +6,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -31,6 +33,11 @@ class ProfileFragment : Fragment() {
     private lateinit var googleSignInClient: GoogleSignInClient
     private val notificationViewModel: NotificationViewModel by viewModels()
 
+    private lateinit var rlProfileBackground: RelativeLayout
+    private lateinit var ivOrnamenProfile1: ImageView
+    private lateinit var ivOrnamenProfile2: ImageView
+    private lateinit var ivOrnamenProfile3: ImageView
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -41,6 +48,7 @@ class ProfileFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
+        loadDataProfil(auth.currentUser?.uid ?: "")
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -55,6 +63,7 @@ class ProfileFragment : Fragment() {
             .build()
         googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
 
+        // Inisialisasi View
         val tvProfileName = view.findViewById<TextView>(R.id.tvProfileName)
         val btnPengaturan = view.findViewById<LinearLayout>(R.id.btnPengaturan)
         val btnBantuan = view.findViewById<LinearLayout>(R.id.btnBantuan)
@@ -62,11 +71,13 @@ class ProfileFragment : Fragment() {
         val btnLogout = view.findViewById<LinearLayout>(R.id.btnLogout)
         val tvNotificationBadge = view.findViewById<TextView>(R.id.tvNotificationBadge)
 
-        val tvGelarUser = view.findViewById<TextView>(R.id.tvGelarUser)
-        val tvTotalPoinBanner = view.findViewById<TextView>(R.id.tvTotalPoinBanner)
-        val tvTotalPoinGrid = view.findViewById<TextView>(R.id.tvTotalPoinGrid)
-        val tvTotalMisi = view.findViewById<TextView>(R.id.tvTotalMisi)
-        val tvTotalLencana = view.findViewById<TextView>(R.id.tvTotalLencana)
+        rlProfileBackground = view.findViewById(R.id.rlProfileBackground)
+        ivOrnamenProfile1 = view.findViewById(R.id.ivOrnamenProfile1)
+        ivOrnamenProfile2 = view.findViewById(R.id.ivOrnamenProfile2)
+        ivOrnamenProfile3 = view.findViewById(R.id.ivOrnamenProfile3)
+
+        val localLevel = LevelHelper.getCurrentLevelLocal(requireContext())
+        updateProfileTheme(localLevel)
 
         currentUser?.let { user ->
             val rawName = when {
@@ -80,10 +91,9 @@ class ProfileFragment : Fragment() {
             } ?: ""
 
             tvProfileName.text = nameToShow
-            loadDataProfil(user.uid, tvGelarUser, tvTotalPoinBanner, tvTotalPoinGrid, tvTotalMisi, tvTotalLencana)
+            loadDataProfil(user.uid)
         }
 
-        // Amati unreadCount untuk memperbarui badge notifikasi
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 notificationViewModel.unreadCount.collectLatest { count ->
@@ -98,27 +108,15 @@ class ProfileFragment : Fragment() {
         }
 
         btnPengaturan.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, PengaturanFragment())
-                .addToBackStack(null)
-                .commit()
+            parentFragmentManager.beginTransaction().replace(R.id.fragment_container, PengaturanFragment()).addToBackStack(null).commit()
         }
 
         btnBantuan.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, bantuan_dukungan())
-                .addToBackStack(null)
-                .commit()
+            parentFragmentManager.beginTransaction().replace(R.id.fragment_container, bantuan_dukungan()).addToBackStack(null).commit()
         }
         
         btnNotifikasi.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(
-                    R.id.fragment_container,
-                    NotificationFragment()
-                )
-                .addToBackStack(null)
-                .commit()
+            parentFragmentManager.beginTransaction().replace(R.id.fragment_container, NotificationFragment()).addToBackStack(null).commit()
         }
 
         btnLogout.setOnClickListener {
@@ -129,9 +127,9 @@ class ProfileFragment : Fragment() {
                     auth.signOut()
                     googleSignInClient.signOut().addOnCompleteListener {
                         Toast.makeText(requireContext(), "Berhasil Keluar", Toast.LENGTH_SHORT).show()
-                        val intent = Intent(requireContext(), LoginActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(intent)
+                        startActivity(Intent(requireContext(), LoginActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        })
                         activity?.finish()
                     }
                 }
@@ -140,14 +138,8 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    private fun loadDataProfil(
-        userId: String,
-        tvGelarUser: TextView?,
-        tvTotalPoinBanner: TextView?,
-        tvTotalPoinGrid: TextView?,
-        tvTotalMisi: TextView?,
-        tvTotalLencana: TextView?
-    ) {
+    private fun loadDataProfil(userId: String) {
+        if (userId.isEmpty()) return
         val db = FirebaseDatabase.getInstance().reference.child("users").child(userId)
 
         db.get().addOnSuccessListener { snapshot ->
@@ -158,16 +150,52 @@ class ProfileFragment : Fragment() {
             val misiTercapai = snapshot.child("misiTercapai").getValue(Int::class.java) ?: 0
             val totalLencana = BadgeHelper.getTotalBadge(requireContext())
 
-            val levelTitle = getLevelTitle(currentLevel)
+            val tvGelarUser = view?.findViewById<TextView>(R.id.tvGelarUser)
+            val tvTotalPoinBanner = view?.findViewById<TextView>(R.id.tvTotalPoinBanner)
+            val tvTotalPoinGrid = view?.findViewById<TextView>(R.id.tvTotalPoinGrid)
+            val tvTotalMisi = view?.findViewById<TextView>(R.id.tvTotalMisi)
+            val tvTotalLencana = view?.findViewById<TextView>(R.id.tvTotalLencana)
 
-            tvGelarUser?.text = "📍 $levelTitle"
+            tvGelarUser?.text = "📍 ${getLevelTitle(currentLevel)}"
             tvTotalPoinBanner?.text = totalPoint.toString()
             tvTotalPoinGrid?.text = totalPoint.toString()
             tvTotalMisi?.text = misiTercapai.toString()
             tvTotalLencana?.text = totalLencana.toString()
 
+            updateProfileTheme(currentLevel)
+
         }.addOnFailureListener {
             Log.e("BUMILOKA_DEBUG", "Gagal load profil: ${it.message}")
+        }
+    }
+
+    private fun updateProfileTheme(level: Int) {
+        if (!isAdded) return
+        when (level) {
+            1 -> {
+                rlProfileBackground.setBackgroundResource(R.drawable.bg_level1)
+                ivOrnamenProfile1.setImageResource(R.drawable.ic_leaf)
+                ivOrnamenProfile2.setImageResource(R.drawable.ic_eco)
+                ivOrnamenProfile3.setImageResource(R.drawable.ic_leaf)
+            }
+            2 -> {
+                rlProfileBackground.setBackgroundResource(R.drawable.bg_level2)
+                ivOrnamenProfile1.setImageResource(R.drawable.ic_water)
+                ivOrnamenProfile2.setImageResource(R.drawable.ic_bolt)
+                ivOrnamenProfile3.setImageResource(R.drawable.ic_water)
+            }
+            3 -> {
+                rlProfileBackground.setBackgroundResource(R.drawable.bg_level3)
+                ivOrnamenProfile1.setImageResource(R.drawable.ic_trophy)
+                ivOrnamenProfile2.setImageResource(R.drawable.ic_medal)
+                ivOrnamenProfile3.setImageResource(R.drawable.ic_trophy)
+            }
+            else -> {
+                rlProfileBackground.setBackgroundResource(R.drawable.bg_level1)
+                ivOrnamenProfile1.setImageResource(R.drawable.ic_leaf)
+                ivOrnamenProfile2.setImageResource(R.drawable.ic_eco)
+                ivOrnamenProfile3.setImageResource(R.drawable.ic_leaf)
+            }
         }
     }
 
@@ -179,5 +207,10 @@ class ProfileFragment : Fragment() {
             4 -> "Pahlawan Hijau"
             else -> "Eco Warrior"
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
     }
 }

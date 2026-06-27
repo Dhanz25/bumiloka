@@ -5,10 +5,16 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#EAF5E3"
-    tools:context=".PengaturanFragment">
+    android:background="@color/home_background">
 
-    <!-- Header with Back Button -->
+    <!-- Efek Gradasi Header -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="@drawable/bg_home_header"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Header -->
     <LinearLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
@@ -26,14 +32,14 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Kembali"
             android:src="@drawable/ic_back_arrow"
-            app:tint="@color/black" />
+            app:tint="@color/dark_green" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:text="Pengaturan Profil"
-            android:textColor="@color/black"
+            android:textColor="@color/dark_green"
             android:textSize="20sp"
             android:textStyle="bold" />
     </LinearLayout>
@@ -41,6 +47,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:clipToPadding="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/header">
 
@@ -50,193 +57,204 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- CARD -->
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="4dp">
+                android:stateListAnimator="@null"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:cardMaxElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#E0E0E0"
+                app:cardBackgroundColor="@color/white">
 
-                <LinearLayout
+                <!-- FrameLayout untuk Overlay -->
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:layout_height="wrap_content">
 
-                    <!-- NIS -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="NIS"
-                        android:textSize="12sp"
-                        android:textColor="#666"
-                        android:layout_marginBottom="4dp"/>
-                    <EditText
-                        android:id="@+id/etNis"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_input"
-                        android:hint="Masukkan NIS"
-                        android:inputType="number"
-                        android:textSize="14sp"
-                        android:maxLength="10"/>
+                        android:orientation="vertical"
+                        android:padding="20dp">
 
-                    <!-- Nama -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Nama Lengkap"
-                        android:textSize="12sp"
-                        android:textColor="#666"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginBottom="4dp"/>
-                    <EditText
-                        android:id="@+id/etNama"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_input"
-                        android:hint="Nama Siswa"
-                        android:textSize="14sp" />
-
-                    <!-- PROVINSI -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Provinsi"
-                        android:textSize="12sp"
-                        android:textColor="#666"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginBottom="4dp"/>
-                    <Spinner
-                        android:id="@+id/spProvinsi"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:background="@drawable/bg_input" />
-
-                    <!-- KABUPATEN -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Kabupaten/Kota"
-                        android:textSize="12sp"
-                        android:textColor="#666"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginBottom="4dp"/>
-                    <Spinner
-                        android:id="@+id/spKabupaten"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:background="@drawable/bg_input" />
-
-                    <!-- KECAMATAN -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Kecamatan"
-                        android:textSize="12sp"
-                        android:textColor="#666"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginBottom="4dp"/>
-                    <Spinner
-                        android:id="@+id/spKecamatan"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:background="@drawable/bg_input" />
-
-                    <!-- SEKOLAH -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Sekolah"
-                        android:textSize="12sp"
-                        android:textColor="#666"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginBottom="4dp"/>
-                    <Spinner
-                        android:id="@+id/spSekolah"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:background="@drawable/bg_input" />
-
-                    <!-- JENIS KELAMIN -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Jenis Kelamin"
-                        android:textSize="12sp"
-                        android:textColor="#666"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginBottom="4dp"/>
-                    <RadioGroup
-                        android:id="@+id/rgGender"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <RadioButton
-                            android:id="@+id/rbLaki"
-                            android:layout_width="0dp"
+                        <!-- Nama Lengkap -->
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Laki-laki"
-                            android:textSize="14sp"/>
+                            android:hint="Nama Lengkap"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            app:startIconDrawable="@drawable/ic_profile"
+                            app:startIconTint="@color/dark_green">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etNama"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="14sp" />
+                        </com.google.android.material.textfield.TextInputLayout>
 
-                        <RadioButton
-                            android:id="@+id/rbPerempuan"
-                            android:layout_width="0dp"
+                        <!-- NIS -->
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Perempuan"
-                            android:textSize="14sp"/>
-                    </RadioGroup>
+                            android:layout_marginTop="12dp"
+                            android:hint="NIS (10 Digit)"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusBottomEnd="12dp">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etNis"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="number"
+                                android:maxLength="10"
+                                android:textSize="14sp" />
+                        </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- UMUR -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Umur"
-                        android:textSize="12sp"
-                        android:textColor="#666"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginBottom="4dp"/>
-                    <EditText
-                        android:id="@+id/etUmur"
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Informasi Wilayah"
+                            android:textStyle="bold"
+                            android:textSize="12sp"
+                            android:textColor="@color/dark_green"
+                            android:layout_marginTop="20dp"
+                            android:layout_marginBottom="8dp"/>
+
+                        <Spinner
+                            android:id="@+id/spProvinsi"
+                            android:layout_width="match_parent"
+                            android:layout_height="52dp"
+                            android:background="@drawable/bg_input"
+                            android:layout_marginBottom="8dp"/>
+
+                        <Spinner
+                            android:id="@+id/spKabupaten"
+                            android:layout_width="match_parent"
+                            android:layout_height="52dp"
+                            android:background="@drawable/bg_input"
+                            android:layout_marginBottom="8dp"/>
+
+                        <Spinner
+                            android:id="@+id/spKecamatan"
+                            android:layout_width="match_parent"
+                            android:layout_height="52dp"
+                            android:background="@drawable/bg_input"
+                            android:layout_marginBottom="8dp"/>
+
+                        <Spinner
+                            android:id="@+id/spSekolah"
+                            android:layout_width="match_parent"
+                            android:layout_height="52dp"
+                            android:background="@drawable/bg_input" />
+
+                        <!-- Jenis Kelamin & Umur -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="16dp"
+                            android:baselineAligned="false"
+                            android:weightSum="2">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1.2"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Jenis Kelamin"
+                                    android:textSize="12sp"
+                                    android:textColor="#666"/>
+                                <RadioGroup
+                                    android:id="@+id/rgGender"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical">
+                                    <RadioButton android:id="@+id/rbLaki" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Laki-laki" android:textSize="13sp"/>
+                                    <RadioButton android:id="@+id/rbPerempuan" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Perempuan" android:textSize="13sp"/>
+                                </RadioGroup>
+                            </LinearLayout>
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="0.8"
+                                android:hint="Umur"
+                                app:boxCornerRadiusTopStart="12dp"
+                                app:boxCornerRadiusTopEnd="12dp"
+                                app:boxCornerRadiusBottomStart="12dp"
+                                app:boxCornerRadiusBottomEnd="12dp">
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etUmur"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="number"
+                                    android:textSize="14sp" />
+                            </com.google.android.material.textfield.TextInputLayout>
+                        </LinearLayout>
+
+                        <!-- Agama -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Agama"
+                            android:textSize="12sp"
+                            android:textColor="#666"
+                            android:layout_marginTop="12dp"
+                            android:layout_marginBottom="4dp"/>
+                        <Spinner
+                            android:id="@+id/spAgama"
+                            android:layout_width="match_parent"
+                            android:layout_height="52dp"
+                            android:background="@drawable/bg_input"/>
+
+                        <!-- Tombol Aksi -->
+                        <Button
+                            android:id="@+id/btnSimpan"
+                            android:layout_width="match_parent"
+                            android:layout_height="60dp"
+                            android:layout_marginTop="28dp"
+                            android:backgroundTint="@color/dark_green"
+                            android:text="Ubah Profil"
+                            android:textStyle="bold"
+                            android:textColor="@android:color/white"
+                            app:cornerRadius="16dp" />
+
+                        <Button
+                            android:id="@+id/btnBatal"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Batal Mengedit"
+                            android:textColor="#D32F2F"
+                            android:visibility="gone"
+                            android:layout_marginTop="8dp" />
+
+                    </LinearLayout>
+
+                    <!-- 🛡️ Form Overlay (Menangkap klik saat mode baca) -->
+                    <View
+                        android:id="@+id/formOverlay"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_input"
-                        android:hint="Contoh: 17"
-                        android:inputType="number"
-                        android:textSize="14sp" />
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:visibility="visible" />
 
-                    <!-- AGAMA -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Agama"
-                        android:textSize="12sp"
-                        android:textColor="#666"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginBottom="4dp"/>
-                    <Spinner
-                        android:id="@+id/spAgama"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:minHeight="48dp"
-                        android:background="@drawable/bg_input"/>
-
-                    <!-- BUTTON -->
-                    <Button
-                        android:id="@+id/btnSimpan"
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:layout_marginTop="24dp"
-                        android:backgroundTint="#2E7D32"
-                        android:text="Simpan Perubahan"
-                        android:textColor="@android:color/white"
-                        app:cornerRadius="12dp" />
-
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
     </ScrollView>

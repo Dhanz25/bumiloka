@@ -8,6 +8,7 @@ import com.bumptech.glide.Glide
 import com.faiz.bumiloka.R
 import com.faiz.bumiloka.databinding.ItemEdukasiAdminBinding
 import com.faiz.bumiloka.model.Edukasi
+import android.util.Base64
 
 class AdminEdukasiAdapter(
     private val onEdit: (Edukasi) -> Unit,
@@ -28,13 +29,40 @@ class AdminEdukasiAdapter(
             binding.tvDesc.text = item.description
             binding.chipStatus.text = if (item.aktif) "Aktif" else "Non-aktif"
             
-            Glide.with(binding.root)
-                .load(item.imageUrl)
-                .placeholder(R.drawable.ic_launcher_background)
-                .into(binding.ivEdukasi)
+            val context = binding.root.context
+            
+            if (!item.imageUrl.isNullOrEmpty()) {
+                if (item.imageUrl.length > 100) {
+                    // Handle Base64
+                    try {
+                        val imageBytes = Base64.decode(item.imageUrl, Base64.DEFAULT)
+                        Glide.with(context)
+                            .asBitmap()
+                            .load(imageBytes)
+                            .placeholder(R.drawable.img_lingkungan)
+                            .into(binding.ivEdukasi)
+                    } catch (e: Exception) {
+                        binding.ivEdukasi.setImageResource(R.drawable.img_lingkungan)
+                    }
+                } else {
+                    // Handle Drawable Name
+                    val resId = context.resources.getIdentifier(
+                        item.imageUrl, 
+                        "drawable", 
+                        context.packageName
+                    )
+                    if (resId != 0) {
+                        binding.ivEdukasi.setImageResource(resId)
+                    } else {
+                        binding.ivEdukasi.setImageResource(R.drawable.img_lingkungan)
+                    }
+                }
+            } else {
+                binding.ivEdukasi.setImageResource(R.drawable.img_lingkungan)
+            }
 
             binding.btnMore.setOnClickListener {
-                val popup = PopupMenu(binding.root.context, it)
+                val popup = PopupMenu(context, it)
                 popup.menuInflater.inflate(R.menu.menu_admin_item, popup.menu)
                 popup.setOnMenuItemClickListener { menuItem ->
                     when (menuItem.itemId) {

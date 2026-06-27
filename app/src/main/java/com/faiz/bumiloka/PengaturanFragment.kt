@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.faiz.bumiloka.model.Wilayah
@@ -25,7 +26,7 @@ class PengaturanFragment : Fragment() {
     private var kabupatenList: List<Wilayah> = listOf()
     private var kecamatanList: List<Wilayah> = listOf()
 
-    private var isEditMode = false // Status mode Edit
+    private var isEditMode = false 
     private var selectedProv = ""
     private var selectedKab = ""
     private var selectedKec = ""
@@ -49,14 +50,20 @@ class PengaturanFragment : Fragment() {
         val etNama = view.findViewById<EditText>(R.id.etNama)
         val etNis = view.findViewById<EditText>(R.id.etNis)
         val btnSimpan = view.findViewById<Button>(R.id.btnSimpan)
+        val btnBatal = view.findViewById<Button>(R.id.btnBatal)
         val btnBack = view.findViewById<ImageButton>(R.id.btnBack)
+        val formOverlay = view.findViewById<View>(R.id.formOverlay)
 
-        // Tombol Back Berfungsi
         btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
 
-        // 1. Setup Dropdown Agama
+        // --- OVERLAY CLICK LISTENER ---
+        formOverlay.setOnClickListener {
+            showEditPromptDialog()
+        }
+
+        // Setup Dropdown Agama
         val listAgama = listOf("Islam", "Kristen", "Katolik", "Hindu", "Budha", "Khonghucu")
         val adapterAgama = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, listAgama)
         adapterAgama.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -64,7 +71,7 @@ class PengaturanFragment : Fragment() {
 
         // --- LOAD DATA AWAL ---
         loadUserData(view)
-        toggleInput(view, false) // Kunci input saat pertama masuk
+        toggleInput(view, false) 
         btnSimpan.text = "Ubah Profil"
 
         // --- LISTENERS WILAYAH ---
@@ -98,28 +105,47 @@ class PengaturanFragment : Fragment() {
         // --- TOMBOL TOGGLE (UBAH/SIMPAN) ---
         btnSimpan.setOnClickListener {
             if (!isEditMode) {
-                isEditMode = true
-                btnSimpan.text = "Simpan Perubahan"
-                toggleInput(view, true)
-                if (provinsiList.isEmpty()) {
-                    loadProvinsiApi(spProv)
-                }
+                // MASUK MODE EDIT
+                enableEditMode(view, btnSimpan, btnBatal, spProv)
             } else {
-                saveDataToFirebase(view, btnSimpan)
+                // PROSES SIMPAN
+                saveDataToFirebase(view, btnSimpan, btnBatal)
             }
         }
+
+        // --- TOMBOL BATAL ---
+        btnBatal.setOnClickListener {
+            isEditMode = false
+            btnSimpan.text = "Ubah Profil"
+            btnBatal.visibility = View.GONE
+            toggleInput(view, false)
+            loadUserData(view) // Kembalikan ke data asli
+            Toast.makeText(requireContext(), "Perubahan dibatalkan", Toast.LENGTH_SHORT).show()
+        }
+
         return view
+    }
+
+    private fun showEditPromptDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Mode Baca")
+            .setMessage("Silakan klik tombol 'Ubah Profil' di bagian bawah untuk mulai mengedit data diri kamu.")
+            .setPositiveButton("Mengerti", null)
+            .show()
+    }
+
+    private fun enableEditMode(view: View, btnSimpan: Button, btnBatal: Button, spProv: Spinner) {
+        isEditMode = true
+        btnSimpan.text = "Simpan Perubahan"
+        btnBatal.visibility = View.VISIBLE
+        toggleInput(view, true)
+        if (provinsiList.isEmpty()) {
+            loadProvinsiApi(spProv)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // ✅ Tampilkan Bottom Navigation
-        requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // ✅ Tampilkan Bottom Navigation
         requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
     }
 
@@ -135,6 +161,9 @@ class PengaturanFragment : Fragment() {
             view.findViewById<Spinner>(R.id.spAgama)?.isEnabled = enabled
             view.findViewById<RadioButton>(R.id.rbLaki)?.isEnabled = enabled
             view.findViewById<RadioButton>(R.id.rbPerempuan)?.isEnabled = enabled
+            
+            // 🛡️ Sembunyikan overlay jika enabled (mode edit), tampilkan jika disabled (mode baca)
+            view.findViewById<View>(R.id.formOverlay)?.visibility = if (enabled) View.GONE else View.VISIBLE
         } catch (e: Exception) {
             Log.e("FIX", "Error toggleInput: ${e.message}")
         }
@@ -145,17 +174,14 @@ class PengaturanFragment : Fragment() {
             try {
                 provinsiList = api.getProvinsi()
                 val names = provinsiList.map { it.name }
-
                 val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, names)
                 spProv.adapter = adapter
 
-                // 🔥 SET VALUE LAMA
                 val index = names.indexOf(selectedProv)
                 if (index >= 0) {
                     spProv.setSelection(index)
-                    loadKabupaten(provinsiList[index].id) // 🔥 AUTO LANJUT
+                    loadKabupaten(provinsiList[index].id)
                 }
-
             } catch (e: Exception) {
                 Log.e("API", "Gagal load provinsi: ${e.message}")
             }
@@ -179,13 +205,11 @@ class PengaturanFragment : Fragment() {
                 etNis?.setText(snapshot.child("nis").value.toString())
                 etUmur?.setText(snapshot.child("umur").value.toString())
 
-                // 🔥 AMBIL DATA DARI FIREBASE DULU
                 selectedProv = snapshot.child("provinsi").value.toString()
                 selectedKab = snapshot.child("kabupaten").value.toString()
                 selectedKec = snapshot.child("kecamatan").value.toString()
                 selectedSek = snapshot.child("sekolah").value.toString()
 
-                // 🔥 BARU SET KE SPINNER
                 setupStaticSpinner(view.findViewById(R.id.spProvinsi), selectedProv)
                 setupStaticSpinner(view.findViewById(R.id.spKabupaten), selectedKab)
                 setupStaticSpinner(view.findViewById(R.id.spKecamatan), selectedKec)
@@ -196,9 +220,6 @@ class PengaturanFragment : Fragment() {
                 else if (gender == "Perempuan") view.findViewById<RadioButton>(R.id.rbPerempuan)?.isChecked = true
 
                 setSpinnerValue(view.findViewById(R.id.spAgama), snapshot.child("agama").value.toString())
-
-            } else {
-                view.findViewById<EditText>(R.id.etNama)?.setText(user.displayName)
             }
         }
     }
@@ -206,11 +227,7 @@ class PengaturanFragment : Fragment() {
     private fun setupStaticSpinner(spinner: Spinner, value: String) {
         if (value != "null" && value.isNotEmpty()) {
             val list = listOf(value)
-            val adapter = ArrayAdapter(
-                requireContext(),
-                android.R.layout.simple_spinner_dropdown_item,
-                list
-            )
+            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, list)
             spinner.adapter = adapter
             spinner.setSelection(0)
         }
@@ -226,18 +243,10 @@ class PengaturanFragment : Fragment() {
         }
     }
 
-    private fun saveDataToFirebase(view: View, button: Button) {
-        val user = FirebaseAuth.getInstance().currentUser
-        val userId = user?.uid // Mengambil UID unik dari akun yang sedang login
-
-        if (userId == null) {
-            Toast.makeText(context, "User tidak terdeteksi, silakan login ulang", Toast.LENGTH_SHORT).show()
-            return
-        }
-
+    private fun saveDataToFirebase(view: View, btnSimpan: Button, btnBatal: Button) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseDatabase.getInstance().reference
 
-        // Ambil Data dari View & Trim
         val nama = view.findViewById<EditText>(R.id.etNama)?.text.toString().trim()
         val nis = view.findViewById<EditText>(R.id.etNis)?.text.toString().trim()
         val umur = view.findViewById<EditText>(R.id.etUmur)?.text.toString().trim()
@@ -252,23 +261,17 @@ class PengaturanFragment : Fragment() {
             view.findViewById<RadioButton>(rgGender.checkedRadioButtonId).text.toString()
         } else ""
 
-        // --- VALIDASI 1: SEMUA WAJIB DIISI ---
         if (nama.isEmpty() || nis.isEmpty() || umur.isEmpty() || gender.isEmpty() ||
             prov.isEmpty() || kab.isEmpty() || kec.isEmpty() || sek.isEmpty() || agama.isEmpty()) {
-
             Toast.makeText(context, "Semua data wajib diisi!", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // --- VALIDASI 2: NIS WAJIB 10 DIGIT ---
         if (nis.length != 10) {
-            val etNis = view.findViewById<EditText>(R.id.etNis)
-            etNis?.error = "NIS harus tepat 10 digit"
-            Toast.makeText(context, "NIS tidak valid (harus 10 digit)", Toast.LENGTH_SHORT).show()
+            view.findViewById<EditText>(R.id.etNis)?.error = "NIS harus 10 digit"
             return
         }
 
-        // --- PROSES SIMPAN KE FIREBASE ---
         val userData = mapOf(
             "name" to nama,
             "nis" to nis,
@@ -279,69 +282,53 @@ class PengaturanFragment : Fragment() {
             "sekolah" to sek,
             "agama" to agama,
             "jenisKelamin" to gender,
-            "isProfileComplete" to true // Boolean murni agar HomeFragment mengenalinya
+            "isProfileComplete" to true
         )
 
-        // Menuju folder: users -> [UID_USER_LOGIN]
-        db.child("users").child(userId).setValue(userData)
+        db.child("users").child(userId).updateChildren(userData)
             .addOnSuccessListener {
                 Toast.makeText(context, "Profil Berhasil Diperbarui!", Toast.LENGTH_SHORT).show()
-
-                // Kembalikan ke mode 'Lihat' (Kunci input)
                 isEditMode = false
-                button.text = "Ubah Profil"
+                btnSimpan.text = "Ubah Profil"
+                btnBatal.visibility = View.GONE
                 toggleInput(view, false)
             }
             .addOnFailureListener { e ->
-                Log.e("FIREBASE", "Gagal simpan: ${e.message}")
                 Toast.makeText(context, "Gagal simpan: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
 
     private fun loadKabupaten(provId: String) {
         val spKab = view?.findViewById<Spinner>(R.id.spKabupaten) ?: return
-
         lifecycleScope.launch {
             try {
                 kabupatenList = api.getKabupaten(provId)
                 val names = kabupatenList.map { it.name }
-
                 val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, names)
                 spKab.adapter = adapter
-
                 val index = names.indexOf(selectedKab)
                 if (index >= 0) {
                     spKab.setSelection(index)
-                    loadKecamatan(kabupatenList[index].id) // 🔥 AUTO LANJUT
+                    loadKecamatan(kabupatenList[index].id)
                 }
-
-            } catch (e: Exception) {
-                Log.e("API", "Error Kab: ${e.message}")
-            }
+            } catch (e: Exception) { Log.e("API", "Error Kab: ${e.message}") }
         }
     }
 
     private fun loadKecamatan(kabId: String) {
         val spKec = view?.findViewById<Spinner>(R.id.spKecamatan) ?: return
-
         lifecycleScope.launch {
             try {
                 kecamatanList = api.getKecamatan(kabId)
                 val names = kecamatanList.map { it.name }
-
                 val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, names)
                 spKec.adapter = adapter
-
                 val index = names.indexOf(selectedKec)
                 if (index >= 0) {
                     spKec.setSelection(index)
-                    // 🔥 UBAH .id MENJADI .name
                     loadSekolah(kecamatanList[index].name)
                 }
-
-            } catch (e: Exception) {
-                Log.e("API", "Error Kec: ${e.message}")
-            }
+            } catch (e: Exception) { Log.e("API", "Error Kec: ${e.message}") }
         }
     }
 
@@ -354,49 +341,27 @@ class PengaturanFragment : Fragment() {
             "KALIBAGOR" to "330210", "BANYUMAS" to "330211", "PATIKRAJA" to "330212",
             "PURWOJATI" to "330213", "AJIBARANG" to "330214", "GUMELAR" to "330215",
             "PEKUNCEN" to "330216", "CILONGOK" to "330217", "KARANGLEWAS" to "330218",
-            "KEDUNGBANTENG" to "330219", "KEDUNG BANTENG" to "330219", // Antisipasi spasi API
-            "BATURADEN" to "330220", "BATURRADEN" to "330220", // Antisipasi typo API (R dobel)
+            "KEDUNGBANTENG" to "330219", "KEDUNG BANTENG" to "330219",
+            "BATURADEN" to "330220", "BATURRADEN" to "330220",
             "SUMBANG" to "330221", "KEMBARAN" to "330222", "SOKARAJA" to "330223",
             "PURWOKERTO SELATAN" to "330224", "PURWOKERTO BARAT" to "330225",
             "PURWOKERTO TIMUR" to "330226", "PURWOKERTO UTARA" to "330227"
         )
-
-        // Ambil ID dari map dengan mengubah nama jadi UPPERCASE (huruf besar) agar cocok
         val idFirebase = mapKecamatanToId[namaKecamatan.uppercase()] ?: namaKecamatan
-
-        // Arahkan db ke idFirebase yang benar
         val db = FirebaseDatabase.getInstance().reference.child("sekolah").child(idFirebase)
-
         db.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (!isAdded) return
-
                 val list = mutableListOf<String>()
-
                 if (snapshot.exists()) {
-                    for (child in snapshot.children) {
-                        list.add(child.value.toString())
-                    }
-                } else {
-                    list.add("Lainnya / Tidak terdaftar")
-                }
-
-                val adapter = ArrayAdapter(
-                    requireContext(),
-                    android.R.layout.simple_spinner_dropdown_item,
-                    list
-                )
+                    for (child in snapshot.children) { list.add(child.value.toString()) }
+                } else { list.add("Lainnya / Tidak terdaftar") }
+                val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, list)
                 spSek.adapter = adapter
-
                 val index = list.indexOf(selectedSek)
-                if (index >= 0) {
-                    spSek.setSelection(index)
-                }
+                if (index >= 0) spSek.setSelection(index)
             }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("FIREBASE", error.message)
-            }
+            override fun onCancelled(error: DatabaseError) { Log.e("FIREBASE", error.message) }
         })
     }
 }

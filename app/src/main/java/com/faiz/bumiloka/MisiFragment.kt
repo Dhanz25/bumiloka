@@ -7,29 +7,30 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.faiz.bumiloka.model.Edukasi
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class MisiFragment : Fragment(R.layout.fragment_misi) {
 
     private var userLevel = 1
+    private var firstEdukasiId: String? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // ✅ Sembunyikan Bottom Navigation
         requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
 
         val tvMisiHeader = view.findViewById<TextView>(R.id.tvMisiHeader)
         val tvMisiSubHeader = view.findViewById<TextView>(R.id.tvMisiSubHeader)
         val tvMisiTitle1 = view.findViewById<TextView>(R.id.tvMisiTitle1)
         val tvMisiDesc1 = view.findViewById<TextView>(R.id.tvMisiDesc1)
-        val tvMisiTitle2 = view.findViewById<TextView>(R.id.tvMisiTitle2)
-        val tvMisiDesc2 = view.findViewById<TextView>(R.id.tvMisiDesc2)
-        val tvMisiTitle3 = view.findViewById<TextView>(R.id.tvMisiTitle3)
-        val tvMisiDesc3 = view.findViewById<TextView>(R.id.tvMisiDesc3)
-
+        
         val btnMulaiMateri = view.findViewById<MaterialButton>(R.id.btnMulaiMateri)
         val cardTantangan = view.findViewById<MaterialCardView>(R.id.cardTantangan)
         val iconTantangan = view.findViewById<ImageView>(R.id.iconTantangan)
@@ -40,7 +41,18 @@ class MisiFragment : Fragment(R.layout.fragment_misi) {
 
         LevelHelper.getCurrentLevel(requireContext()) { level ->
             userLevel = level
-            updateMisiContent(tvMisiHeader, tvMisiSubHeader, tvMisiTitle1, tvMisiDesc1, tvMisiTitle2, tvMisiDesc2, tvMisiTitle3, tvMisiDesc3)
+            tvMisiHeader.text = "MISI LEVEL $userLevel"
+            
+            val levelName = when (level) {
+                1 -> "Eco Beginner"
+                2 -> "Eco Warrior"
+                3 -> "Nature Protector"
+                else -> "Eco Beginner"
+            }
+            tvMisiSubHeader.text = levelName
+
+            // Ambil Judul Misi 1 secara dinamis dari Firebase
+            fetchFirstMateri(level, tvMisiTitle1, tvMisiDesc1)
 
             val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
             val sharedPref = requireActivity().getSharedPreferences("MISI_${userId}_LEVEL_$userLevel", Context.MODE_PRIVATE)
@@ -49,17 +61,19 @@ class MisiFragment : Fragment(R.layout.fragment_misi) {
             val m2 = sharedPref.getBoolean("misi2_selesai", false)
             val m3 = sharedPref.getBoolean("misi3_selesai", false)
 
-            // Logika Progress Misi 1
             if (m1) setSelesai(btnMulaiMateri)
             else {
                 btnMulaiMateri.setOnClickListener {
+                    val fragment = JelajahiMateriFragment()
+                    val args = Bundle()
+                    args.putString("edukasi_id", firstEdukasiId)
+                    fragment.arguments = args
                     parentFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, JelajahiMateriFragment())
+                        .replace(R.id.fragment_container, fragment)
                         .addToBackStack(null).commit()
                 }
             }
 
-            // Logika Progress Misi 2 (Tantangan Diri)
             if (m1 && !m2) {
                 unlockCard(cardTantangan, iconTantangan, btnTantangan, R.drawable.ic_quiz)
                 btnTantangan.setOnClickListener {
@@ -72,7 +86,6 @@ class MisiFragment : Fragment(R.layout.fragment_misi) {
                 setSelesai(btnTantangan)
             } else lockCard(cardTantangan, iconTantangan, btnTantangan)
 
-            // Logika Progress Misi 3 (Raih Skor)
             if (m2 && !m3) {
                 unlockCard(cardSkor, iconSkor, btnSkor, R.drawable.ic_target)
                 btnSkor.setOnClickListener {
@@ -91,37 +104,21 @@ class MisiFragment : Fragment(R.layout.fragment_misi) {
         }
     }
 
-    private fun updateMisiContent(header: TextView, sub: TextView, t1: TextView, d1: TextView, t2: TextView, d2: TextView, t3: TextView, d3: TextView) {
-        header.text = "MISI LEVEL $userLevel"
-        when (userLevel) {
-            1 -> {
-                sub.text = "Eco Beginner"
-                t1.text = "Dasar Lingkungan"
-                d1.text = "Pahami cara menjaga bumi dari hal yang paling sederhana."
-                t2.text = "Kuis Umum"
-                d2.text = "Uji pengetahuan dasarmu tentang kebersihan lingkungan."
-                t3.text = "Target Skor"
-                d3.text = "Raih skor 75 pada kuis lingkungan umum."
-            }
-            2 -> {
-                sub.text = "Eco Warrior (Fokus Sampah)"
-                t1.text = "Master Sampah"
-                d1.text = "Pelajari perbedaan sampah organik dan anorganik secara mendalam."
-                t2.text = "Kuis Pemilahan"
-                d2.text = "Selesaikan tantangan kuis mengenai manajemen sampah dan 3R."
-                t3.text = "Ahli Daur Ulang"
-                d3.text = "Dapatkan skor minimal 80 pada kuis khusus bertema sampah."
-            }
-            3 -> {
-                sub.text = "Nature Protector (Fokus Air)"
-                t1.text = "Penjaga Air"
-                d1.text = "Pelajari teknik konservasi air bersih untuk masa depan bumi."
-                t2.text = "Kuis Konservasi"
-                d2.text = "Selesaikan kuis tentang siklus air dan cara menghematnya."
-                t3.text = "Master Hidrologi"
-                d3.text = "Buktikan dirimu ahli hemat air dengan skor sempurna di level ini."
-            }
-        }
+    private fun fetchFirstMateri(level: Int, titleView: TextView, descView: TextView) {
+        val db = FirebaseDatabase.getInstance().reference.child("edukasi")
+        db.orderByChild("level").equalTo(level.toDouble()).limitToFirst(1)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val child = snapshot.children.firstOrNull()
+                    val edukasi = child?.getValue(Edukasi::class.java)
+                    if (edukasi != null) {
+                        firstEdukasiId = child.key
+                        titleView.text = edukasi.title
+                        descView.text = edukasi.description
+                    }
+                }
+                override fun onCancelled(error: DatabaseError) {}
+            })
     }
 
     private fun lockCard(card: MaterialCardView, icon: ImageView, button: MaterialButton) {
@@ -146,7 +143,6 @@ class MisiFragment : Fragment(R.layout.fragment_misi) {
 
     override fun onResume() {
         super.onResume()
-        // ✅ Sembunyikan Bottom Navigation saat kembali ke fragment ini
         requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
     }
 }

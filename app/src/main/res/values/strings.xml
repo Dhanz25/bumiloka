@@ -175,4 +175,14 @@
     <string name="chip_activity">Aktivitas</string>
     <string name="chip_system">Sistem</string>
     <string name="sample_badge_count">3</string>
+
+    <!-- Jelajahi Materi Strings -->
+    <string name="jelajahi_materi">Jelajahi Materi</string>
+    <string name="deskripsi_misi">Deskripsi Misi</string>
+    <string name="content_desc_leaf">Ikon Daun</string>
+    <string name="content_desc_eco">Ikon Eco</string>
+    <string name="content_desc_target">Ikon Target</string>
+    <string name="content_desc_help">Ikon Bantuan</string>
+    <string name="content_desc_tips">Ikon Tips</string>
+    <string name="content_desc_medal">Ikon Medali</string>
 </resources>

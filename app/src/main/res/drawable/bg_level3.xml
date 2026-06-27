@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Base Gradient Golden -->
+    <item>
+        <shape>
+            <gradient
+                android:startColor="#F1C40F"
+                android:centerColor="#F39C12"
+                android:endColor="#D68910"
+                android:angle="135" />
+            <corners android:radius="28dp" />
+        </shape>
+    </item>
+    <!-- Subtle Pattern Trophy (Vector safe) -->
+    <item android:right="-20dp" android:top="-20dp"
+        android:width="150dp" android:height="150dp"
+        android:drawable="@drawable/ic_trophy"
+        android:alpha="0.1">
+    </item>
+</layer-list>

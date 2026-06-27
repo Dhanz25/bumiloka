@@ -114,7 +114,7 @@ class BonusChallengeDetailFragment : Fragment(R.layout.fragment_bonus_challenge_
     private fun startChallengeFlow() {
         val currentChallenge = challenge ?: return
         if (!progress.materiDone) {
-            val fragment = MateriFragment.newInstance(currentChallenge.materiId)
+            val fragment = MateriFragment.newInstanceLegacy(currentChallenge.materiId)
             val args = fragment.arguments ?: Bundle()
             args.putBoolean("DARI_BONUS_CHALLENGE", true)
             args.putString("BONUS_CHALLENGE_ID", challengeId)

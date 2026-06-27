@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Base Gradient Blue -->
+    <item>
+        <shape>
+            <gradient
+                android:startColor="#3498DB"
+                android:centerColor="#2980B9"
+                android:endColor="#2471A3"
+                android:angle="135" />
+            <corners android:radius="28dp" />
+        </shape>
+    </item>
+    <!-- Subtle Pattern Water (Vector safe) -->
+    <item android:right="-30dp" android:bottom="-30dp"
+        android:width="150dp" android:height="150dp"
+        android:drawable="@drawable/ic_water"
+        android:alpha="0.1">
+    </item>
+</layer-list>

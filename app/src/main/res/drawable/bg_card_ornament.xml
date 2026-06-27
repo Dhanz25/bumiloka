@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <solid android:color="@color/white" />
+            <corners android:radius="22dp" />
+        </shape>
+    </item>
+    <!-- Pola Daun Samar di Pojok Bawah -->
+    <item android:bottom="-20dp" android:right="-20dp">
+        <bitmap
+            android:src="@drawable/ic_eco"
+            android:alpha="0.05"
+            android:tint="@color/dark_green"
+            android:gravity="bottom|right" />
+    </item>
+</layer-list>

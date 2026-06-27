@@ -1,16 +1,28 @@
 package com.faiz.bumiloka
 
 import android.os.Bundle
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
+import com.faiz.bumiloka.model.Edukasi
+import com.google.firebase.database.*
 
 class EdukasiFragment : Fragment() {
 
     private var userLevel = 1
+    private lateinit var containerMateri: LinearLayout
+    private lateinit var tvEdukasiLevel: TextView
+    private lateinit var progressBar: ProgressBar
+    private lateinit var tvEmpty: TextView
+    private val db = FirebaseDatabase.getInstance().reference.child("edukasi")
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -22,20 +34,13 @@ class EdukasiFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // ❌ Sembunyikan Bottom Navigation
         requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
 
         val toolbar = view.findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
-        val tvEdukasiLevel = view.findViewById<TextView>(R.id.tvEdukasiLevel)
-        
-        val tvTitle1 = view.findViewById<TextView>(R.id.tvEdukasiTitle1)
-        val img1 = view.findViewById<ImageView>(R.id.imgEdukasi1)
-        
-        val tvTitle2 = view.findViewById<TextView>(R.id.tvEdukasiTitle2)
-        val img2 = view.findViewById<ImageView>(R.id.imgEdukasi2)
-        
-        val tvTitle3 = view.findViewById<TextView>(R.id.tvEdukasiTitle3)
-        val img3 = view.findViewById<ImageView>(R.id.imgEdukasi3)
+        tvEdukasiLevel = view.findViewById(R.id.tvEdukasiLevel)
+        containerMateri = view.findViewById(R.id.containerMateri)
+        progressBar = view.findViewById(R.id.progressBar)
+        tvEmpty = view.findViewById(R.id.tvEmpty)
 
         toolbar.setNavigationOnClickListener {
             parentFragmentManager.popBackStack()
@@ -50,71 +55,110 @@ class EdukasiFragment : Fragment() {
                 else -> "Eco Beginner"
             }
             tvEdukasiLevel.text = "Level $level ($levelName)"
-            
-            when (level) {
-                1 -> {
-                    tvTitle1.text = "Peduli Lingkungan"
-                    img1.setImageResource(R.drawable.img_lingkungan)
-                    tvTitle2.text = "Kelola Sampah"
-                    img2.setImageResource(R.drawable.img_sampah)
-                    tvTitle3.text = "Hemat Air"
-                    img3.setImageResource(R.drawable.img_air)
-                }
-                2 -> {
-                    // Fokus SAMPAH
-                    tvTitle1.text = "Jenis Sampah"
-                    img1.setImageResource(R.drawable.img_sampah)
-                    tvTitle2.text = "Konsep 3R"
-                    img2.setImageResource(R.drawable.img_sampah)
-                    tvTitle3.text = "Bahaya Plastik"
-                    img3.setImageResource(R.drawable.img_sampah)
-                }
-                3 -> {
-                    // Fokus HEMAT AIR
-                    tvTitle1.text = "Konservasi Air"
-                    img1.setImageResource(R.drawable.img_air)
-                    tvTitle2.text = "Siklus Air"
-                    img2.setImageResource(R.drawable.img_air)
-                    tvTitle3.text = "Teknik Hemat Air"
-                    img3.setImageResource(R.drawable.img_air)
-                }
-            }
-        }
-
-        view.findViewById<View?>(R.id.materi1)?.setOnClickListener {
-            bukaMateri(1)
-        }
-
-        view.findViewById<View?>(R.id.materi2)?.setOnClickListener {
-            bukaMateri(2)
-        }
-
-        view.findViewById<View?>(R.id.materi3)?.setOnClickListener {
-            bukaMateri(3)
+            loadEdukasiFromFirebase(level)
         }
     }
 
-    private fun bukaMateri(index: Int) {
+    private fun loadEdukasiFromFirebase(level: Int) {
+        progressBar.visibility = View.VISIBLE
+        db.orderByChild("level").equalTo(level.toDouble()).addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (!isAdded) return
+                progressBar.visibility = View.GONE
+                
+                val edukasiList = mutableListOf<Edukasi>()
+                for (child in snapshot.children) {
+                    child.getValue(Edukasi::class.java)?.let {
+                        it.id = child.key ?: ""
+                        if (it.aktif) edukasiList.add(it)
+                    }
+                }
+
+                updateUI(edukasiList)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                if (isAdded) {
+                    progressBar.visibility = View.GONE
+                    Toast.makeText(requireContext(), "Gagal memuat data", Toast.LENGTH_SHORT).show()
+                }
+            }
+        })
+    }
+
+    private fun updateUI(list: List<Edukasi>) {
+        containerMateri.removeAllViews()
+        
+        if (list.isEmpty()) {
+            tvEmpty.visibility = View.VISIBLE
+            return
+        }
+        
+        tvEmpty.visibility = View.GONE
+        val inflater = LayoutInflater.from(requireContext())
+
+        for (data in list) {
+            val cardView = inflater.inflate(R.layout.item_materi_lingkungan, containerMateri, false)
+            
+            val title = cardView.findViewById<TextView>(R.id.tvNama)
+            val deskripsi = cardView.findViewById<TextView>(R.id.tvDeskripsi)
+            val image = cardView.findViewById<ImageView>(R.id.imgMateri)
+            
+            title.text = data.title
+            deskripsi.text = data.description
+            
+            // Perbaikan pemuatan gambar untuk mendukung Galeri (Base64) dan Drawable
+            if (!data.imageUrl.isNullOrEmpty()) {
+                if (data.imageUrl.length > 100) {
+                    // Jika teks panjang, asumsikan Base64 dari galeri
+                    try {
+                        val imageBytes = Base64.decode(data.imageUrl, Base64.DEFAULT)
+                        Glide.with(this)
+                            .asBitmap()
+                            .load(imageBytes)
+                            .placeholder(R.drawable.img_lingkungan)
+                            .into(image)
+                    } catch (e: Exception) {
+                        image.setImageResource(R.drawable.img_lingkungan)
+                    }
+                } else {
+                    // Jika teks pendek, asumsikan nama drawable
+                    val resId = resources.getIdentifier(data.imageUrl, "drawable", requireContext().packageName)
+                    if (resId != 0) {
+                        image.setImageResource(resId)
+                    } else {
+                        image.setImageResource(R.drawable.img_lingkungan)
+                    }
+                }
+            } else {
+                image.setImageResource(R.drawable.img_lingkungan)
+            }
+
+            cardView.setOnClickListener { bukaMateri(data.id) }
+            containerMateri.addView(cardView)
+        }
+    }
+
+    private fun bukaMateri(edukasiId: String) {
         val dariTantangan = arguments?.getBoolean("DARI_TANTANGAN", false) ?: false
-        val fragment = MateriFragment.newInstance(index)
-        val args = fragment.arguments ?: Bundle()
+        val fragment = MateriFragment()
+        val args = Bundle()
+        args.putString("edukasi_id", edukasiId)
         args.putBoolean("DARI_TANTANGAN", dariTantangan)
         fragment.arguments = args
-        activity?.supportFragmentManager?.beginTransaction()
-            ?.replace(R.id.fragment_container, fragment)
-            ?.addToBackStack(null)
-            ?.commit()
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     override fun onResume() {
         super.onResume()
-        // ❌ Tetap Sembunyikan Bottom Navigation saat kembali ke fragment ini
         requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // 🔺 Tampilkan kembali Bottom Navigation saat keluar fragment
         requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
     }
 }

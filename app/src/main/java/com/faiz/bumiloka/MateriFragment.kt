@@ -1,33 +1,67 @@
 package com.faiz.bumiloka
 
+import android.app.AlertDialog
+import android.app.Dialog
+import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.os.CountDownTimer
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.faiz.bumiloka.model.Edukasi
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.bumptech.glide.Glide
 
 class MateriFragment : Fragment() {
 
+    private var edukasiId: String? = null
+    private var isTantanganBonus = false
+    private var challengeId = ""
+    private var quizIdFromTantangan = -1
+    private var badgeIdFromTantangan = 0
+    
+    private lateinit var btnMulaiKuis: Button
+    private var countDownTimer: CountDownTimer? = null
+    
+    private var hasBeenPromptedToRead = false
+
     companion object {
         private const val ARG_MATERI_ID = "materi_id"
+        private const val ARG_EDUKASI_ID = "edukasi_id"
 
-        fun newInstance(materiId: Int): MateriFragment {
-            val fragment = MateriFragment()
-            val args = Bundle()
-            args.putInt(ARG_MATERI_ID, materiId)
-            fragment.arguments = args
-            return fragment
+        @JvmStatic
+        fun newInstance(materiId: Int): MateriFragment = MateriFragment().apply {
+            arguments = Bundle().apply { putInt(ARG_MATERI_ID, materiId) }
         }
+
+        @JvmStatic
+        fun newInstance(edukasiId: String): MateriFragment = MateriFragment().apply {
+            arguments = Bundle().apply { putString(ARG_EDUKASI_ID, edukasiId) }
+        }
+        
+        @JvmStatic fun newInstanceLegacy(materiId: Int) = newInstance(materiId)
+        @JvmStatic fun newInstanceDynamic(edukasiId: String) = newInstance(edukasiId)
+        @JvmStatic fun newInstanceByMateriId(materiId: Int) = newInstance(materiId)
+        @JvmStatic fun newInstanceByEdukasiId(edukasiId: String) = newInstance(edukasiId)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_materi, container, false)
     }
 
@@ -35,168 +69,197 @@ class MateriFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val toolbar = view.findViewById<MaterialToolbar>(R.id.toolbar)
-        toolbar.setNavigationOnClickListener {
-            parentFragmentManager.popBackStack()
-        }
-
-        val imgMateri = view.findViewById<ImageView>(R.id.imgMateri)
-        val tvJudulUtama = view.findViewById<TextView>(R.id.tvJudulUtama)
-        val tvIsiTitle = view.findViewById<TextView>(R.id.tvIsiTitle)
-        val tvIsiMateri = view.findViewById<TextView>(R.id.tvIsiMateri)
-        val tvPentingTitle = view.findViewById<TextView>(R.id.tvPentingTitle)
-        val tvPenting = view.findViewById<TextView>(R.id.tvPenting)
-        val tvContohTitle = view.findViewById<TextView>(R.id.tvContohTitle)
-        val tvContoh = view.findViewById<TextView>(R.id.tvContoh)
-        val btnMulaiKuis = view.findViewById<Button>(R.id.btnMulaiKuis)
-
-        val materiIndex = arguments?.getInt(ARG_MATERI_ID) ?: 1
-        val challengeId = arguments?.getString("challenge_id") ?: ""
-        val quizIdFromTantangan = arguments?.getInt("quiz_id", -1) ?: -1
-        val badgeIdFromTantangan = arguments?.getInt("badge_id", 0) ?: 0
-        val isTantanganBonus = arguments?.getBoolean("IS_TANTANGAN_BONUS", false) ?: false
+        btnMulaiKuis = view.findViewById(R.id.btnMulaiKuis)
         
-        LevelHelper.getCurrentLevel(requireContext()) { level ->
-            toolbar.title = "Level $level - Materi $materiIndex"
+        toolbar.setNavigationOnClickListener { parentFragmentManager.popBackStack() }
+
+        arguments?.let {
+            edukasiId = it.getString(ARG_EDUKASI_ID)
+            val legacyId = it.getInt(ARG_MATERI_ID, -1)
             
-            when (level) {
-                1 -> loadLevel1Materi(materiIndex, tvJudulUtama, imgMateri, tvIsiTitle, tvIsiMateri, tvPentingTitle, tvPenting, tvContohTitle, tvContoh)
-                2 -> loadLevel2Materi(materiIndex, tvJudulUtama, imgMateri, tvIsiTitle, tvIsiMateri, tvPentingTitle, tvPenting, tvContohTitle, tvContoh)
-                3 -> loadLevel3Materi(materiIndex, tvJudulUtama, imgMateri, tvIsiTitle, tvIsiMateri, tvPentingTitle, tvPenting, tvContohTitle, tvContoh)
-            }
+            challengeId = it.getString("challenge_id") ?: ""
+            quizIdFromTantangan = it.getInt("quiz_id", -1)
+            badgeIdFromTantangan = it.getInt("badge_id", 0)
+            isTantanganBonus = it.getBoolean("IS_TANTANGAN_BONUS", false)
+            
+            if (edukasiId != null) loadMateriFromFirebase(edukasiId!!)
+            else if (legacyId != -1) loadLegacyMateri(legacyId)
         }
+    }
 
-        btnMulaiKuis.setOnClickListener {
-            val resultBundle = Bundle().apply { putInt("materi_id", materiIndex) }
-            parentFragmentManager.setFragmentResult("materi_selesai_result", resultBundle)
+    private fun updateButtonStatus() {
+        val materiIndex = arguments?.getInt(ARG_MATERI_ID, 1) ?: 1
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
 
-            LevelHelper.getCurrentLevel(requireContext()) { level ->
-                val targetQuizId = if (isTantanganBonus && quizIdFromTantangan != -1) quizIdFromTantangan else materiIndex
+        LevelHelper.getCurrentLevel(requireContext()) { level ->
+            val prefKuis = requireActivity().getSharedPreferences("KUIS_${userId}_LEVEL_$level", Context.MODE_PRIVATE)
+            
+            val isSelesai = when (materiIndex) {
+                1 -> prefKuis.getBoolean("materi1_selesai", false)
+                2 -> prefKuis.getBoolean("quiz2_selesai", false)
+                3 -> prefKuis.getBoolean("quiz3_selesai", false)
+                else -> false
+            }
+
+            if (isSelesai && !isTantanganBonus) {
+                btnMulaiKuis.text = "Kuis Sudah Diselesaikan"
+                btnMulaiKuis.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.grey_button)
+                btnMulaiKuis.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_subtitle))
                 
-                val fragment = when (targetQuizId) {
-                    1 -> QuizSoalFragment.newInstance(targetQuizId)
-                    2 -> QuizSoal2Fragment.newInstance(targetQuizId)
-                    3 -> QuizSoal3Fragment.newInstance(targetQuizId)
-                    else -> QuizSoalFragment.newInstance(targetQuizId)
+                btnMulaiKuis.setOnClickListener {
+                    showCustomTopDialog("Kuis Selesai", "Kuis sudah selesai dikerjakan", false, level, materiIndex)
                 }
+            } else {
+                btnMulaiKuis.text = "Mulai Kuis"
+                btnMulaiKuis.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.dark_green)
+                btnMulaiKuis.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
                 
-                val args = fragment.arguments ?: Bundle()
-                args.putBoolean("IS_TANTANGAN_BONUS", isTantanganBonus)
-                args.putString("challenge_id", challengeId)
-                args.putInt("quiz_id", targetQuizId)
-                args.putInt("badge_id", badgeIdFromTantangan)
-                args.putInt("LEVEL", level)
-                args.putInt("materi_id", materiIndex)
-                fragment.arguments = args
-
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, fragment)
-                    .addToBackStack(null)
-                    .commit()
+                btnMulaiKuis.setOnClickListener {
+                    showCustomTopDialog("Perhatian", "Silakan membaca materi terlebih dahulu sebelum mengerjakan kuis.", true, level, materiIndex)
+                }
             }
         }
     }
 
-    private fun loadLevel1Materi(index: Int, judul: TextView, img: ImageView, t1: TextView, m1: TextView, t2: TextView, p2: TextView, t3: TextView, c3: TextView) {
-        when (index) {
-            1 -> {
-                judul.text = "Dasar : Peduli Lingkungan"
-                img.setImageResource(R.drawable.img_lingkungan)
-                t1.text = "🌿 Apa itu Peduli Lingkungan?"
-                m1.text = "Peduli lingkungan adalah sikap menjaga kebersihan serta kelestarian alam. Dimulai dari hal kecil setiap hari seperti membuang sampah pada tempatnya."
-                t2.text = "🌍 Kenapa Penting?"
-                p2.text = "Lingkungan bersih memberikan udara segar dan air bersih, serta menjauhkan kita dari penyakit dan bencana banjir."
-                t3.text = "♻️ Contoh Perilaku"
-                c3.text = "• Buang sampah pada tempatnya\n• Hemat listrik\n• Kurangi plastik"
+    private fun showCustomTopDialog(title: String, message: String, isWarning: Boolean, level: Int, materiIndex: Int) {
+        val dialog = Dialog(requireContext())
+        val dialogView = layoutInflater.inflate(R.layout.popup_kuis_peringatan, null)
+        dialog.setContentView(dialogView)
+
+        dialogView.findViewById<TextView>(R.id.tvTitle).text = title
+        dialogView.findViewById<TextView>(R.id.tvMessage).text = message
+        
+        val btnAction = dialogView.findViewById<Button>(R.id.btnMulai)
+        val btnBatal = dialogView.findViewById<Button>(R.id.btnBatal)
+        val btnClose = dialogView.findViewById<ImageButton>(R.id.btnClose)
+
+        if (!isWarning) {
+            btnAction.visibility = View.GONE
+            btnBatal.text = "OK"
+        } else {
+            if (!hasBeenPromptedToRead) {
+                btnAction.text = "BACA MATERI"
+                btnAction.setOnClickListener {
+                    hasBeenPromptedToRead = true
+                    dialog.dismiss()
+                    Toast.makeText(requireContext(), "Silakan baca materi di bawah ini", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                btnAction.isEnabled = false
+                btnAction.alpha = 0.5f
+                
+                countDownTimer?.cancel()
+                countDownTimer = object : CountDownTimer(5000, 1000) {
+                    override fun onTick(millisUntilFinished: Long) {
+                        btnAction.text = "Tunggu (${millisUntilFinished / 1000}s)"
+                    }
+                    override fun onFinish() {
+                        btnAction.isEnabled = true
+                        btnAction.alpha = 1.0f
+                        btnAction.text = "MULAI KUIS"
+                        btnAction.setOnClickListener {
+                            countDownTimer?.cancel()
+                            dialog.dismiss()
+                            startQuiz(materiIndex, level)
+                        }
+                    }
+                }.start()
             }
-            2 -> {
-                judul.text = "Kenalan Sama Sampah"
-                img.setImageResource(R.drawable.img_sampah)
-                t1.text = "🗑️ Apa itu Sampah?"
-                m1.text = "Sampah adalah sisa barang yang sudah tidak digunakan. Jika tidak dikelola, sampah akan menumpuk dan mencemari lingkungan."
-                t2.text = "⚠️ Masalah Sampah"
-                p2.text = "Sampah yang menumpuk menyumbat saluran air dan menjadi sarang penyakit."
-                t3.text = "♻️ Jenis Sampah"
-                c3.text = "• Organik (Sisa makanan)\n• Anorganik (Plastik/Logam)"
-            }
-            3 -> {
-                judul.text = "Dasar Hemat Air"
-                img.setImageResource(R.drawable.img_air)
-                t1.text = "💧 Pentingnya Air"
-                m1.text = "Air adalah sumber kehidupan. Ketersediaan air bersih terbatas, maka kita harus menggunakannya dengan bijak."
-                t2.text = "⚠️ Dampak Boros"
-                p2.text = "Pemborosan air menyebabkan kekeringan dan krisis air bersih di masa depan."
-                t3.text = "🚿 Cara Hemat"
-                c3.text = "• Tutup keran saat sikat gigi\n• Perbaiki keran bocor"
+        }
+
+        btnBatal.setOnClickListener { 
+            countDownTimer?.cancel()
+            dialog.dismiss() 
+        }
+        btnClose.setOnClickListener { 
+            countDownTimer?.cancel()
+            dialog.dismiss() 
+        }
+
+        dialog.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            attributes.gravity = Gravity.TOP
+            setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT)
+            attributes.y = 50 
+        }
+        dialog.show()
+    }
+
+    private fun startQuiz(materiIndex: Int, level: Int) {
+        val targetQuizId = if (isTantanganBonus && quizIdFromTantangan != -1) quizIdFromTantangan else materiIndex
+        val fragment = when (targetQuizId) {
+            1 -> QuizSoalFragment.newInstance(targetQuizId)
+            2 -> QuizSoal2Fragment.newInstance(targetQuizId)
+            3 -> QuizSoal3Fragment.newInstance(targetQuizId)
+            else -> QuizSoalFragment.newInstance(targetQuizId)
+        }
+        fragment.arguments = (fragment.arguments ?: Bundle()).apply {
+            putBoolean("IS_TANTANGAN_BONUS", isTantanganBonus)
+            putString("challenge_id", challengeId)
+            putInt("quiz_id", targetQuizId)
+            putInt("badge_id", badgeIdFromTantangan)
+            putInt("LEVEL", level)
+            putInt("materi_id", materiIndex)
+        }
+        parentFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit()
+    }
+
+    private fun loadMateriFromFirebase(id: String) {
+        FirebaseDatabase.getInstance().reference.child("edukasi").child(id)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (!isAdded) return
+                    snapshot.getValue(Edukasi::class.java)?.let { displayMateri(it) }
+                }
+                override fun onCancelled(error: DatabaseError) {}
+            })
+    }
+
+    private fun displayMateri(edukasi: Edukasi) {
+        val v = view ?: return
+        v.findViewById<TextView>(R.id.tvJudulUtama).text = edukasi.title
+        v.findViewById<MaterialToolbar>(R.id.toolbar).title = "Materi : ${edukasi.title}"
+        
+        v.findViewById<TextView>(R.id.tvIsiTitle).text = edukasi.section1Title.ifEmpty { edukasi.isiTitle }
+        v.findViewById<TextView>(R.id.tvIsiMateri).text = edukasi.section1Content.ifEmpty { edukasi.content }
+        v.findViewById<TextView>(R.id.tvPentingTitle).text = edukasi.section2Title.ifEmpty { edukasi.pentingTitle }
+        v.findViewById<TextView>(R.id.tvPenting).text = edukasi.section2Content.ifEmpty { edukasi.pentingContent }
+        v.findViewById<TextView>(R.id.tvContohTitle).text = edukasi.section3Title.ifEmpty { edukasi.contohTitle }
+        v.findViewById<TextView>(R.id.tvContoh).text = edukasi.section3Content.ifEmpty { edukasi.contohContent }
+
+        val imgMateri = v.findViewById<ImageView>(R.id.imgMateri)
+        if (!edukasi.imageUrl.isNullOrEmpty()) {
+            if (edukasi.imageUrl.length > 100 || edukasi.imageUrl.startsWith("http")) {
+                val source = if (edukasi.imageUrl.length > 100 && !edukasi.imageUrl.startsWith("http")) 
+                    android.util.Base64.decode(edukasi.imageUrl, android.util.Base64.DEFAULT) else edukasi.imageUrl
+                Glide.with(this).load(source).placeholder(R.drawable.img_lingkungan).into(imgMateri)
+            } else {
+                val resId = resources.getIdentifier(edukasi.imageUrl, "drawable", requireContext().packageName)
+                imgMateri.setImageResource(if (resId != 0) resId else R.drawable.img_lingkungan)
             }
         }
     }
 
-    private fun loadLevel2Materi(index: Int, judul: TextView, img: ImageView, t1: TextView, m1: TextView, t2: TextView, p2: TextView, t3: TextView, c3: TextView) {
-        when (index) {
-            1 -> {
-                judul.text = "Organik vs Anorganik"
-                img.setImageResource(R.drawable.img_sampah)
-                t1.text = "🍏 Sampah Organik"
-                m1.text = "Sampah organik berasal dari makhluk hidup dan mudah membusuk. Bisa diolah menjadi kompos."
-                t2.text = "🧴 Sampah Anorganik"
-                p2.text = "Sampah anorganik berasal dari bahan non-hayati (plastik, kaca). Butuh ratusan tahun untuk terurai."
-                t3.text = "📌 Pemilahan"
-                c3.text = "Memisahkan sampah sejak dari rumah memudahkan proses daur ulang."
-            }
-            2 -> {
-                judul.text = "Konsep 3R (Reduce, Reuse, Recycle)"
-                img.setImageResource(R.drawable.img_sampah)
-                t1.text = "♻️ Mengenal 3R"
-                m1.text = "Reduce (Mengurangi), Reuse (Gunakan kembali), Recycle (Daur ulang) adalah pilar pengelolaan sampah modern."
-                t2.text = "📉 Reduce & Reuse"
-                p2.text = "Kurangi pemakaian barang sekali pakai dan gunakan kembali barang yang masih layak."
-                t3.text = "🛠️ Recycle"
-                c3.text = "Mengolah sampah menjadi produk baru yang bernilai guna."
-            }
-            3 -> {
-                judul.text = "Bahaya Sampah Plastik"
-                img.setImageResource(R.drawable.img_sampah)
-                t1.text = "🚫 Ancaman Plastik"
-                m1.text = "Plastik sulit hancur dan sering berakhir di laut, mengancam ekosistem dan kesehatan hewan laut."
-                t2.text = "🧬 Mikroplastik"
-                p2.text = "Plastik yang hancur menjadi butiran kecil (mikroplastik) bisa masuk ke rantai makanan manusia."
-                t3.text = "✅ Solusi"
-                c3.text = "Gunakan tas belanja kain dan botol minum sendiri (tumbler)."
-            }
-        }
-    }
+    private fun loadLegacyMateri(index: Int) {
+        val tvJudulUtama = view?.findViewById<TextView>(R.id.tvJudulUtama) ?: return
+        val imgMateri = view?.findViewById<ImageView>(R.id.imgMateri) ?: return
+        val tvIsiTitle = view?.findViewById<TextView>(R.id.tvIsiTitle) ?: return
+        val tvIsiMateri = view?.findViewById<TextView>(R.id.tvIsiMateri) ?: return
+        val tvPentingTitle = view?.findViewById<TextView>(R.id.tvPentingTitle) ?: return
+        val tvPenting = view?.findViewById<TextView>(R.id.tvPenting) ?: return
+        val tvContohTitle = view?.findViewById<TextView>(R.id.tvContohTitle) ?: return
+        val tvContoh = view?.findViewById<TextView>(R.id.tvContoh) ?: return
 
-    private fun loadLevel3Materi(index: Int, judul: TextView, img: ImageView, t1: TextView, m1: TextView, t2: TextView, p2: TextView, t3: TextView, c3: TextView) {
         when (index) {
             1 -> {
-                judul.text = "Konservasi Air Bersih"
-                img.setImageResource(R.drawable.img_air)
-                t1.text = "🌊 Krisis Air"
-                m1.text = "Hanya sebagian kecil air di bumi yang layak dikonsumsi. Pencemaran memperburuk krisis air bersih."
-                t2.text = "🛡️ Perlindungan Sumber Air"
-                p2.text = "Menjaga hutan dan sungai adalah kunci menjaga cadangan air tanah kita."
-                t3.text = "🌱 Peran Kita"
-                c3.text = "Menanam pohon membantu tanah menyerap air hujan lebih baik."
-            }
-            2 -> {
-                judul.text = "Siklus Air & Keberlanjutan"
-                img.setImageResource(R.drawable.img_air)
-                t1.text = "☁️ Bagaimana Air Berputar?"
-                m1.text = "Air menguap, menjadi awan, dan jatuh sebagai hujan. Gangguan pada alam merusak siklus alami ini."
-                t2.text = "🌡️ Perubahan Iklim"
-                p2.text = "Pemanasan global mengubah pola hujan, menyebabkan banjir atau kekeringan ekstrem."
-                t3.text = "🔄 Re-use Air"
-                c3.text = "Air bekas cucian beras bisa digunakan untuk menyiram tanaman."
-            }
-            3 -> {
-                judul.text = "Teknik Hemat Air Lanjutan"
-                img.setImageResource(R.drawable.img_air)
-                t1.text = "🛁 Mandi Pintar"
-                m1.text = "Gunakan shower daripada gayung untuk menghemat hingga 50% air setiap kali mandi."
-                t2.text = "🧺 Cuci Efisien"
-                p2.text = "Cucilah pakaian saat mesin cuci penuh untuk meminimalisir pembuangan air."
-                t3.text = "🚰 Cek Kebocoran"
-                c3.text = "Satu tetes air per detik dari keran bocor bisa membuang ribuan liter air setahun."
+                tvJudulUtama.text = "Dasar : Peduli Lingkungan"
+                imgMateri.setImageResource(R.drawable.img_lingkungan)
+                tvIsiTitle.text = "🌿 Apa itu Peduli Lingkungan?"
+                tvIsiMateri.text = "Peduli lingkungan adalah sikap menjaga kebersihan serta kelestarian alam..."
+                tvPentingTitle.text = "🌍 Kenapa Penting?"
+                tvPenting.text = "Lingkungan bersih memberikan udara segar dan air bersih..."
+                tvContohTitle.text = "♻️ Contoh Perilaku"
+                tvContoh.text = "• Buang sampah pada tempatnya\n• Hemat listrik\n• Kurangi plastik"
             }
         }
     }
@@ -204,5 +267,11 @@ class MateriFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
+        updateButtonStatus()
+    }
+
+    override fun onDestroyView() {
+        countDownTimer?.cancel()
+        super.onDestroyView()
     }
 }
