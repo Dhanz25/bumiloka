@@ -46,7 +46,6 @@ class AdminRepository {
                 val list = mutableListOf<Kuis>()
                 snapshot.children.forEach { child ->
                     try {
-                        // Cek apakah child adalah sebuah object (bukan String)
                         if (child.value is Map<*, *>) {
                             child.getValue(Kuis::class.java)?.let {
                                 it.id = child.key ?: ""
@@ -64,9 +63,47 @@ class AdminRepository {
     }
 
     fun saveKuis(kuis: Kuis, onComplete: (Boolean) -> Unit) {
-        val ref = if (kuis.id.isEmpty()) db.child("kuis").push() else db.child("kuis").child(kuis.id)
-        if (kuis.id.isEmpty()) kuis.id = ref.key ?: ""
-        ref.setValue(kuis).addOnCompleteListener { onComplete(it.isSuccessful) }
+        val kuisId = if (kuis.id.isEmpty()) db.child("kuis").push().key ?: "" else kuis.id
+        kuis.id = kuisId
+        
+        val updates = HashMap<String, Any>()
+        updates["id"] = kuis.id
+        updates["edukasiId"] = kuis.edukasiId
+        updates["judul"] = kuis.judul
+        updates["deskripsi"] = kuis.deskripsi
+        updates["level"] = kuis.level
+        updates["imageUrl"] = kuis.imageUrl
+        updates["poinReward"] = kuis.poinReward
+        updates["aktif"] = kuis.aktif
+        updates["createdAt"] = kuis.createdAt
+
+        db.child("kuis").child(kuisId).updateChildren(updates).addOnCompleteListener { onComplete(it.isSuccessful) }
+    }
+
+    fun saveKuisLengkap(kuis: Kuis, soalList: List<SoalKuis>, onComplete: (Boolean) -> Unit) {
+        val kuisId = if (kuis.id.isEmpty()) db.child("kuis").push().key ?: "" else kuis.id
+        kuis.id = kuisId
+        
+        val updates = HashMap<String, Any>()
+        updates["id"] = kuis.id
+        updates["edukasiId"] = kuis.edukasiId
+        updates["judul"] = kuis.judul
+        updates["deskripsi"] = kuis.deskripsi
+        updates["level"] = kuis.level
+        updates["imageUrl"] = kuis.imageUrl
+        updates["poinReward"] = kuis.poinReward
+        updates["aktif"] = kuis.aktif
+        updates["createdAt"] = kuis.createdAt
+
+        val soalMap = HashMap<String, Any>()
+        soalList.forEachIndexed { index, soal ->
+            val soalId = if (soal.id.isEmpty()) "soal_${index + 1}" else soal.id
+            soal.id = soalId
+            soalMap[soalId] = soal
+        }
+        updates["soal"] = soalMap
+
+        db.child("kuis").child(kuisId).updateChildren(updates).addOnCompleteListener { onComplete(it.isSuccessful) }
     }
 
     fun deleteKuis(id: String, onComplete: (Boolean) -> Unit) {
@@ -110,13 +147,11 @@ class AdminRepository {
     fun getStatistik(onResult: (Map<String, Long>) -> Unit) {
         val stats = mutableMapOf<String, Long>()
         val nodes = listOf("edukasi", "kuis", "users", "tantangan")
-        var count = 0
         nodes.forEach { node ->
             db.child(node).addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     stats[node] = snapshot.childrenCount
                     
-                    // Specific logic for "soal" - it's nested in kuis
                     if (node == "kuis") {
                         var totalSoal = 0L
                         snapshot.children.forEach { kuisChild ->
@@ -125,7 +160,7 @@ class AdminRepository {
                         stats["soal"] = totalSoal
                     }
 
-                    if (stats.size >= 5) { // edukasi, kuis, users, tantangan, soal
+                    if (stats.size >= 4) {
                         onResult(stats)
                     }
                 }

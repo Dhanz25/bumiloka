@@ -43,6 +43,10 @@ class AdminViewModel : ViewModel() {
         repository.saveKuis(kuis, onComplete)
     }
 
+    fun saveKuisLengkap(kuis: Kuis, soalList: List<SoalKuis>, onComplete: (Boolean) -> Unit) {
+        repository.saveKuisLengkap(kuis, soalList, onComplete)
+    }
+
     fun deleteKuis(id: String, onComplete: (Boolean) -> Unit) {
         repository.deleteKuis(id, onComplete)
     }

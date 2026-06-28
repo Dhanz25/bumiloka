@@ -11,8 +11,7 @@ import com.faiz.bumiloka.model.Kuis
 
 class AdminKuisAdapter(
     private val onEdit: (Kuis) -> Unit,
-    private val onDelete: (Kuis) -> Unit,
-    private val onManageSoal: (Kuis) -> Unit
+    private val onDelete: (Kuis) -> Unit
 ) : RecyclerView.Adapter<AdminKuisAdapter.ViewHolder>() {
 
     private var list = listOf<Kuis>()
@@ -39,7 +38,6 @@ class AdminKuisAdapter(
                 popup.menuInflater.inflate(R.menu.menu_admin_kuis, popup.menu)
                 popup.setOnMenuItemClickListener { menuItem ->
                     when (menuItem.itemId) {
-                        R.id.action_manage_soal -> onManageSoal(item)
                         R.id.action_edit -> onEdit(item)
                         R.id.action_delete -> onDelete(item)
                     }
@@ -48,7 +46,7 @@ class AdminKuisAdapter(
                 popup.show()
             }
             
-            binding.root.setOnClickListener { onManageSoal(item) }
+            binding.root.setOnClickListener { onEdit(item) }
         }
     }
 

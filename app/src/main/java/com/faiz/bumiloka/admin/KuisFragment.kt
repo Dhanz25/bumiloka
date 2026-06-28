@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -34,7 +33,6 @@ class KuisFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
-        setupSearchView()
         observeViewModel()
 
         binding.fabTambahKuis.setOnClickListener {
@@ -47,34 +45,16 @@ class KuisFragment : Fragment() {
     private fun setupRecyclerView() {
         adapter = AdminKuisAdapter(
             onEdit = { navigateToTambah(it) },
-            onDelete = { showDeleteConfirmation(it) },
-            onManageSoal = { kuis ->
-                val fragment = KelolaSoalFragment().apply {
-                    arguments = Bundle().apply {
-                        putString("kuisId", kuis.id)
-                        putString("kuisJudul", kuis.judul)
-                    }
-                }
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, fragment)
-                    .addToBackStack(null)
-                    .commit()
-            }
+            onDelete = { showDeleteConfirmation(it) }
         )
         binding.rvKuis.layoutManager = LinearLayoutManager(requireContext())
         binding.rvKuis.adapter = adapter
-    }
-
-    private fun setupSearchView() {
-        // Since fragment_kuis might not have a SearchView yet, I should check or add it.
-        // I'll assume I should update fragment_kuis.xml to include search like Edukasi.
     }
 
     private fun observeViewModel() {
         viewModel.kuisList.observe(viewLifecycleOwner) { list ->
             fullList = list.sortedByDescending { it.createdAt }
             adapter.submitList(fullList)
-            // tvEmpty is tvTitleKuis in original layout, better to update layout
             binding.tvTitleKuis.visibility = if (fullList.isEmpty()) View.VISIBLE else View.GONE
         }
     }
@@ -106,7 +86,9 @@ class KuisFragment : Fragment() {
                     putString("deskripsi", it.deskripsi)
                     putString("imageUrl", it.imageUrl)
                     putInt("poinReward", it.poinReward)
+                    putInt("level", it.level)
                     putBoolean("aktif", it.aktif)
+                    putLong("createdAt", it.createdAt)
                 }
             }
         }

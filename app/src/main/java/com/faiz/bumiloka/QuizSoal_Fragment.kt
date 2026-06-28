@@ -1,14 +1,16 @@
 package com.faiz.bumiloka
 
 import android.app.AlertDialog
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
+import com.faiz.bumiloka.model.SoalKuis
 
 class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
 
@@ -16,20 +18,22 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
     private var skor = 0
     private var sudahPilih = false
     private var selectedAnswer = -1
+    private var kuisId: String? = null
 
     private lateinit var tvQuestion: TextView
     private lateinit var tvNumber: TextView
     private lateinit var options: List<TextView>
     private lateinit var btnNext: Button
+    private lateinit var progressBar: ProgressBar
     
     private var questions: List<Question> = listOf()
 
     companion object {
-        private const val ARG_MATERI_ID = "materi_id"
-        fun newInstance(materiId: Int): QuizSoalFragment {
+        fun newInstance(kuisId: String, level: Int = 1): QuizSoalFragment {
             val fragment = QuizSoalFragment()
             val args = Bundle()
-            args.putInt(ARG_MATERI_ID, materiId)
+            args.putString("KUIS_ID", kuisId)
+            args.putInt("LEVEL", level)
             fragment.arguments = args
             return fragment
         }
@@ -40,15 +44,14 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
 
         requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
 
-        val materiId = arguments?.getInt("materi_id") ?: 1
+        kuisId = arguments?.getString("KUIS_ID")
         val level = arguments?.getInt("LEVEL") ?: 1
-        
-        setupQuestions(level, materiId)
 
         val toolbar = view.findViewById<MaterialToolbar>(R.id.toolbar)
         btnNext = view.findViewById(R.id.btnNext)
         tvQuestion = view.findViewById(R.id.tvQuestion)
         tvNumber = view.findViewById(R.id.tvNumber)
+        progressBar = view.findViewById(R.id.progress_bar)
 
         options = listOf(
             view.findViewById(R.id.option1),
@@ -60,7 +63,12 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
         toolbar.setNavigationOnClickListener { showExitDialog() }
         btnNext.isEnabled = false
 
-        loadQuestion()
+        if (kuisId != null) {
+            fetchSoalFromFirebase(kuisId!!)
+        } else {
+            Toast.makeText(requireContext(), "ID Kuis tidak ditemukan", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.popBackStack()
+        }
 
         btnNext.setOnClickListener {
             if (sudahPilih) {
@@ -71,80 +79,55 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
                 if (currentQuestion < questions.size) {
                     loadQuestion()
                 } else {
-                    pindahKeHasil(level, materiId)
+                    pindahKeHasil(level)
                 }
             }
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
-    }
+    private fun fetchSoalFromFirebase(id: String) {
+        progressBar.visibility = View.VISIBLE
+        val db = FirebaseDatabase.getInstance().getReference("kuis").child(id).child("soal")
+        
+        db.get().addOnSuccessListener { snapshot ->
+            progressBar.visibility = View.GONE
+            val listSoal = mutableListOf<Question>()
+            
+            snapshot.children.forEach { child ->
+                val s = child.getValue(SoalKuis::class.java)
+                s?.let {
+                    val opsi = listOf(it.opsiA, it.opsiB, it.opsiC, it.opsiD)
+                    val correctIndex = when (it.jawabanBenar.uppercase()) {
+                        "A" -> 0
+                        "B" -> 1
+                        "C" -> 2
+                        "D" -> 3
+                        else -> 0
+                    }
+                    listSoal.add(Question(it.pertanyaan, opsi, correctIndex))
+                }
+            }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
-    }
-
-    private fun setupQuestions(level: Int, index: Int) {
-        questions = when (level) {
-            1 -> getLevel1Questions(index)
-            2 -> getLevel2Questions(index)
-            3 -> getLevel3Questions(index)
-            else -> getLevel1Questions(index)
+            if (listSoal.isNotEmpty()) {
+                questions = listSoal
+                loadQuestion()
+            } else {
+                Toast.makeText(requireContext(), "Kuis ini belum memiliki soal", Toast.LENGTH_SHORT).show()
+                parentFragmentManager.popBackStack()
+            }
+        }.addOnFailureListener {
+            progressBar.visibility = View.GONE
+            Toast.makeText(requireContext(), "Gagal memuat kuis", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun getLevel1Questions(index: Int): List<Question> {
-        return listOf(
-            Question("Apa tindakan paling tepat untuk menjaga kebersihan lingkungan?", listOf("Membuang sampah pada tempatnya", "Membuang sampah ke sungai", "Membakar semua sampah", "Membiarkan sampah menumpuk"), 0),
-            Question("Mengapa kita perlu menanam pohon?", listOf("Untuk menambah polusi", "Untuk menghasilkan oksigen", "Untuk mengurangi udara segar", "Untuk mempercepat pemanasan global"), 1),
-            Question("Apa yang sebaiknya dilakukan dengan sampah plastik?", listOf("Dibuang ke laut", "Didaur ulang", "Dibakar sembarangan", "Dibiarkan menumpuk"), 1),
-            Question("Cara sederhana menghemat listrik di rumah adalah?", listOf("Menyalakan semua lampu", "Mematikan alat listrik saat tidak digunakan", "Membiarkan TV menyala terus", "Menggunakan listrik tanpa batas"), 1),
-            Question("Apa dampak membuang sampah sembarangan?", listOf("Lingkungan menjadi bersih", "Terjadi banjir dan pencemaran", "Udara menjadi segar", "Tidak ada dampak"), 1),
-            Question("Mengapa kita harus menghemat air?", listOf("Agar air cepat habis", "Agar tersedia untuk masa depan", "Supaya bisa boros", "Agar tidak digunakan orang lain"), 1),
-            Question("Apa yang dimaksud dengan daur ulang?", listOf("Membuang sampah", "Mengolah kembali sampah menjadi barang baru", "Membakar sampah", "Menimbun sampah"), 1),
-            Question("Contoh energi terbarukan adalah?", listOf("Batu bara", "Minyak bumi", "Energi matahari", "Gas alam"), 2),
-            Question("Bagaimana cara menjaga kebersihan sekolah?", listOf("Membuang sampah sembarangan", "Membersihkan kelas secara rutin", "Merusak fasilitas sekolah", "Mencoret-coret dinding"), 1),
-            Question("Cara mengurangi penggunaan plastik adalah?", listOf("Menggunakan plastik sekali pakai", "Membawa tas belanja sendiri", "Membuang plastik sembarangan", "Membakar plastik"), 1)
-        )
-    }
-
-    private fun getLevel2Questions(index: Int): List<Question> {
-        return listOf(
-            Question("Manakah yang termasuk sampah organik?", listOf("Botol plastik", "Sisa sayuran", "Kaleng bekas", "Kaca pecah"), 1),
-            Question("Sampah anorganik sebaiknya dikelola dengan cara?", listOf("Dikubur dalam tanah", "Dibuat kompos", "Didaur ulang", "Dibiarkan saja"), 2),
-            Question("Konsep Reduce dalam 3R berarti?", listOf("Mengurangi penggunaan barang sekali pakai", "Menggunakan kembali barang bekas", "Mendaur ulang sampah", "Membeli barang baru"), 0),
-            Question("Berapa lama waktu yang dibutuhkan plastik untuk terurai?", listOf("1 tahun", "10 tahun", "Ratusan tahun", "Tidak pernah terurai"), 2),
-            Question("Apa manfaat memilah sampah dari rumah?", listOf("Memperbanyak sampah", "Memudahkan proses daur ulang", "Membuat rumah kotor", "Tidak ada manfaat"), 1),
-            Question("Sampah kertas termasuk jenis sampah?", listOf("Organik", "Anorganik", "B3", "Cair"), 1),
-            Question("Mengapa kita harus menghindari membakar sampah plastik?", listOf("Menghasilkan asap harum", "Melepaskan zat beracun ke udara", "Plastik tidak bisa terbakar", "Membuat plastik awet"), 1),
-            Question("Reusable bag digunakan untuk menggantikan?", listOf("Tas kain", "Plastik sekali pakai", "Kardus", "Karung"), 1),
-            Question("Sampah B3 (Bahan Berbahaya dan Beracun) contohnya adalah?", listOf("Kulit pisang", "Baterai bekas", "Kertas koran", "Botol minum"), 1),
-            Question("Apa tujuan utama dari pengelolaan sampah yang baik?", listOf("Memperindah kota", "Mencegah pencemaran lingkungan", "Mencari keuntungan", "Membuang waktu"), 1)
-        )
-    }
-
-    private fun getLevel3Questions(index: Int): List<Question> {
-        return listOf(
-            Question("Mengapa air bersih disebut sumber daya yang terbatas?", listOf("Karena air sangat banyak di laut", "Karena air tawar yang bisa diminum jumlahnya sedikit", "Karena air tidak pernah habis", "Karena air mudah dibuat"), 1),
-            Question("Tindakan hemat air saat mencuci tangan adalah?", listOf("Membiarkan keran mengalir terus", "Menutup keran saat menyabuni tangan", "Menggunakan air sebanyak-banyaknya", "Mencuci di sungai"), 1),
-            Question("Apa fungsi menanam pohon bagi ketersediaan air?", listOf("Menghabiskan air tanah", "Membantu tanah menyerap air hujan", "Menghalangi air hujan", "Membuat tanah kering"), 1),
-            Question("Satu tetes air per detik dari keran bocor bisa membuang air sebanyak?", listOf("1 liter setahun", "10 liter setahun", "Ribuan liter setahun", "Tidak berpengaruh"), 2),
-            Question("Manakah cara mandi yang lebih hemat air?", listOf("Menggunakan gayung", "Menggunakan shower", "Berendam di bathtub", "Mandi di kolam"), 1),
-            Question("Air bekas cucian beras sebaiknya digunakan untuk?", listOf("Dibuang ke selokan", "Menyiram tanaman", "Mencuci baju", "Memasak lagi"), 1),
-            Question("Apa dampak krisis air bersih bagi kesehatan?", listOf("Kulit menjadi bersih", "Meningkatkan risiko penyakit pencernaan", "Tidak ada dampak", "Tubuh lebih segar"), 1),
-            Question("Kapan waktu terbaik menyiram tanaman agar air tidak mudah menguap?", listOf("Siang hari terik", "Pagi atau sore hari", "Malam hari gelap", "Setiap jam"), 1),
-            Question("Pencemaran air sungai paling banyak disebabkan oleh?", listOf("Ikan", "Limbah industri dan rumah tangga", "Pasir", "Tanaman air"), 1),
-            Question("Menggunakan air secukupnya saat mencuci kendaraan adalah bentuk?", listOf("Pemborosan", "Konservasi air", "Ketidaksengajaan", "Kebetulan"), 1)
-        )
-    }
-
     private fun loadQuestion() {
+        if (questions.isEmpty()) return
+        
         val q = questions[currentQuestion]
-        tvNumber.text = "Soal ${currentQuestion + 1}/10"
+        tvNumber.text = "Soal ${currentQuestion + 1}/${questions.size}"
         tvQuestion.text = q.question
+        
         for (i in options.indices) {
             options[i].text = "${('A' + i)}. ${q.options[i]}"
             options[i].setBackgroundResource(R.drawable.bg_option)
@@ -163,13 +146,17 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
         btnNext.isEnabled = true
     }
 
-    private fun pindahKeHasil(level: Int, index: Int) {
+    private fun pindahKeHasil(level: Int) {
+        val totalSoal = questions.size
+        // Menghitung skor akhir dalam skala 0-100
+        val finalScore = if (totalSoal > 0) (skor.toDouble() / (totalSoal * 10) * 100).toInt() else 0
+        
         val bundle = Bundle().apply {
             putInt("BENAR", skor / 10)
-            putInt("SALAH", 10 - (skor / 10))
-            putInt("SKOR", skor)
-            putString("QUIZ_TYPE", "QUIZ$index")
-            putAll(arguments ?: Bundle())
+            putInt("SALAH", totalSoal - (skor / 10))
+            putInt("SKOR", finalScore)
+            putString("KUIS_ID", kuisId)
+            putInt("LEVEL", level)
         }
 
         val fragment = QuizMenang1Fragment()
