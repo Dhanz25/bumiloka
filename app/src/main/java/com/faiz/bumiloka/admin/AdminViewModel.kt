@@ -7,6 +7,7 @@ import com.faiz.bumiloka.data.repository.AdminRepository
 import com.faiz.bumiloka.model.Edukasi
 import com.faiz.bumiloka.model.Kuis
 import com.faiz.bumiloka.model.SoalKuis
+import com.faiz.bumiloka.model.Tantangan
 
 class AdminViewModel : ViewModel() {
     private val repository = AdminRepository()
@@ -16,6 +17,9 @@ class AdminViewModel : ViewModel() {
 
     private val _kuisList = MutableLiveData<List<Kuis>>()
     val kuisList: LiveData<List<Kuis>> = _kuisList
+
+    private val _tantanganList = MutableLiveData<List<Tantangan>>()
+    val tantanganList: LiveData<List<Tantangan>> = _tantanganList
 
     private val _soalList = MutableLiveData<List<SoalKuis>>()
     val soalList: LiveData<List<SoalKuis>> = _soalList
@@ -49,6 +53,18 @@ class AdminViewModel : ViewModel() {
 
     fun deleteKuis(id: String, onComplete: (Boolean) -> Unit) {
         repository.deleteKuis(id, onComplete)
+    }
+
+    fun fetchTantangan() {
+        repository.getTantangan { _tantanganList.postValue(it) }
+    }
+
+    fun saveTantangan(tantangan: Tantangan, onComplete: (Boolean) -> Unit) {
+        repository.saveTantangan(tantangan, onComplete)
+    }
+
+    fun deleteTantangan(id: String, onComplete: (Boolean) -> Unit) {
+        repository.deleteTantangan(id, onComplete)
     }
 
     fun fetchSoal(kuisId: String) {

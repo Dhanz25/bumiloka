@@ -2,6 +2,7 @@ package com.faiz.bumiloka.model
 
 data class Edukasi(
     var id: String = "",
+    var kuisId: String = "", // Menghubungkan ke Kuis tertentu
     var level: Int = 1,
     var title: String = "",
     var description: String = "",

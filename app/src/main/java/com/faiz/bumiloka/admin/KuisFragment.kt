@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -32,7 +33,11 @@ class KuisFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        
+        binding.toolbar.setNavigationOnClickListener { parentFragmentManager.popBackStack() }
+        
         setupRecyclerView()
+        setupSearchView()
         observeViewModel()
 
         binding.fabTambahKuis.setOnClickListener {
@@ -51,11 +56,41 @@ class KuisFragment : Fragment() {
         binding.rvKuis.adapter = adapter
     }
 
+    private fun setupSearchView() {
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                filterList(query)
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                filterList(newText)
+                return true
+            }
+        })
+    }
+
+    private fun filterList(query: String?) {
+        val filtered = if (query.isNullOrBlank()) {
+            fullList
+        } else {
+            fullList.filter { it.judul.contains(query, ignoreCase = true) }
+        }
+        adapter.submitList(filtered)
+        binding.layoutEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+    }
+
     private fun observeViewModel() {
         viewModel.kuisList.observe(viewLifecycleOwner) { list ->
             fullList = list.sortedByDescending { it.createdAt }
-            adapter.submitList(fullList)
-            binding.tvTitleKuis.visibility = if (fullList.isEmpty()) View.VISIBLE else View.GONE
+            val currentQuery = binding.searchView.query.toString()
+            if (currentQuery.isEmpty()) {
+                adapter.submitList(fullList)
+                binding.layoutEmpty.visibility = if (fullList.isEmpty()) View.VISIBLE else View.GONE
+                binding.rvKuis.visibility = if (fullList.isEmpty()) View.GONE else View.VISIBLE
+            } else {
+                filterList(currentQuery)
+            }
         }
     }
 

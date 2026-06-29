@@ -2,12 +2,15 @@ package com.faiz.bumiloka
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.util.Base64
 import android.view.View
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.firebase.database.FirebaseDatabase
 import com.faiz.bumiloka.model.SoalKuis
@@ -22,6 +25,7 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
 
     private lateinit var tvQuestion: TextView
     private lateinit var tvNumber: TextView
+    private lateinit var ivQuestionImage: ImageView
     private lateinit var options: List<TextView>
     private lateinit var btnNext: Button
     private lateinit var progressBar: ProgressBar
@@ -51,6 +55,7 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
         btnNext = view.findViewById(R.id.btnNext)
         tvQuestion = view.findViewById(R.id.tvQuestion)
         tvNumber = view.findViewById(R.id.tvNumber)
+        ivQuestionImage = view.findViewById(R.id.ivQuestionImage)
         progressBar = view.findViewById(R.id.progress_bar)
 
         options = listOf(
@@ -90,6 +95,7 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
         val db = FirebaseDatabase.getInstance().getReference("kuis").child(id).child("soal")
         
         db.get().addOnSuccessListener { snapshot ->
+            if (!isAdded) return@addOnSuccessListener
             progressBar.visibility = View.GONE
             val listSoal = mutableListOf<Question>()
             
@@ -104,7 +110,7 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
                         "D" -> 3
                         else -> 0
                     }
-                    listSoal.add(Question(it.pertanyaan, opsi, correctIndex))
+                    listSoal.add(Question(it.pertanyaan, opsi, correctIndex, it.imageUrl))
                 }
             }
 
@@ -116,8 +122,10 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
                 parentFragmentManager.popBackStack()
             }
         }.addOnFailureListener {
-            progressBar.visibility = View.GONE
-            Toast.makeText(requireContext(), "Gagal memuat kuis", Toast.LENGTH_SHORT).show()
+            if (isAdded) {
+                progressBar.visibility = View.GONE
+                Toast.makeText(requireContext(), "Gagal memuat kuis", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -128,6 +136,28 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
         tvNumber.text = "Soal ${currentQuestion + 1}/${questions.size}"
         tvQuestion.text = q.question
         
+        // Handle Image
+        if (!q.imageUrl.isNullOrEmpty()) {
+            ivQuestionImage.visibility = View.VISIBLE
+            if (q.imageUrl.length > 100) {
+                try {
+                    val imageBytes = Base64.decode(q.imageUrl, Base64.DEFAULT)
+                    Glide.with(this)
+                        .asBitmap()
+                        .load(imageBytes)
+                        .placeholder(R.drawable.img_lingkungan)
+                        .into(ivQuestionImage)
+                } catch (e: Exception) {
+                    ivQuestionImage.setImageResource(R.drawable.img_lingkungan)
+                }
+            } else {
+                val resId = resources.getIdentifier(q.imageUrl, "drawable", requireContext().packageName)
+                ivQuestionImage.setImageResource(if (resId != 0) resId else R.drawable.img_lingkungan)
+            }
+        } else {
+            ivQuestionImage.visibility = View.GONE
+        }
+
         for (i in options.indices) {
             options[i].text = "${('A' + i)}. ${q.options[i]}"
             options[i].setBackgroundResource(R.drawable.bg_option)
@@ -148,7 +178,6 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
 
     private fun pindahKeHasil(level: Int) {
         val totalSoal = questions.size
-        // Menghitung skor akhir dalam skala 0-100
         val finalScore = if (totalSoal > 0) (skor.toDouble() / (totalSoal * 10) * 100).toInt() else 0
         
         val bundle = Bundle().apply {
@@ -157,6 +186,13 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
             putInt("SKOR", finalScore)
             putString("KUIS_ID", kuisId)
             putInt("LEVEL", level)
+            
+            // Pass metadata tantangan jika ada
+            arguments?.getString("challenge_id")?.let { putString("challenge_id", it) }
+            arguments?.getString("badge_id")?.let { putString("badge_id", it) }
+            arguments?.getString("quiz_id")?.let { putString("quiz_id", it) }
+            arguments?.getString("materi_id")?.let { putString("materi_id", it) }
+            arguments?.getBoolean("IS_TANTANGAN_BONUS")?.let { putBoolean("IS_TANTANGAN_BONUS", it) }
         }
 
         val fragment = QuizMenang1Fragment()
@@ -179,5 +215,10 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
         dialog.show()
     }
 
-    data class Question(val question: String, val options: List<String>, val correctAnswer: Int)
+    data class Question(
+        val question: String,
+        val options: List<String>,
+        val correctAnswer: Int,
+        val imageUrl: String? = null
+    )
 }

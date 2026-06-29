@@ -1,11 +1,14 @@
 package com.faiz.bumiloka.adapters
 
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.faiz.bumiloka.BadgeHelper
 import com.faiz.bumiloka.R
 import com.faiz.bumiloka.TantanganStatusHelper
@@ -19,6 +22,7 @@ class TantanganBonusAdapter(
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvJudul: TextView = view.findViewById(R.id.tvJudulBonus)
         val tvDeskripsi: TextView = view.findViewById(R.id.tvDeskripsiBonus)
+        val ivBanner: ImageView = view.findViewById(R.id.ivBannerBonus)
         val btnAksi: Button = view.findViewById(R.id.btnAksiBonus)
     }
 
@@ -34,17 +38,50 @@ class TantanganBonusAdapter(
 
         holder.tvJudul.text = item.judul
         holder.tvDeskripsi.text = item.deskripsi
+        
+        // Pemuatan Gambar
+        if (item.imageUrl.isNotEmpty()) {
+            when {
+                item.imageUrl.startsWith("http") -> {
+                    Glide.with(context)
+                        .load(item.imageUrl)
+                        .placeholder(R.drawable.img_lingkungan)
+                        .error(R.drawable.img_lingkungan)
+                        .into(holder.ivBanner)
+                }
+                item.imageUrl.length > 100 -> {
+                    try {
+                        val imageBytes = Base64.decode(item.imageUrl, Base64.DEFAULT)
+                        Glide.with(context)
+                            .asBitmap()
+                            .load(imageBytes)
+                            .placeholder(R.drawable.img_lingkungan)
+                            .into(holder.ivBanner)
+                    } catch (e: Exception) {
+                        holder.ivBanner.setImageResource(R.drawable.img_lingkungan)
+                    }
+                }
+                else -> {
+                    val resId = context.resources.getIdentifier(item.imageUrl, "drawable", context.packageName)
+                    if (resId != 0) {
+                        holder.ivBanner.setImageResource(resId)
+                    } else {
+                        holder.ivBanner.setImageResource(R.drawable.img_lingkungan)
+                    }
+                }
+            }
+        } else {
+            holder.ivBanner.setImageResource(R.drawable.img_lingkungan)
+        }
 
-        val isSelesai = TantanganStatusHelper.isTantanganBonusSelesai(context, item.materiId, item.quizId)
+        // Cek status selesai menggunakan String IDs
+        val isSelesai = TantanganStatusHelper.isTantanganSelesai(context, item.id)
 
         if (isSelesai) {
             holder.btnAksi.text = "Selesai ✓"
             holder.btnAksi.isEnabled = false
-            
-            // Berikan badge jika belum punya
-            // Karena badgeId sekarang Int, kita cek != 0 dan convert ke String untuk BadgeHelper
-            if (item.badgeId != 0 && !BadgeHelper.punyaBadge(context, item.badgeId.toString())) {
-                BadgeHelper.tambahBadge(context, item.badgeId.toString())
+            if (item.badgeId.isNotEmpty() && !BadgeHelper.punyaBadge(context, item.badgeId)) {
+                BadgeHelper.tambahBadge(context, item.badgeId)
             }
         } else {
             holder.btnAksi.text = "Mulai"

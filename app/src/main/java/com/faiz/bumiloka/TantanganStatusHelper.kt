@@ -27,7 +27,14 @@ object TantanganStatusHelper {
             .getBoolean("tantangan_selesai", false)
     }
 
-    fun isTantanganBonusSelesai(context: Context, materiId: Int, quizId: Int): Boolean {
+    fun isTantanganSelesai(context: Context, challengeId: String): Boolean {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+        val prefs = context.getSharedPreferences("TANTANGAN_STATUS_$userId", Context.MODE_PRIVATE)
+        return prefs.getBoolean("challenge_${challengeId}_selesai", false)
+    }
+
+    // Legacy support for Int IDs if needed, but updated to handle String IDs primarily
+    fun isTantanganBonusSelesai(context: Context, materiId: String, quizId: String): Boolean {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
         val bonusPrefs = context.getSharedPreferences("BONUS_CHALLENGES_$userId", Context.MODE_PRIVATE)
         
@@ -35,15 +42,15 @@ object TantanganStatusHelper {
         val quizSelesai = bonusPrefs.getBoolean("quiz_${quizId}_selesai", false)
         val nilaiQuiz = bonusPrefs.getInt("quiz_${quizId}_nilai", 0)
 
-        return materiSelesai && quizSelesai && nilaiQuiz >= 75
+        return (materiSelesai && quizSelesai && nilaiQuiz >= 75) || isTantanganSelesai(context, materiId)
     }
 
-    fun setTantanganBonusSelesai(context: Context, challengeId: String, materiId: Int, quizId: Int, skor: Int) {
+    fun setTantanganSelesai(context: Context, challengeId: String, materiId: String, quizId: String, skor: Int) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         
         // Simpan Lokal
-        val bonusPrefs = context.getSharedPreferences("BONUS_CHALLENGES_$userId", Context.MODE_PRIVATE)
-        bonusPrefs.edit()
+        val prefs = context.getSharedPreferences("TANTANGAN_STATUS_$userId", Context.MODE_PRIVATE)
+        prefs.edit()
             .putBoolean("challenge_${challengeId}_selesai", true)
             .putBoolean("materi_${materiId}_selesai", true)
             .putBoolean("quiz_${quizId}_selesai", true)
@@ -52,6 +59,6 @@ object TantanganStatusHelper {
 
         // Simpan Firebase
         val db = FirebaseDatabase.getInstance().reference.child("users").child(userId)
-        db.child("tantangan_bonus_selesai").child(challengeId).setValue(true)
+        db.child("tantangan_selesai").child(challengeId).setValue(true)
     }
 }

@@ -1,18 +1,34 @@
 package com.faiz.bumiloka.admin
 
+import android.app.Activity
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
+import com.faiz.bumiloka.R
 import com.faiz.bumiloka.adapters.SoalInputAdapter
 import com.faiz.bumiloka.databinding.FragmentTambahKuisBinding
+import com.faiz.bumiloka.model.Edukasi
 import com.faiz.bumiloka.model.Kuis
 import com.faiz.bumiloka.model.SoalKuis
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import java.io.ByteArrayOutputStream
+import java.io.InputStream
 
 class TambahKuisFragment : Fragment() {
 
@@ -21,6 +37,28 @@ class TambahKuisFragment : Fragment() {
     private val viewModel: AdminViewModel by viewModels()
     private var editId: String? = null
     private lateinit var soalAdapter: SoalInputAdapter
+    private var pendingPickImagePosition: Int = -1
+    private var quizImageUrl: String = ""
+    
+    private var selectedEdukasiId: String = ""
+    private val edukasiList = mutableListOf<Edukasi>()
+
+    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val imageUri: Uri? = result.data?.data
+            imageUri?.let { uri ->
+                val base64Image = uriToBase64(uri)
+                if (base64Image != null) {
+                    if (pendingPickImagePosition == -100) {
+                        quizImageUrl = base64Image
+                        displayQuizImage(quizImageUrl)
+                    } else if (pendingPickImagePosition != -1) {
+                        soalAdapter.updateImage(pendingPickImagePosition, base64Image)
+                    }
+                }
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,6 +76,7 @@ class TambahKuisFragment : Fragment() {
         setupLevelSpinner()
         setupRecyclerView()
         observeSoal()
+        fetchEdukasiList()
 
         arguments?.let { args ->
             editId = args.getString("id")
@@ -48,11 +87,19 @@ class TambahKuisFragment : Fragment() {
                 binding.etPoinReward.setText(args.getInt("poinReward").toString())
                 binding.spinnerLevel.setText(args.getInt("level", 1).toString(), false)
                 binding.switchAktif.isChecked = args.getBoolean("aktif", true)
-                binding.btnSave.text = "UPDATE KUIS & SOAL"
+                selectedEdukasiId = args.getString("edukasiId") ?: ""
                 
-                // Fetch existing questions for this quiz
+                quizImageUrl = args.getString("imageUrl") ?: ""
+                displayQuizImage(quizImageUrl)
+                
+                binding.btnSave.text = "UPDATE KUIS & SOAL"
                 viewModel.fetchSoal(editId!!)
             }
+        }
+
+        binding.btnPilihGambarKuis.setOnClickListener {
+            pendingPickImagePosition = -100 
+            openGallery()
         }
 
         binding.btnGenerateSoal.setOnClickListener {
@@ -78,9 +125,66 @@ class TambahKuisFragment : Fragment() {
         binding.btnSave.setOnClickListener { saveKuisLengkap() }
     }
 
+    private fun fetchEdukasiList() {
+        FirebaseDatabase.getInstance().reference.child("edukasi")
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (!isAdded) return
+                    edukasiList.clear()
+                    val titles = mutableListOf<String>()
+                    
+                    for (child in snapshot.children) {
+                        child.getValue(Edukasi::class.java)?.let {
+                            it.id = child.key ?: ""
+                            edukasiList.add(it)
+                            titles.add(it.title)
+                        }
+                    }
+
+                    val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, titles)
+                    binding.spinnerEdukasi.setAdapter(adapter)
+                    
+                    // Jika mode edit, set teks yang sesuai
+                    if (selectedEdukasiId.isNotEmpty()) {
+                        val currentEdu = edukasiList.find { it.id == selectedEdukasiId }
+                        currentEdu?.let { binding.spinnerEdukasi.setText(it.title, false) }
+                    }
+
+                    binding.spinnerEdukasi.setOnItemClickListener { _, _, position, _ ->
+                        selectedEdukasiId = edukasiList[position].id
+                    }
+                }
+                override fun onCancelled(error: DatabaseError) {}
+            })
+    }
+
+    private fun openGallery() {
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        pickImageLauncher.launch(intent)
+    }
+
+    private fun displayQuizImage(data: String) {
+        if (!isAdded) return
+        if (data.isEmpty()) {
+            binding.ivQuizPreview.setImageResource(R.drawable.img_lingkungan)
+            return
+        }
+        if (data.length > 100) {
+            try {
+                val imageBytes = Base64.decode(data, Base64.DEFAULT)
+                Glide.with(this).asBitmap().load(imageBytes).into(binding.ivQuizPreview)
+            } catch (e: Exception) {
+                binding.ivQuizPreview.setImageResource(R.drawable.img_lingkungan)
+            }
+        } else {
+            val resId = resources.getIdentifier(data, "drawable", requireContext().packageName)
+            binding.ivQuizPreview.setImageResource(if (resId != 0) resId else R.drawable.img_lingkungan)
+        }
+    }
+
     private fun observeSoal() {
         viewModel.soalList.observe(viewLifecycleOwner) { list ->
-            // If in edit mode and we received the list of questions
             if (editId != null && list.isNotEmpty() && soalAdapter.itemCount == 0) {
                 binding.etJumlahSoal.setText(list.size.toString())
                 binding.layoutSoalContainer.visibility = View.VISIBLE
@@ -91,7 +195,7 @@ class TambahKuisFragment : Fragment() {
     }
 
     private fun setupLevelSpinner() {
-        val levels = arrayOf("1", "2", "3", "4", "5")
+        val levels = arrayOf("1", "2", "3")
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, levels)
         binding.spinnerLevel.setAdapter(adapter)
         if (editId == null) {
@@ -100,10 +204,27 @@ class TambahKuisFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        soalAdapter = SoalInputAdapter()
+        soalAdapter = SoalInputAdapter { position ->
+            pendingPickImagePosition = position
+            openGallery()
+        }
         binding.rvSoalInput.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = soalAdapter
+        }
+    }
+
+    private fun uriToBase64(uri: Uri): String? {
+        return try {
+            val inputStream: InputStream? = requireContext().contentResolver.openInputStream(uri)
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+            val outputStream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 60, outputStream)
+            val byteArray = outputStream.toByteArray()
+            Base64.encodeToString(byteArray, Base64.DEFAULT)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 
@@ -113,6 +234,9 @@ class TambahKuisFragment : Fragment() {
         binding.etPoinReward.setText("100")
         binding.spinnerLevel.setText("1", false)
         binding.etJumlahSoal.setText("10")
+        
+        quizImageUrl = "img_sampah"
+        displayQuizImage(quizImageUrl)
 
         val templateSoal = listOf(
             SoalKuis(pertanyaan = "Apa yang dimaksud dengan sampah?", opsiA = "Barang yang sudah tidak terpakai", opsiB = "Barang yang selalu berguna", opsiC = "Makanan sehat", opsiD = "Air bersih", jawabanBenar = "A"),
@@ -144,17 +268,15 @@ class TambahKuisFragment : Fragment() {
             Toast.makeText(requireContext(), "Judul dan deskripsi wajib diisi", Toast.LENGTH_SHORT).show()
             return
         }
+        
+        if (selectedEdukasiId.isEmpty()) {
+            Toast.makeText(requireContext(), "Harap hubungkan dengan Materi Edukasi", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         val soalList = soalAdapter.getSoalList()
         if (soalList.isEmpty()) {
             Toast.makeText(requireContext(), "Harap generate soal terlebih dahulu", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val invalidSoal = soalList.find { it.pertanyaan.isEmpty() || it.opsiA.isEmpty() || it.opsiB.isEmpty() || it.jawabanBenar.isEmpty() }
-        
-        if (invalidSoal != null) {
-            Toast.makeText(requireContext(), "Harap lengkapi semua pertanyaan dan pilihan jawaban", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -163,9 +285,11 @@ class TambahKuisFragment : Fragment() {
 
         val kuis = Kuis(
             id = editId ?: "",
+            edukasiId = selectedEdukasiId,
             judul = judul,
             deskripsi = deskripsi,
             level = level,
+            imageUrl = quizImageUrl,
             poinReward = poinReward,
             aktif = aktif,
             createdAt = if (editId == null) System.currentTimeMillis() else arguments?.getLong("createdAt") ?: System.currentTimeMillis()
@@ -176,7 +300,7 @@ class TambahKuisFragment : Fragment() {
             binding.progressBar.visibility = View.GONE
             binding.btnSave.isEnabled = true
             if (success) {
-                Toast.makeText(requireContext(), "Kuis dan ${soalList.size} soal berhasil disimpan", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Kuis berhasil disimpan", Toast.LENGTH_SHORT).show()
                 parentFragmentManager.popBackStack()
             } else {
                 Toast.makeText(requireContext(), "Gagal menyimpan data", Toast.LENGTH_SHORT).show()

@@ -1,40 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F9FA">
+    android:background="#F8FAF8">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
+        android:background="@color/dark_green"
         app:elevation="0dp">
+
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Tambah Kuis Baru"
+            app:title="Konfigurasi Kuis"
             app:titleCentered="true"
-            app:titleTextColor="@color/dark_green"
+            app:titleTextColor="@color/white"
             app:navigationIcon="@drawable/ic_back_arrow"
-            app:navigationIconTint="@color/dark_green" />
+            app:navigationIconTint="@color/white" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingBottom="48dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Lengkapi Data"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="@color/white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hubungkan kuis dengan materi edukasi yang sesuai."
+                android:textSize="14sp"
+                android:textColor="#E0E0E0"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
+        android:layout_marginTop="-32dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:paddingHorizontal="20dp"
+            android:paddingBottom="120dp">
 
-            <!-- KUIS INFO CARD -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -52,18 +79,68 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Informasi Kuis"
+                        android:text="Informasi Dasar"
                         android:textColor="@color/dark_green"
                         android:textStyle="bold"
                         android:textSize="18sp"
                         android:layout_marginBottom="16dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="20dp">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="100dp"
+                            android:layout_height="100dp"
+                            app:cardCornerRadius="16dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="1dp"
+                            app:strokeColor="#E0E0E0">
+                            <ImageView
+                                android:id="@+id/iv_quiz_preview"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/img_lingkungan" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <Button
+                            android:id="@+id/btn_pilih_gambar_kuis"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:text="Ubah Sampul"
+                            android:textSize="12sp"
+                            app:icon="@android:drawable/ic_menu_camera"/>
+                    </LinearLayout>
+
+                    <!-- Link to Education -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:hint="Pilih Materi Edukasi"
+                        app:startIconDrawable="@android:drawable/ic_menu_agenda">
+                        <AutoCompleteTextView
+                            android:id="@+id/spinner_edukasi"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none"
+                            android:textColor="@color/dark_green"/>
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
-                        android:hint="Judul Kuis">
+                        android:hint="Judul Kuis"
+                        app:startIconDrawable="@android:drawable/ic_menu_edit">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_judul"
                             android:layout_width="match_parent"
@@ -75,7 +152,7 @@
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
+                        android:layout_marginBottom="16dp"
                         android:hint="Deskripsi Singkat">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_deskripsi"
@@ -95,7 +172,6 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginEnd="8dp"
-                            android:layout_marginBottom="12dp"
                             android:hint="Level">
                             <AutoCompleteTextView
                                 android:id="@+id/spinner_level"
@@ -111,8 +187,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginStart="8dp"
-                            android:layout_marginBottom="12dp"
-                            android:hint="Poin Reward">
+                            android:hint="Poin"
+                            app:startIconDrawable="@android:drawable/btn_star_big_on">
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/et_poinReward"
                                 android:layout_width="match_parent"
@@ -126,14 +202,14 @@
                         android:id="@+id/switch_aktif"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Kuis Aktif"
+                        android:layout_marginTop="16dp"
+                        android:text="Status Kuis (Aktif)"
                         android:textColor="@color/dark_green"
                         android:textStyle="bold"
                         android:checked="true" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- QUESTION SETUP CARD -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -151,7 +227,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Pengaturan Soal"
+                        android:text="Konfigurasi Soal"
                         android:textColor="@color/dark_green"
                         android:textStyle="bold"
                         android:textSize="18sp"
@@ -161,8 +237,8 @@
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
-                        android:hint="Jumlah Soal">
+                        android:layout_marginBottom="16dp"
+                        android:hint="Berapa jumlah soal?">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_jumlah_soal"
                             android:layout_width="match_parent"
@@ -175,10 +251,11 @@
                         android:id="@+id/btn_generate_soal"
                         style="@style/Widget.Material3.Button.TonalButton"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Tampilkan Form Soal"
+                        android:layout_height="56dp"
+                        android:text="Tampilkan Form Input Soal"
                         android:backgroundTint="#E8F5E9"
-                        android:textColor="@color/dark_green"/>
+                        android:textColor="@color/dark_green"
+                        app:cornerRadius="16dp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -194,7 +271,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="12dp">
+                    android:layout_marginBottom="16dp">
 
                     <TextView
                         android:id="@+id/tv_daftar_soal_title"
@@ -204,19 +281,18 @@
                         android:text="Daftar Soal"
                         android:textColor="@color/dark_green"
                         android:textStyle="bold"
-                        android:textSize="18sp"/>
+                        android:textSize="20sp"/>
 
                     <Button
                         android:id="@+id/btn_template_sampah"
                         style="@style/Widget.Material3.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Pakai Template Sampah"
+                        android:text="Pakai Template"
                         android:textSize="12sp"
                         android:textColor="@color/dark_green"/>
                 </LinearLayout>
 
-                <!-- CONTAINER SOAL -->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvSoalInput"
                     android:layout_width="match_parent"
@@ -229,12 +305,13 @@
                     style="@style/Widget.Material3.Button"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
-                    android:layout_marginTop="24dp"
-                    android:layout_marginBottom="40dp"
-                    android:text="SIMPAN KUIS &amp; SOAL"
+                    android:layout_marginTop="32dp"
+                    android:text="SIMPAN DATA KUIS"
                     android:textStyle="bold"
-                    app:cornerRadius="16dp"
-                    android:backgroundTint="@color/dark_green" />
+                    android:textSize="16sp"
+                    app:cornerRadius="20dp"
+                    android:backgroundTint="@color/dark_green"
+                    android:elevation="8dp"/>
             </LinearLayout>
 
         </LinearLayout>

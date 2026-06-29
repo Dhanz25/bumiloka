@@ -53,6 +53,7 @@ class TantanganFragment : Fragment() {
     private fun loadTantangan() {
         dbListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                if (!isAdded) return
                 tantanganList.clear()
                 for (child in snapshot.children) {
                     try {
@@ -68,7 +69,9 @@ class TantanganFragment : Fragment() {
                 recyclerView.visibility = if (tantanganList.isEmpty()) View.GONE else View.VISIBLE
             }
             override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(requireContext(), "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+                if (isAdded) {
+                    Toast.makeText(requireContext(), "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+                }
             }
         }
         db.addValueEventListener(dbListener!!)
@@ -101,9 +104,13 @@ class TantanganFragment : Fragment() {
                     putString("id", it.id)
                     putString("judul", it.judul)
                     putString("deskripsi", it.deskripsi)
-                    putInt("badgeId", it.badgeId)
-                    putInt("materiId", it.materiId)
-                    putInt("quizId", it.quizId)
+                    putString("imageUrl", it.imageUrl)
+                    putString("badgeId", it.badgeId)
+                    putString("materiId", it.materiId)
+                    putString("quizId", it.quizId)
+                    putInt("level", it.level)
+                    putBoolean("aktif", it.aktif)
+                    putLong("createdAt", it.createdAt)
                 }
             }
         }

@@ -8,9 +8,6 @@ import com.google.firebase.database.FirebaseDatabase
 
 object LevelHelper {
 
-    /**
-     * Mengambil level yang SEDANG AKTIF/DILIHAT user.
-     */
     fun getCurrentLevel(context: Context, callback: (Int) -> Unit) {
         val localLevel = getCurrentLevelLocal(context)
         callback(localLevel)
@@ -91,31 +88,31 @@ object LevelHelper {
                 3 -> R.drawable.img_air
                 else -> R.drawable.img_lingkungan
             }
-            else -> R.drawable.img // Fallback ke resource yang pasti ada
+            else -> R.drawable.img
         }
     }
 
     fun openQuizFragment(level: Int, index: Int, fragmentManager: FragmentManager) {
         val fragment: Fragment = when (level) {
             1 -> when (index) {
-                1 -> QuizSoalFragment.newInstance(1)
+                1 -> QuizSoalFragment.newInstance("1")
                 2 -> QuizSoal2Fragment.newInstance(2)
                 3 -> QuizSoal3Fragment.newInstance(3)
-                else -> QuizSoalFragment.newInstance(1)
+                else -> QuizSoalFragment.newInstance("1")
             }
             2 -> when (index) {
-                1 -> QuizSoalFragment.newInstance(4)
+                1 -> QuizSoalFragment.newInstance("4")
                 2 -> QuizSoal2Fragment.newInstance(5)
                 3 -> QuizSoal3Fragment.newInstance(6)
-                else -> QuizSoalFragment.newInstance(4)
+                else -> QuizSoalFragment.newInstance("4")
             }
             3 -> when (index) {
-                1 -> QuizSoalFragment.newInstance(7)
+                1 -> QuizSoalFragment.newInstance("7")
                 2 -> QuizSoal2Fragment.newInstance(8)
                 3 -> QuizSoal3Fragment.newInstance(9)
-                else -> QuizSoalFragment.newInstance(7)
+                else -> QuizSoalFragment.newInstance("7")
             }
-            else -> QuizSoalFragment.newInstance(1) 
+            else -> QuizSoalFragment.newInstance("1")
         }
 
         fragmentManager.beginTransaction()

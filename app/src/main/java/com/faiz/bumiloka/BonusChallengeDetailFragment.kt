@@ -114,7 +114,7 @@ class BonusChallengeDetailFragment : Fragment(R.layout.fragment_bonus_challenge_
     private fun startChallengeFlow() {
         val currentChallenge = challenge ?: return
         if (!progress.materiDone) {
-            val fragment = MateriFragment.newInstanceLegacy(currentChallenge.materiId)
+            val fragment = MateriFragment.newInstance(currentChallenge.materiId)
             val args = fragment.arguments ?: Bundle()
             args.putBoolean("DARI_BONUS_CHALLENGE", true)
             args.putString("BONUS_CHALLENGE_ID", challengeId)
@@ -133,15 +133,14 @@ class BonusChallengeDetailFragment : Fragment(R.layout.fragment_bonus_challenge_
     private fun openQuiz(quizId: Int) {
         LevelHelper.getCurrentLevel(requireContext()) { level ->
             val fragment = when (quizId) {
-                1 -> QuizSoalFragment.newInstance(quizId)
+                1 -> QuizSoalFragment.newInstance(quizId.toString(), level)
                 2 -> QuizSoal2Fragment.newInstance(quizId)
                 3 -> QuizSoal3Fragment.newInstance(quizId)
-                else -> QuizSoalFragment.newInstance(quizId)
+                else -> QuizSoalFragment.newInstance(quizId.toString(), level)
             }
             val args = fragment.arguments ?: Bundle()
             args.putBoolean("DARI_BONUS_CHALLENGE", true)
             args.putString("BONUS_CHALLENGE_ID", challengeId)
-            args.putInt("LEVEL", level)
             fragment.arguments = args
 
             parentFragmentManager.beginTransaction()

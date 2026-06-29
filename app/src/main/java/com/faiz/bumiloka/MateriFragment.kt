@@ -1,6 +1,5 @@
 package com.faiz.bumiloka
 
-import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
@@ -20,6 +19,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.faiz.bumiloka.model.Edukasi
+import com.faiz.bumiloka.model.Kuis
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -31,10 +31,11 @@ import com.bumptech.glide.Glide
 class MateriFragment : Fragment() {
 
     private var edukasiId: String? = null
+    private var linkedKuisId: String? = null
     private var isTantanganBonus = false
     private var challengeId = ""
-    private var quizIdFromTantangan = -1
-    private var badgeIdFromTantangan = 0
+    private var quizIdFromTantangan = ""
+    private var badgeIdFromTantangan = ""
     
     private lateinit var btnMulaiKuis: Button
     private var countDownTimer: CountDownTimer? = null
@@ -54,11 +55,10 @@ class MateriFragment : Fragment() {
         fun newInstance(edukasiId: String): MateriFragment = MateriFragment().apply {
             arguments = Bundle().apply { putString(ARG_EDUKASI_ID, edukasiId) }
         }
-        
+
         @JvmStatic fun newInstanceLegacy(materiId: Int) = newInstance(materiId)
-        @JvmStatic fun newInstanceDynamic(edukasiId: String) = newInstance(edukasiId)
-        @JvmStatic fun newInstanceByMateriId(materiId: Int) = newInstance(materiId)
-        @JvmStatic fun newInstanceByEdukasiId(edukasiId: String) = newInstance(edukasiId)
+        
+        @JvmStatic fun newInstanceForChallenge(materiId: String) = newInstance(materiId)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -78,36 +78,70 @@ class MateriFragment : Fragment() {
             val legacyId = it.getInt(ARG_MATERI_ID, -1)
             
             challengeId = it.getString("challenge_id") ?: ""
-            quizIdFromTantangan = it.getInt("quiz_id", -1)
-            badgeIdFromTantangan = it.getInt("badge_id", 0)
+            quizIdFromTantangan = it.getString("quiz_id", "")
+            badgeIdFromTantangan = it.getString("badge_id", "")
             isTantanganBonus = it.getBoolean("IS_TANTANGAN_BONUS", false)
             
-            if (edukasiId != null) loadMateriFromFirebase(edukasiId!!)
-            else if (legacyId != -1) loadLegacyMateri(legacyId)
+            if (edukasiId != null) {
+                loadMateriFromFirebase(edukasiId!!)
+                findLinkedKuis(edukasiId!!)
+            } else if (legacyId != -1) {
+                loadLegacyMateri(legacyId)
+                updateButtonStatus()
+            }
         }
     }
 
+    private fun findLinkedKuis(edukasiId: String) {
+        // Jika sudah ada quizId dari tantangan, gunakan itu
+        if (quizIdFromTantangan.isNotEmpty()) {
+            linkedKuisId = quizIdFromTantangan
+            updateButtonStatus()
+            return
+        }
+
+        FirebaseDatabase.getInstance().reference.child("kuis")
+            .orderByChild("edukasiId").equalTo(edukasiId)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (!isAdded) return
+                    for (child in snapshot.children) {
+                        linkedKuisId = child.key
+                        break
+                    }
+                    updateButtonStatus()
+                }
+                override fun onCancelled(error: DatabaseError) {}
+            })
+    }
+
     private fun updateButtonStatus() {
-        val materiIndex = arguments?.getInt(ARG_MATERI_ID, 1) ?: 1
+        if (!isAdded) return
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+        val materiIndex = arguments?.getInt(ARG_MATERI_ID, -1)
 
         LevelHelper.getCurrentLevel(requireContext()) { level ->
             val prefKuis = requireActivity().getSharedPreferences("KUIS_${userId}_LEVEL_$level", Context.MODE_PRIVATE)
             
-            val isSelesai = when (materiIndex) {
-                1 -> prefKuis.getBoolean("materi1_selesai", false)
-                2 -> prefKuis.getBoolean("quiz2_selesai", false)
-                3 -> prefKuis.getBoolean("quiz3_selesai", false)
-                else -> false
+            val isSelesai = if (linkedKuisId != null) {
+                prefKuis.getBoolean("kuis_${linkedKuisId}_selesai", false) || 
+                TantanganStatusHelper.isTantanganSelesai(requireContext(), challengeId)
+            } else {
+                when (materiIndex) {
+                    1 -> prefKuis.getBoolean("materi1_selesai", false)
+                    2 -> prefKuis.getBoolean("quiz2_selesai", false)
+                    3 -> prefKuis.getBoolean("quiz3_selesai", false)
+                    else -> false
+                }
             }
 
             if (isSelesai && !isTantanganBonus) {
-                btnMulaiKuis.text = "Kuis Sudah Diselesaikan"
+                btnMulaiKuis.text = "Kuis Selesai ✓"
                 btnMulaiKuis.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.grey_button)
                 btnMulaiKuis.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_subtitle))
                 
                 btnMulaiKuis.setOnClickListener {
-                    showCustomTopDialog("Kuis Selesai", "Kuis sudah selesai dikerjakan", false, level, materiIndex)
+                    showCustomTopDialog("Kuis Selesai", "Anda telah menyelesaikan kuis untuk materi ini.", false, level, materiIndex ?: 1)
                 }
             } else {
                 btnMulaiKuis.text = "Mulai Kuis"
@@ -115,7 +149,7 @@ class MateriFragment : Fragment() {
                 btnMulaiKuis.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
                 
                 btnMulaiKuis.setOnClickListener {
-                    showCustomTopDialog("Perhatian", "Silakan membaca materi terlebih dahulu sebelum mengerjakan kuis.", true, level, materiIndex)
+                    showCustomTopDialog("Perhatian", "Silakan baca materi dengan seksama sebelum mengerjakan kuis.", true, level, materiIndex ?: 1)
                 }
             }
         }
@@ -142,7 +176,7 @@ class MateriFragment : Fragment() {
                 btnAction.setOnClickListener {
                     hasBeenPromptedToRead = true
                     dialog.dismiss()
-                    Toast.makeText(requireContext(), "Silakan baca materi di bawah ini", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Silakan baca materi sampai selesai", Toast.LENGTH_SHORT).show()
                 }
             } else {
                 btnAction.isEnabled = false
@@ -186,22 +220,31 @@ class MateriFragment : Fragment() {
     }
 
     private fun startQuiz(materiIndex: Int, level: Int) {
-        val targetQuizId = if (isTantanganBonus && quizIdFromTantangan != -1) quizIdFromTantangan else materiIndex
-        val fragment = when (targetQuizId) {
-            1 -> QuizSoalFragment.newInstance(targetQuizId)
-            2 -> QuizSoal2Fragment.newInstance(targetQuizId)
-            3 -> QuizSoal3Fragment.newInstance(targetQuizId)
-            else -> QuizSoalFragment.newInstance(targetQuizId)
+        val fragment = if (linkedKuisId != null) {
+            QuizSoalFragment.newInstance(linkedKuisId!!, level)
+        } else {
+            when (materiIndex) {
+                1 -> QuizSoalFragment.newInstance("1", level)
+                2 -> QuizSoal2Fragment()
+                3 -> QuizSoal3Fragment()
+                else -> QuizSoalFragment.newInstance(materiIndex.toString(), level)
+            }
         }
+        
         fragment.arguments = (fragment.arguments ?: Bundle()).apply {
             putBoolean("IS_TANTANGAN_BONUS", isTantanganBonus)
             putString("challenge_id", challengeId)
-            putInt("quiz_id", targetQuizId)
-            putInt("badge_id", badgeIdFromTantangan)
+            putString("badge_id", badgeIdFromTantangan)
+            putString("quiz_id", quizIdFromTantangan)
+            putString("materi_id", edukasiId ?: "")
             putInt("LEVEL", level)
-            putInt("materi_id", materiIndex)
+            if (linkedKuisId != null) putString("KUIS_ID", linkedKuisId)
         }
-        parentFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit()
+        
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun loadMateriFromFirebase(id: String) {
@@ -267,7 +310,8 @@ class MateriFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
-        updateButtonStatus()
+        if (edukasiId != null) findLinkedKuis(edukasiId!!)
+        else updateButtonStatus()
     }
 
     override fun onDestroyView() {

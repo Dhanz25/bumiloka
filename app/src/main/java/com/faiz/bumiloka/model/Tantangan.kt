@@ -1,13 +1,14 @@
 package com.faiz.bumiloka.model
 
 data class Tantangan(
-    val id: String = "",
-    val judul: String = "",
-    val deskripsi: String = "",
-    val materiId: Int = 0,
-    val quizId: Int = 0,
-    val badgeId: Int = 0,
-    val aktif: Boolean = true,
-    val status: String = "aktif",
-    val createdAt: Long = 0L
+    var id: String = "",
+    var judul: String = "",
+    var deskripsi: String = "",
+    var imageUrl: String = "",
+    var materiId: String = "",
+    var quizId: String = "",
+    var badgeId: String = "",
+    var level: Int = 1,
+    var aktif: Boolean = true,
+    var createdAt: Long = System.currentTimeMillis()
 )

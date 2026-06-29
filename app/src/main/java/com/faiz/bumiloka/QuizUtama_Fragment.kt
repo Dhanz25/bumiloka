@@ -2,78 +2,47 @@ package com.faiz.bumiloka
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Base64
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.google.android.material.card.MaterialCardView
-import com.google.firebase.database.FirebaseDatabase
-
-import android.widget.Toast
+import com.bumptech.glide.Glide
+import com.faiz.bumiloka.model.Kuis
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.*
 
 class QuizUtamaFragment : Fragment(R.layout.fragment_quiz_utama_) {
 
-    private lateinit var btnMateri1: Button
-    private lateinit var tvStatus1: TextView
-    private lateinit var tvTitle1: TextView
-    private lateinit var imgQuiz1: ImageView
-    
-    private lateinit var btnMateri2: Button
-    private lateinit var tvStatus2: TextView
-    private lateinit var tvTitle2: TextView
-    private lateinit var imgQuiz2: ImageView
-    
-    private lateinit var btnMateri3: Button
-    private lateinit var tvStatus3: TextView
-    private lateinit var tvTitle3: TextView
-    private lateinit var imgQuiz3: ImageView
-
-    private lateinit var btnTips1: Button
-    private lateinit var btnTips2: Button
-    private lateinit var btnTips3: Button
-    
+    private lateinit var containerKuis: LinearLayout
+    private lateinit var progressBar: ProgressBar
     private lateinit var tvLevelIndicator: TextView
-
+    private lateinit var tvEmpty: TextView
     private var userLevel = 1
+    private val db = FirebaseDatabase.getInstance().getReference("kuis")
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // ❌ Sembunyikan Bottom Navigation
         requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
 
         val toolbar = view.findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
         tvLevelIndicator = view.findViewById(R.id.tvLevelIndicator)
+        containerKuis = view.findViewById(R.id.containerKuis)
+        progressBar = view.findViewById(R.id.progressBarKuis)
+        tvEmpty = view.findViewById(R.id.tvEmptyKuis)
 
-        btnMateri1 = view.findViewById(R.id.btn_detail_materi1)
-        tvStatus1 = view.findViewById(R.id.tvStatus1)
-        tvTitle1 = view.findViewById(R.id.tvTitle1)
-        imgQuiz1 = view.findViewById(R.id.imgQuiz1)
-
-        btnMateri2 = view.findViewById(R.id.btn_kerjakan_materi2)
-        tvStatus2 = view.findViewById(R.id.tvStatus2)
-        tvTitle2 = view.findViewById(R.id.tvTitle2)
-        imgQuiz2 = view.findViewById(R.id.imgQuiz2)
-
-        btnMateri3 = view.findViewById(R.id.btn_kerjakan_materi3)
-        tvStatus3 = view.findViewById(R.id.tvStatus3)
-        tvTitle3 = view.findViewById(R.id.tvTitle3)
-        imgQuiz3 = view.findViewById(R.id.imgQuiz3)
-
-        btnTips1 = view.findViewById(R.id.btnTips1)
-        btnTips2 = view.findViewById(R.id.btnTips2)
-        btnTips3 = view.findViewById(R.id.btnTips3)
+        toolbar.setNavigationOnClickListener { parentFragmentManager.popBackStack() }
 
         val tabAll = view.findViewById<TextView>(R.id.tab_all)
         val tabSelesai = view.findViewById<TextView>(R.id.tab_selesai)
         val tabBelum = view.findViewById<TextView>(R.id.tab_belum)
-
-        val card1 = view.findViewById<MaterialCardView>(R.id.card1)
-        val card2 = view.findViewById<MaterialCardView>(R.id.card2)
-        val card3 = view.findViewById<MaterialCardView>(R.id.card3)
 
         LevelHelper.getCurrentLevel(requireContext()) { level ->
             userLevel = level
@@ -84,210 +53,156 @@ class QuizUtamaFragment : Fragment(R.layout.fragment_quiz_utama_) {
                 else -> "Eco Beginner"
             }
             tvLevelIndicator.text = "Level $level ($levelName)"
-            loadUI()
+            loadKuisFromFirebase("ALL")
         }
 
-        toolbar.setNavigationOnClickListener {
-            parentFragmentManager.popBackStack()
+        tabAll.setOnClickListener { 
+            setActiveTab(tabAll, tabSelesai, tabBelum)
+            loadKuisFromFirebase("ALL") 
         }
-
-        fun resetTab() {
-            tabAll.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.transparent))
-            tabSelesai.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.transparent))
-            tabBelum.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.transparent))
+        tabSelesai.setOnClickListener { 
+            setActiveTab(tabSelesai, tabAll, tabBelum)
+            loadKuisFromFirebase("SELESAI") 
         }
+        tabBelum.setOnClickListener { 
+            setActiveTab(tabBelum, tabAll, tabSelesai)
+            loadKuisFromFirebase("BELUM") 
+        }
+    }
 
-        fun filterCards(type: String) {
-            val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
-            val pref = requireActivity().getSharedPreferences("KUIS_${userId}_LEVEL_$userLevel", Context.MODE_PRIVATE)
-            val s1 = pref.getBoolean("materi1_selesai", false)
-            val s2 = pref.getBoolean("quiz2_selesai", false)
-            val s3 = pref.getBoolean("quiz3_selesai", false)
+    private fun setActiveTab(active: TextView, vararg inactives: TextView) {
+        active.setBackgroundResource(R.drawable.bg_tab_active_new)
+        active.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+        inactives.forEach { 
+            it.setBackgroundResource(0)
+            it.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+        }
+    }
 
-            resetTab()
+    private fun loadKuisFromFirebase(filter: String) {
+        progressBar.visibility = View.VISIBLE
+        db.orderByChild("level").equalTo(userLevel.toDouble()).addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (!isAdded) return
+                progressBar.visibility = View.GONE
+                
+                val kuisList = mutableListOf<Kuis>()
+                for (child in snapshot.children) {
+                    if (child.value is Map<*, *>) {
+                        try {
+                            child.getValue(Kuis::class.java)?.let {
+                                it.id = child.key ?: ""
+                                if (it.aktif) kuisList.add(it)
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                }
 
-            when (type) {
-                "ALL" -> {
-                    tabAll.setBackgroundResource(R.drawable.bg_tab_active_new)
-                    card1.visibility = View.VISIBLE
-                    card2.visibility = View.VISIBLE
-                    card3.visibility = View.VISIBLE
-                }
-                "SELESAI" -> {
-                    tabSelesai.setBackgroundResource(R.drawable.bg_tab_active_new)
-                    card1.visibility = if (s1) View.VISIBLE else View.GONE
-                    card2.visibility = if (s2) View.VISIBLE else View.GONE
-                    card3.visibility = if (s3) View.VISIBLE else View.GONE
-                }
-                "BELUM" -> {
-                    tabBelum.setBackgroundResource(R.drawable.bg_tab_active_new)
-                    card1.visibility = if (!s1) View.VISIBLE else View.GONE
-                    card2.visibility = if (!s2) View.VISIBLE else View.GONE
-                    card3.visibility = if (!s3) View.VISIBLE else View.GONE
-                }
+                displayKuis(kuisList, filter)
             }
+
+            override fun onCancelled(error: DatabaseError) {
+                if (isAdded) progressBar.visibility = View.GONE
+            }
+        })
+    }
+
+    private fun displayKuis(list: List<Kuis>, filter: String) {
+        containerKuis.removeAllViews()
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+        val pref = requireActivity().getSharedPreferences("KUIS_${userId}_LEVEL_$userLevel", Context.MODE_PRIVATE)
+        
+        val filteredList = when (filter) {
+            "SELESAI" -> list.filter { pref.getBoolean("kuis_${it.id}_selesai", false) }
+            "BELUM" -> list.filter { !pref.getBoolean("kuis_${it.id}_selesai", false) }
+            else -> list
         }
 
-        tabAll.setOnClickListener { filterCards("ALL") }
-        tabSelesai.setOnClickListener { filterCards("SELESAI") }
-        tabBelum.setOnClickListener { filterCards("BELUM") }
+        if (filteredList.isEmpty()) {
+            tvEmpty.visibility = View.VISIBLE
+            return
+        }
+        tvEmpty.visibility = View.GONE
+
+        val inflater = LayoutInflater.from(requireContext())
+        for (kuis in filteredList) {
+            val cardView = inflater.inflate(R.layout.item_kuis_user_dynamic, containerKuis, false)
+            
+            val title = cardView.findViewById<TextView>(R.id.tvTitle)
+            val status = cardView.findViewById<TextView>(R.id.tvStatus)
+            val image = cardView.findViewById<ImageView>(R.id.imgQuiz)
+            val btnAction = cardView.findViewById<Button>(R.id.btnAction)
+            val btnTips = cardView.findViewById<Button>(R.id.btnTips)
+
+            title.text = kuis.judul
+            val isSelesai = pref.getBoolean("kuis_${kuis.id}_selesai", false)
+            val skor = pref.getInt("kuis_${kuis.id}_skor", 0)
+
+            // Load Image
+            if (kuis.imageUrl.isNotEmpty()) {
+                if (kuis.imageUrl.length > 100) {
+                    try {
+                        val imageBytes = Base64.decode(kuis.imageUrl, Base64.DEFAULT)
+                        Glide.with(this).asBitmap().load(imageBytes).into(image)
+                    } catch (e: Exception) { image.setImageResource(R.drawable.img_lingkungan) }
+                } else {
+                    val resId = resources.getIdentifier(kuis.imageUrl, "drawable", requireContext().packageName)
+                    image.setImageResource(if (resId != 0) resId else R.drawable.img_lingkungan)
+                }
+            } else {
+                image.setImageResource(R.drawable.img_lingkungan)
+            }
+
+            if (isSelesai) {
+                status.text = "Status: Selesai"
+                status.setTextColor(ContextCompat.getColor(requireContext(), R.color.nav_active))
+                btnAction.text = "Selesai ✓"
+                btnAction.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.grey_button))
+                btnAction.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_subtitle))
+                
+                btnAction.setOnClickListener {
+                    // Review result
+                    val fragment = QuizMenang1Fragment()
+                    fragment.arguments = Bundle().apply { 
+                        putString("KUIS_ID", kuis.id)
+                        putInt("SKOR", skor)
+                    }
+                    parentFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit()
+                }
+
+                if (skor == 100) {
+                    btnTips.visibility = View.VISIBLE
+                    btnTips.setOnClickListener {
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.fragment_container, TipsFragment())
+                            .addToBackStack(null)
+                            .commit()
+                    }
+                } else {
+                    btnTips.visibility = View.GONE
+                }
+            } else {
+                status.text = "Status: Belum Dikerjakan"
+                status.setTextColor(ContextCompat.getColor(requireContext(), R.color.grey_button))
+                btnAction.text = "Kerjakan"
+                btnAction.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.nav_active))
+                btnAction.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+
+                btnAction.setOnClickListener {
+                    val fragment = QuizSoalFragment.newInstance(kuis.id, userLevel)
+                    parentFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit()
+                }
+                btnTips.visibility = View.GONE
+            }
+
+            containerKuis.addView(cardView)
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        // ❌ Tetap sembunyikan saat kembali
         requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
-        LevelHelper.getCurrentLevel(requireContext()) { level ->
-            userLevel = level
-            loadUI()
-        }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        // ✅ Jangan panggil View.VISIBLE di sini!
-    }
-
-    private fun loadUI() {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
-        val pref = requireActivity().getSharedPreferences("KUIS_${userId}_LEVEL_$userLevel", Context.MODE_PRIVATE)
-
-        tvTitle1.text = LevelHelper.getQuizTitle(userLevel, 1)
-        imgQuiz1.setImageResource(LevelHelper.getQuizImage(userLevel, 1))
-        
-        tvTitle2.text = LevelHelper.getQuizTitle(userLevel, 2)
-        imgQuiz2.setImageResource(LevelHelper.getQuizImage(userLevel, 2))
-        
-        tvTitle3.text = LevelHelper.getQuizTitle(userLevel, 3)
-        imgQuiz3.setImageResource(LevelHelper.getQuizImage(userLevel, 3))
-
-        val s1 = pref.getBoolean("materi1_selesai", false)
-        val n1 = pref.getInt("nilai_materi1", 0)
-
-        if (s1) {
-            tvStatus1.text = "Status: Selesai (Skor: $n1)"
-            btnMateri1.text = "Lihat Hasil"
-            btnMateri1.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.darker_gray))
-
-            btnMateri1.setOnClickListener {
-                val fragment = QuizMenang1Fragment()
-                val bundle = Bundle()
-                bundle.putString("QUIZ_TYPE", "QUIZ1")
-                fragment.arguments = bundle
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, fragment)
-                    .addToBackStack(null)
-                    .commit()
-            }
-
-            if (n1 == 100) {
-                btnTips1.visibility = View.VISIBLE
-                btnTips1.setOnClickListener {
-                    pref.edit().putBoolean("tips_materi1", true).apply()
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, if (userLevel == 1) TipsPeduliFragment() else TipsFragment())
-                        .addToBackStack(null)
-                        .commit()
-                }
-            } else {
-                btnTips1.visibility = View.GONE
-            }
-
-        } else {
-            tvStatus1.text = "Status: Belum Dikerjakan"
-            btnMateri1.text = "Kerjakan"
-            btnMateri1.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.nav_active))
-
-            btnMateri1.setOnClickListener {
-                LevelHelper.openQuizFragment(userLevel, 1, parentFragmentManager)
-            }
-            btnTips1.visibility = View.GONE
-        }
-
-        val s2 = pref.getBoolean("quiz2_selesai", false)
-        val n2 = pref.getInt("quiz2_nilai", 0)
-
-        if (s2) {
-            tvStatus2.text = "Status: Selesai (Skor: $n2)"
-            btnMateri2.text = "Lihat Hasil"
-            btnMateri2.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.darker_gray))
-
-            btnMateri2.setOnClickListener {
-                val fragment = QuizMenang1Fragment()
-                val bundle = Bundle()
-                bundle.putString("QUIZ_TYPE", "QUIZ2")
-                fragment.arguments = bundle
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, fragment)
-                    .addToBackStack(null)
-                    .commit()
-            }
-
-            if (n2 == 100) {
-                btnTips2.visibility = View.VISIBLE
-                btnTips2.setOnClickListener {
-                    pref.edit().putBoolean("tips_materi2", true).apply()
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, if (userLevel == 1) TipsSampahFragment() else TipsFragment())
-                        .addToBackStack(null)
-                        .commit()
-                }
-            } else {
-                btnTips2.visibility = View.GONE
-            }
-
-        } else {
-            tvStatus2.text = "Status: Belum Dikerjakan"
-            btnMateri2.text = "Kerjakan"
-            btnMateri2.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.nav_active))
-
-            btnMateri2.setOnClickListener {
-                LevelHelper.openQuizFragment(userLevel, 2, parentFragmentManager)
-            }
-            btnTips2.visibility = View.GONE
-        }
-
-        val s3 = pref.getBoolean("quiz3_selesai", false)
-        val n3 = pref.getInt("quiz3_nilai", 0)
-
-        if (s3) {
-            tvStatus3.text = "Status: Selesai (Skor: $n3)"
-            btnMateri3.text = "Lihat Hasil"
-            btnMateri3.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.darker_gray))
-
-            btnMateri3.setOnClickListener {
-                val fragment = QuizMenang1Fragment()
-                val bundle = Bundle()
-                bundle.putString("QUIZ_TYPE", "QUIZ3")
-                fragment.arguments = bundle
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, fragment)
-                    .addToBackStack(null)
-                    .commit()
-            }
-
-            if (n3 == 100) {
-                btnTips3.visibility = View.VISIBLE
-                btnTips3.setOnClickListener {
-                    pref.edit().putBoolean("tips_materi3", true).apply()
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, if (userLevel == 1) TipsHematAirFragment() else TipsFragment())
-                        .addToBackStack(null)
-                        .commit()
-                }
-            } else {
-                btnTips3.visibility = View.GONE
-            }
-
-        } else {
-            tvStatus3.text = "Status: Belum Dikerjakan"
-            btnMateri3.text = "Kerjakan"
-            btnMateri3.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.nav_active))
-
-            btnMateri3.setOnClickListener {
-                LevelHelper.openQuizFragment(userLevel, 3, parentFragmentManager)
-            }
-            btnTips3.visibility = View.GONE
-        }
     }
 }

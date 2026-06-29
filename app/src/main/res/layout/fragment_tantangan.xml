@@ -46,9 +46,10 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/tv_level_desc"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Level (Benih Kesadaran)"
+                android:text="Memuat Level..."
                 android:textColor="@color/light_brown"
                 android:textSize="14sp" />
         </LinearLayout>
@@ -90,7 +91,8 @@
                         android:layout_height="180dp"
                         android:background="@color/bg_green"
                         android:scaleType="centerCrop"
-                        android:src="@drawable/tantangan1" />
+                        android:src="@drawable/tantangan1"
+                        android:contentDescription="Banner Penjelajah Mingguan" />
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -147,7 +149,8 @@
                         android:layout_height="180dp"
                         android:background="@color/bg_green"
                         android:scaleType="centerCrop"
-                        android:src="@drawable/tantangan2" />
+                        android:src="@drawable/tantangan2"
+                        android:contentDescription="Banner Master Kuis" />
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -185,19 +188,22 @@
 
             <!-- Tantangan Bonus Section -->
             <TextView
+                android:id="@+id/tv_title_bonus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Tantangan Bonus"
                 android:textColor="@color/dark_green"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="12dp" />
+                android:layout_marginBottom="12dp"
+                android:visibility="gone" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvTantanganBonus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"
+                android:visibility="gone"
                 tools:listitem="@layout/item_tantangan_bonus" />
 
         </LinearLayout>

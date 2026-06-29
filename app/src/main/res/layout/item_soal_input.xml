@@ -3,18 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="16dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="2dp"
-    app:cardBackgroundColor="#F1FBF4"
+    android:layout_marginBottom="20dp"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@color/white"
     app:strokeWidth="1dp"
-    app:strokeColor="#E8F5E9">
+    app:strokeColor="#F0F0F0">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="20dp">
 
         <TextView
             android:id="@+id/tvSoalNumber"
@@ -24,14 +24,69 @@
             android:textColor="@color/dark_green"
             android:textStyle="bold"
             android:textSize="16sp"
-            android:layout_marginBottom="12dp"/>
+            android:background="#E8F5E9"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Image Upload Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp"
+            android:background="#FAFAFA"
+            android:padding="10dp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#E0E0E0">
+                <ImageView
+                    android:id="@+id/iv_preview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/img_lingkungan" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp">
+
+                <Button
+                    android:id="@+id/btn_pilih_gambar"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Lampirkan Gambar"
+                    android:textSize="11sp"
+                    app:icon="@android:drawable/ic_menu_gallery"
+                    app:iconSize="14dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Gambar opsional untuk memperjelas pertanyaan."
+                    android:textSize="10sp"
+                    android:textColor="#9E9E9E"
+                    android:layout_marginTop="4dp"/>
+            </LinearLayout>
+        </LinearLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:hint="Pertanyaan">
+            android:layout_marginBottom="16dp"
+            android:hint="Tulis Pertanyaan">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_pertanyaan"
                 android:layout_width="match_parent"
@@ -51,8 +106,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
-                android:layout_marginEnd="4dp"
-                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="6dp"
+                android:layout_marginBottom="12dp"
                 android:hint="Opsi A">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_opsi_a"
@@ -66,8 +121,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
-                android:layout_marginStart="4dp"
-                android:layout_marginBottom="8dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginBottom="12dp"
                 android:hint="Opsi B">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_opsi_b"
@@ -81,7 +136,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
-                android:layout_marginEnd="4dp"
+                android:layout_marginEnd="6dp"
                 android:hint="Opsi C">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_opsi_c"
@@ -95,7 +150,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
-                android:layout_marginStart="4dp"
+                android:layout_marginStart="6dp"
                 android:hint="Opsi D">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_opsi_d"
@@ -109,14 +164,15 @@
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:hint="Jawaban Benar">
+            android:layout_marginTop="16dp"
+            android:hint="Pilih Jawaban Benar">
             <AutoCompleteTextView
                 android:id="@+id/spinner_jawaban"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="none"
-                android:textSize="14sp"/>
+                android:textSize="14sp"
+                android:textColor="@color/dark_green"/>
         </com.google.android.material.textfield.TextInputLayout>
 
     </LinearLayout>

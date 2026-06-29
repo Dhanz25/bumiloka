@@ -3,6 +3,7 @@ package com.faiz.bumiloka.data.repository
 import com.faiz.bumiloka.model.Edukasi
 import com.faiz.bumiloka.model.Kuis
 import com.faiz.bumiloka.model.SoalKuis
+import com.faiz.bumiloka.model.Tantangan
 import com.google.firebase.database.*
 
 class AdminRepository {
@@ -14,13 +15,15 @@ class AdminRepository {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val list = mutableListOf<Edukasi>()
                 snapshot.children.forEach { child ->
-                    try {
-                        child.getValue(Edukasi::class.java)?.let {
-                            it.id = child.key ?: ""
-                            list.add(it)
+                    if (child.value is Map<*, *>) {
+                        try {
+                            child.getValue(Edukasi::class.java)?.let {
+                                it.id = child.key ?: ""
+                                list.add(it)
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
                         }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
                     }
                 }
                 onResult(list)
@@ -45,15 +48,15 @@ class AdminRepository {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val list = mutableListOf<Kuis>()
                 snapshot.children.forEach { child ->
-                    try {
-                        if (child.value is Map<*, *>) {
+                    if (child.value is Map<*, *>) {
+                        try {
                             child.getValue(Kuis::class.java)?.let {
                                 it.id = child.key ?: ""
                                 list.add(it)
                             }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
                         }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
                     }
                 }
                 onResult(list)
@@ -66,18 +69,7 @@ class AdminRepository {
         val kuisId = if (kuis.id.isEmpty()) db.child("kuis").push().key ?: "" else kuis.id
         kuis.id = kuisId
         
-        val updates = HashMap<String, Any>()
-        updates["id"] = kuis.id
-        updates["edukasiId"] = kuis.edukasiId
-        updates["judul"] = kuis.judul
-        updates["deskripsi"] = kuis.deskripsi
-        updates["level"] = kuis.level
-        updates["imageUrl"] = kuis.imageUrl
-        updates["poinReward"] = kuis.poinReward
-        updates["aktif"] = kuis.aktif
-        updates["createdAt"] = kuis.createdAt
-
-        db.child("kuis").child(kuisId).updateChildren(updates).addOnCompleteListener { onComplete(it.isSuccessful) }
+        db.child("kuis").child(kuisId).setValue(kuis).addOnCompleteListener { onComplete(it.isSuccessful) }
     }
 
     fun saveKuisLengkap(kuis: Kuis, soalList: List<SoalKuis>, onComplete: (Boolean) -> Unit) {
@@ -110,21 +102,54 @@ class AdminRepository {
         db.child("kuis").child(id).removeValue().addOnCompleteListener { onComplete(it.isSuccessful) }
     }
 
+    // TANTANGAN
+    fun getTantangan(onResult: (List<Tantangan>) -> Unit) {
+        db.child("tantangan").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val list = mutableListOf<Tantangan>()
+                snapshot.children.forEach { child ->
+                    if (child.value is Map<*, *>) {
+                        try {
+                            child.getValue(Tantangan::class.java)?.let {
+                                it.id = child.key ?: ""
+                                list.add(it)
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                }
+                onResult(list)
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+    }
+
+    fun saveTantangan(tantangan: Tantangan, onComplete: (Boolean) -> Unit) {
+        val ref = if (tantangan.id.isEmpty()) db.child("tantangan").push() else db.child("tantangan").child(tantangan.id)
+        if (tantangan.id.isEmpty()) tantangan.id = ref.key ?: ""
+        ref.setValue(tantangan).addOnCompleteListener { onComplete(it.isSuccessful) }
+    }
+
+    fun deleteTantangan(id: String, onComplete: (Boolean) -> Unit) {
+        db.child("tantangan").child(id).removeValue().addOnCompleteListener { onComplete(it.isSuccessful) }
+    }
+
     // SOAL
     fun getSoal(kuisId: String, onResult: (List<SoalKuis>) -> Unit) {
         db.child("kuis").child(kuisId).child("soal").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val list = mutableListOf<SoalKuis>()
                 snapshot.children.forEach { child ->
-                    try {
-                        if (child.value is Map<*, *>) {
+                    if (child.value is Map<*, *>) {
+                        try {
                             child.getValue(SoalKuis::class.java)?.let {
                                 it.id = child.key ?: ""
                                 list.add(it)
                             }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
                         }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
                     }
                 }
                 onResult(list)
