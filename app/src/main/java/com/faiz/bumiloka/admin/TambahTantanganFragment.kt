@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.util.Base64
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,7 +31,13 @@ class TambahTantanganFragment : Fragment() {
 
     private lateinit var etJudul: EditText
     private lateinit var etDeskripsi: EditText
+    private lateinit var spinnerTipe: AutoCompleteTextView
+    private lateinit var layoutTargetCount: View
+    private lateinit var etTargetCount: EditText
+    private lateinit var spinnerLevel: AutoCompleteTextView
+    private lateinit var layoutMateri: View
     private lateinit var spinnerMateri: AutoCompleteTextView
+    private lateinit var layoutKuis: View
     private lateinit var spinnerKuis: AutoCompleteTextView
     private lateinit var etImageUrl: EditText
     private lateinit var ivPreview: ImageView
@@ -39,10 +46,15 @@ class TambahTantanganFragment : Fragment() {
     private lateinit var progressBar: ProgressBar
     private lateinit var tvTitle: TextView
 
+    private var selectedLevel: Int = 1
     private var selectedMateriId: String = ""
     private var selectedKuisId: String = ""
-    private val listMateri = mutableListOf<Edukasi>()
-    private val listKuis = mutableListOf<Kuis>()
+    private var selectedTipe: String = "SINGLE"
+    
+    private val allMateri = mutableListOf<Edukasi>()
+    private val allKuis = mutableListOf<Kuis>()
+    private val filteredMateri = mutableListOf<Edukasi>()
+    private val filteredKuis = mutableListOf<Kuis>()
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -59,7 +71,13 @@ class TambahTantanganFragment : Fragment() {
 
         etJudul = view.findViewById(R.id.et_judul_tantangan)
         etDeskripsi = view.findViewById(R.id.et_deskripsi_tantangan)
+        spinnerTipe = view.findViewById(R.id.spinner_tipe_tantangan)
+        layoutTargetCount = view.findViewById(R.id.layout_target_count)
+        etTargetCount = view.findViewById(R.id.et_target_count)
+        spinnerLevel = view.findViewById(R.id.spinner_level_tantangan)
+        layoutMateri = view.findViewById(R.id.layout_spinner_materi)
         spinnerMateri = view.findViewById(R.id.spinner_materi_tantangan)
+        layoutKuis = view.findViewById(R.id.layout_spinner_kuis)
         spinnerKuis = view.findViewById(R.id.spinner_kuis_tantangan)
         etImageUrl = view.findViewById(R.id.et_image_url_tantangan)
         ivPreview = view.findViewById(R.id.iv_preview_tantangan)
@@ -74,6 +92,9 @@ class TambahTantanganFragment : Fragment() {
             pickImageLauncher.launch(intent)
         }
 
+        setupTipeSpinner()
+        setupLevelSpinner()
+
         arguments?.let { args ->
             editId = args.getString("id")
             if (editId != null) {
@@ -81,6 +102,13 @@ class TambahTantanganFragment : Fragment() {
                 btnSimpan.text = "Update Tantangan"
                 etJudul.setText(args.getString("judul"))
                 etDeskripsi.setText(args.getString("deskripsi"))
+                
+                selectedTipe = args.getString("type", "SINGLE")
+                updateUIBasedOnTipe(selectedTipe)
+                etTargetCount.setText(args.getInt("targetCount", 1).toString())
+
+                selectedLevel = args.getInt("level", 1)
+                spinnerLevel.setText("Level $selectedLevel", false)
                 
                 selectedMateriId = args.getString("materiId", "")
                 selectedKuisId = args.getString("quizId", "")
@@ -98,94 +126,133 @@ class TambahTantanganFragment : Fragment() {
             }
         }
 
-        fetchMateriAndKuis()
+        fetchData()
 
         btnSimpan.setOnClickListener { simpanTantangan() }
         return view
     }
 
-    private fun fetchMateriAndKuis() {
-        // Fetch Materi
+    private fun setupTipeSpinner() {
+        val tipeOptions = listOf("SINGLE (1 Materi & 1 Kuis)", "QUIZ_COUNT (Banyak Kuis)", "MATERI_COUNT (Banyak Materi)")
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, tipeOptions)
+        spinnerTipe.setAdapter(adapter)
+        spinnerTipe.setOnItemClickListener { _, _, position, _ ->
+            selectedTipe = when(position) {
+                0 -> "SINGLE"
+                1 -> "QUIZ_COUNT"
+                2 -> "MATERI_COUNT"
+                else -> "SINGLE"
+            }
+            updateUIBasedOnTipe(selectedTipe)
+        }
+    }
+
+    private fun updateUIBasedOnTipe(tipe: String) {
+        val tipeName = when(tipe) {
+            "SINGLE" -> "SINGLE (1 Materi & 1 Kuis)"
+            "QUIZ_COUNT" -> "QUIZ_COUNT (Banyak Kuis)"
+            "MATERI_COUNT" -> "MATERI_COUNT (Banyak Materi)"
+            else -> "SINGLE (1 Materi & 1 Kuis)"
+        }
+        spinnerTipe.setText(tipeName, false)
+
+        if (tipe == "SINGLE") {
+            layoutTargetCount.visibility = View.GONE
+            layoutMateri.visibility = View.VISIBLE
+            layoutKuis.visibility = View.VISIBLE
+        } else {
+            layoutTargetCount.visibility = View.VISIBLE
+            layoutMateri.visibility = View.GONE
+            layoutKuis.visibility = View.GONE
+        }
+    }
+
+    private fun setupLevelSpinner() {
+        val levels = listOf("Level 1", "Level 2", "Level 3")
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, levels)
+        spinnerLevel.setAdapter(adapter)
+        spinnerLevel.setOnItemClickListener { _, _, position, _ ->
+            selectedLevel = position + 1
+            selectedMateriId = ""
+            selectedKuisId = ""
+            spinnerMateri.setText("", false)
+            spinnerKuis.setText("", false)
+            updateFilteredOptions()
+        }
+    }
+
+    private fun fetchData() {
         db.child("edukasi").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (!isAdded) return
-                listMateri.clear()
-                val materiTitles = mutableListOf<String>()
-                materiTitles.add("Pilih Materi")
-                
-                var selectedPosition = 0
+                allMateri.clear()
                 for (child in snapshot.children) {
-                    // Check if data is an object before converting
                     if (child.value is Map<*, *>) {
                         try {
                             child.getValue(Edukasi::class.java)?.let {
                                 it.id = child.key ?: ""
-                                listMateri.add(it)
-                                materiTitles.add(it.title)
-                                if (it.id == selectedMateriId) {
-                                    selectedPosition = listMateri.size
-                                }
+                                allMateri.add(it)
                             }
                         } catch (e: Exception) {
-                            e.printStackTrace()
+                            Log.e("TambahTantangan", "Gagal parse Edukasi: ${child.key}")
                         }
                     }
                 }
-                
-                val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, materiTitles)
-                spinnerMateri.setAdapter(adapter)
-                
-                if (selectedPosition > 0) {
-                    spinnerMateri.setText(materiTitles[selectedPosition], false)
-                }
-
-                spinnerMateri.setOnItemClickListener { _, _, position, _ ->
-                    selectedMateriId = if (position == 0) "" else listMateri[position - 1].id
-                }
+                updateFilteredOptions()
             }
             override fun onCancelled(error: DatabaseError) {}
         })
 
-        // Fetch Kuis
         db.child("kuis").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (!isAdded) return
-                listKuis.clear()
-                val kuisTitles = mutableListOf<String>()
-                kuisTitles.add("Pilih Kuis")
-
-                var selectedPosition = 0
+                allKuis.clear()
                 for (child in snapshot.children) {
-                    // Check if data is an object before converting
                     if (child.value is Map<*, *>) {
                         try {
                             child.getValue(Kuis::class.java)?.let {
                                 it.id = child.key ?: ""
-                                listKuis.add(it)
-                                kuisTitles.add(it.judul)
-                                if (it.id == selectedKuisId) {
-                                    selectedPosition = listKuis.size
-                                }
+                                allKuis.add(it)
                             }
                         } catch (e: Exception) {
-                            e.printStackTrace()
+                            Log.e("TambahTantangan", "Gagal parse Kuis: ${child.key}")
                         }
                     }
                 }
-
-                val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, kuisTitles)
-                spinnerKuis.setAdapter(adapter)
-
-                if (selectedPosition > 0) {
-                    spinnerKuis.setText(kuisTitles[selectedPosition], false)
-                }
-
-                spinnerKuis.setOnItemClickListener { _, _, position, _ ->
-                    selectedKuisId = if (position == 0) "" else listKuis[position - 1].id
-                }
+                updateFilteredOptions()
             }
             override fun onCancelled(error: DatabaseError) {}
         })
+    }
+
+    private fun updateFilteredOptions() {
+        if (!isAdded) return
+
+        filteredMateri.clear()
+        filteredMateri.addAll(allMateri.filter { it.level == selectedLevel })
+        val materiTitles = mutableListOf("Pilih Materi")
+        materiTitles.addAll(filteredMateri.map { it.title })
+        spinnerMateri.setAdapter(ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, materiTitles))
+        
+        val currentMateri = filteredMateri.find { it.id == selectedMateriId }
+        if (currentMateri != null) spinnerMateri.setText(currentMateri.title, false)
+
+        spinnerMateri.setOnItemClickListener { _, _, position, _ ->
+            selectedMateriId = if (position == 0) "" else filteredMateri[position - 1].id
+        }
+
+        filteredKuis.clear()
+        filteredKuis.addAll(allKuis.filter { it.level == selectedLevel })
+        val kuisTitles = mutableListOf("Pilih Kuis")
+        kuisTitles.addAll(filteredKuis.map { it.judul })
+        spinnerKuis.setAdapter(ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, kuisTitles))
+
+        val currentKuis = filteredKuis.find { it.id == selectedKuisId }
+        if (currentKuis != null) spinnerKuis.setText(currentKuis.judul, false)
+
+        spinnerKuis.setOnItemClickListener { _, _, position, _ ->
+            selectedKuisId = if (position == 0) "" else filteredKuis[position - 1].id
+        }
     }
 
     private fun handleImageSelection(uri: Uri) {
@@ -225,30 +292,23 @@ class TambahTantanganFragment : Fragment() {
     private fun simpanTantangan() {
         val judul = etJudul.text.toString().trim()
         val deskripsi = etDeskripsi.text.toString().trim()
-        
         val imageInput = etImageUrl.text.toString().trim()
+        val targetCount = etTargetCount.text.toString().toIntOrNull() ?: 1
         val finalImageUrl = if (imageInput.startsWith("[")) encodedImageBase64 ?: "" else imageInput
 
-        if (judul.isEmpty()) { etJudul.error = "Judul wajib diisi"; return }
-        if (deskripsi.isEmpty()) { etDeskripsi.error = "Deskripsi wajib diisi"; return }
-        if (selectedMateriId.isEmpty()) { Toast.makeText(requireContext(), "Pilih Materi!", Toast.LENGTH_SHORT).show(); return }
-        if (selectedKuisId.isEmpty()) { Toast.makeText(requireContext(), "Pilih Kuis!", Toast.LENGTH_SHORT).show(); return }
+        if (judul.isEmpty()) { etJudul.error = "Wajib diisi"; return }
+        if (deskripsi.isEmpty()) { etDeskripsi.error = "Wajib diisi"; return }
 
         progressBar.visibility = View.VISIBLE
         btnSimpan.isEnabled = false
 
         val id = editId ?: db.child("tantangan").push().key ?: ""
-        
         val tantangan = Tantangan(
-            id = id,
-            judul = judul,
-            deskripsi = deskripsi,
-            imageUrl = finalImageUrl,
-            badgeId = "",
-            materiId = selectedMateriId,
-            quizId = selectedKuisId,
-            aktif = swAktif.isChecked,
-            createdAt = if (editId == null) System.currentTimeMillis() else arguments?.getLong("createdAt") ?: System.currentTimeMillis()
+            id = id, judul = judul, deskripsi = deskripsi, imageUrl = finalImageUrl,
+            materiId = if (selectedTipe == "SINGLE") selectedMateriId else "", 
+            quizId = if (selectedTipe == "SINGLE") selectedKuisId else "", 
+            type = selectedTipe, targetCount = targetCount,
+            level = selectedLevel, aktif = swAktif.isChecked, createdAt = System.currentTimeMillis()
         )
 
         db.child("tantangan").child(id).setValue(tantangan).addOnSuccessListener {

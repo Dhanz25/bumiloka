@@ -1,8 +1,31 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme diubah ke .Light agar tidak mengikuti mode gelap HP -->
     <style name="Base.Theme.TerraViva" parent="Theme.Material3.Light.NoActionBar">
-        <!-- Customize your light theme here. -->
+        <!-- Warna Utama (Hijau) -->
+        <item name="colorPrimary">@color/primary_green</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/bg_green</item>
+        <item name="colorOnPrimaryContainer">@color/dark_green</item>
+
+        <!-- Warna Sekunder -->
+        <item name="colorSecondary">@color/dark_green</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        <!-- Warna Background & Surface -->
+        <item name="android:windowBackground">@color/home_background</item>
+        <item name="android:statusBarColor">@color/primary_green</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 
     <style name="Theme.TerraViva" parent="Base.Theme.TerraViva" />
+
+    <!-- Style untuk Sticky Bottom Container di Materi (Dibuat Menempel Maksimal) -->
+    <style name="StickyBottomAction">
+        <item name="android:background">#FFFFFF</item>
+        <item name="android:elevation">16dp</item>
+        <item name="android:paddingLeft">20dp</item>
+        <item name="android:paddingRight">20dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">0dp</item>
+    </style>
 </resources>

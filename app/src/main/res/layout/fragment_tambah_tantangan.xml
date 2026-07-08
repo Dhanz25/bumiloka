@@ -18,7 +18,7 @@
             android:id="@+id/tv_title_tambah_tantangan"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tambah Tantangan Bonus"
+            android:text="Tambah Tantangan"
             android:textSize="22sp"
             android:textStyle="bold"
             android:textColor="#1B5E20"
@@ -100,6 +100,40 @@
                 android:inputType="textMultiLine"/>
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Dropdown Tipe Tantangan -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:hint="Tipe Tantangan">
+            <AutoCompleteTextView
+                android:id="@+id/spinner_tipe_tantangan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:text="SINGLE (1 Materi &amp; 1 Kuis)"
+                android:textColor="@color/dark_green"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Target Jumlah (Muncul jika tipe COUNT) -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_target_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Target Jumlah (Contoh: 3)"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_marginBottom="12dp"
+            android:visibility="gone">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_target_count"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:text="1"
+                android:textColor="@color/dark_green"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
         <!-- Dropdown Level User -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -117,6 +151,7 @@
 
         <!-- Dropdown Materi -->
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_spinner_materi"
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -132,6 +167,7 @@
 
         <!-- Dropdown Kuis -->
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_spinner_kuis"
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

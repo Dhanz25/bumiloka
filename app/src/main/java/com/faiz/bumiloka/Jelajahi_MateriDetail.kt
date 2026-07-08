@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Base64
 import android.view.View
-import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -28,7 +27,6 @@ class Jelajahi_MateriDetail : Fragment(R.layout.fragment_jelajahi_materi) {
         val btnBack = view.findViewById<ImageView>(R.id.btnBack)
         val btnLanjut = view.findViewById<Button>(R.id.btnLanjut)
 
-        // Get ID from arguments
         edukasiId = arguments?.getString("id") ?: arguments?.getString("edukasi_id")
         
         if (edukasiId != null) {
@@ -61,11 +59,9 @@ class Jelajahi_MateriDetail : Fragment(R.layout.fragment_jelajahi_materi) {
         v.findViewById<TextView>(R.id.tvJudulUtama)?.text = edukasi.title
         v.findViewById<TextView>(R.id.tvDescription)?.text = if (edukasi.description.isNotEmpty()) edukasi.description else "Baca materi ini untuk menambah wawasanmu."
 
-        // Section 1
         v.findViewById<TextView>(R.id.tvIsiTitle)?.text = if (edukasi.section1Title.isNotEmpty()) edukasi.section1Title else edukasi.title
         v.findViewById<TextView>(R.id.tvIsiMateri)?.text = if (edukasi.section1Content.isNotEmpty()) edukasi.section1Content else edukasi.content
 
-        // Section 2
         val tvS2Title = v.findViewById<TextView>(R.id.tvContohTitle)
         val tvS2Content = v.findViewById<TextView>(R.id.tvContohContent)
         if (edukasi.section2Title.isNotEmpty()) {
@@ -78,7 +74,6 @@ class Jelajahi_MateriDetail : Fragment(R.layout.fragment_jelajahi_materi) {
             tvS2Content?.visibility = View.GONE
         }
 
-        // Section 3
         val tvS3Title = v.findViewById<TextView>(R.id.tvSection3Title)
         val tvS3Content = v.findViewById<TextView>(R.id.tvSection3Content)
         if (edukasi.section3Title.isNotEmpty()) {
@@ -91,39 +86,38 @@ class Jelajahi_MateriDetail : Fragment(R.layout.fragment_jelajahi_materi) {
             tvS3Content?.visibility = View.GONE
         }
 
-        // Handle Image
         val imgMateri = v.findViewById<ImageView>(R.id.imgMateri)
         if (imgMateri != null && edukasi.imageUrl.isNotEmpty()) {
-            if (edukasi.imageUrl.length > 150) { // Base64 strings are usually long
+            if (edukasi.imageUrl.length > 150) {
                 try {
                     val decodedString = Base64.decode(edukasi.imageUrl, Base64.DEFAULT)
                     val decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
                     imgMateri.setImageBitmap(decodedByte)
                 } catch (e: Exception) {
-                    imgMateri.setImageResource(R.drawable.ic_launcher_background)
+                    imgMateri.setImageResource(R.drawable.img_lingkungan)
                 }
-            } else { // Handle drawable name
+            } else {
                 val resId = resources.getIdentifier(edukasi.imageUrl, "drawable", requireContext().packageName)
-                if (resId != 0) {
-                    imgMateri.setImageResource(resId)
-                } else {
-                    imgMateri.setImageResource(R.drawable.ic_launcher_background)
-                }
+                imgMateri.setImageResource(if (resId != 0) resId else R.drawable.img_lingkungan)
             }
         }
     }
 
     private fun completeMission() {
         val ctx = requireContext()
-        AktivitasManager.tambahAktivitas(ctx, "Menyelesaikan Materi Edukasi", "Misi", 20)
-        AktivitasHelper.tambahPoint(ctx, 30, "Membaca Materi")
+        val id = edukasiId ?: ""
+        
+        // Mengurangi poin dari 30 menjadi 10 agar tidak terlalu cepat naik level
+        AktivitasHelper.tambahPoint(ctx, 10, "Membaca Materi")
         AktivitasHelper.tambahMisiSelesai(ctx)
 
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
         LevelHelper.getCurrentLevel(ctx) { currentLevel ->
+            TantanganStatusHelper.syncAllProgress(ctx, currentLevel, "MATERI", id)
             val prefMisi = requireActivity().getSharedPreferences("MISI_${userId}_LEVEL_$currentLevel", Context.MODE_PRIVATE)
             prefMisi.edit().putBoolean("misi1_selesai", true).apply()
             
+            // Membuka gembok level berikutnya tanpa mengubah level aktif
             UnlockLevelHelper.checkAndUnlockNextLevel(ctx, currentLevel)
             showSuccessPopup()
         }

@@ -17,10 +17,13 @@
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_circle_white"
+            android:elevation="4dp"
             android:contentDescription="Kembali"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
             android:src="@drawable/ic_back_arrow"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -31,9 +34,9 @@
             android:id="@+id/tv_judul_header_tantangan"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TANTANGAN"
-            android:textColor="@color/dark_green"
-            android:textSize="22sp"
+            android:text="Detail Tantangan"
+            android:textColor="@color/white"
+            android:textSize="20sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -43,84 +46,96 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Main Content -->
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:clipToPadding="false"
-        app:layout_constraintBottom_toTopOf="@id/btnSelesai"
+        android:paddingBottom="100dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/header">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="20dp">
 
-            <!-- Section Atas: Thumbnail & Title -->
-            <LinearLayout
+            <!-- Card Utama: Thumbnail & Progress -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="16dp"
-                android:orientation="horizontal">
-
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="100dp"
-                    android:layout_height="80dp"
-                    app:cardCornerRadius="12dp"
-                    app:strokeWidth="0dp">
-                    <ImageView
-                        android:id="@+id/iv_thumbnail_detail"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:background="@color/bg_green"
-                        android:src="@drawable/tantangan1" />
-                </com.google.android.material.card.MaterialCardView>
+                android:layout_marginBottom="20dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="6dp"
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:orientation="vertical">
+                    android:gravity="center_vertical"
+                    android:padding="16dp"
+                    android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/tv_judul_detail"
-                        android:layout_width="wrap_content"
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="85dp"
+                        android:layout_height="85dp"
+                        app:cardCornerRadius="12dp"
+                        app:strokeWidth="0dp">
+                        <ImageView
+                            android:id="@+id/iv_thumbnail_detail"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/tantangan1" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Penjelajah Mingguan"
-                        android:textColor="@color/text_black"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:layout_marginStart="16dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/tvProgressUtama"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Progress 0%"
-                        android:textColor="@color/text_black"
-                        android:textSize="14sp" />
+                        <TextView
+                            android:id="@+id/tv_judul_detail"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Judul Tantangan"
+                            android:textColor="@color/text_black"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
 
-                    <ProgressBar
-                        android:id="@+id/progressBarUtama"
-                        style="?android:attr/progressBarStyleHorizontal"
-                        android:layout_width="match_parent"
-                        android:layout_height="4dp"
-                        android:layout_marginTop="4dp"
-                        android:progress="0"
-                        android:progressTint="@color/nav_inactive" />
+                        <TextView
+                            android:id="@+id/tvProgressUtama"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="Progress 0%"
+                            android:textColor="@color/primary_green"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <ProgressBar
+                            android:id="@+id/progressBarUtama"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="8dp"
+                            android:layout_marginTop="4dp"
+                            android:progress="0"
+                            android:progressTint="@color/primary_green" />
+                    </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-            <!-- Card: Deskripsi Tantangan -->
+            <!-- Card Deskripsi -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="24dp"
                 app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
                 app:strokeWidth="0dp">
 
                 <LinearLayout
@@ -129,55 +144,45 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Deskripsi Tantangan"
-                            android:textColor="@color/text_black"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                        <TextView
-                            android:id="@+id/tv_deadline_detail"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_badge"
-                            android:paddingHorizontal="12dp"
-                            android:paddingVertical="4dp"
-                            android:text="Tersedia"
-                            android:textColor="@color/white"
-                            android:textSize="12sp"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                    </androidx.constraintlayout.widget.ConstraintLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Deskripsi Tantangan"
+                        android:textColor="@color/text_black"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tv_deskripsi_detail"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:text="Selesaikan aktivitas belajar untuk menuntaskan tantangan ini"
+                        android:layout_marginTop="8dp"
+                        android:lineSpacingExtra="4dp"
+                        android:text="Selesaikan semua tugas di bawah ini untuk menuntaskan tantangan dan mendapatkan reward spesial!"
                         android:textColor="@color/text_subtitle"
                         android:textSize="14sp" />
-
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Task 1: Membaca Materi -->
+            <TextView
+                android:id="@+id/tvLabelDaftarTugas"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:text="Daftar Tugas"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <!-- Task 1: Materi -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardTaskMateri"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
                 app:strokeWidth="0dp">
 
                 <LinearLayout
@@ -186,48 +191,68 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <TextView
-                        android:id="@+id/tvProgressMateri"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="1. Menyelesaikan Materi"
-                        android:textColor="@color/text_black"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:background="@drawable/bg_icon_circle_green"
+                            android:padding="8dp"
+                            android:src="@drawable/ic_book"
+                            app:tint="@color/primary_green" />
+
+                        <TextView
+                            android:id="@+id/tvProgressMateri"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:text="0/1 Materi selesai"
+                            android:textColor="@color/text_black"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvDescTaskMateri"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Pelajari materi yang tersedia untuk memahami dasar tantangan ini."
+                        android:textColor="@color/text_subtitle"
+                        android:textSize="13sp" />
 
                     <ProgressBar
                         android:id="@+id/progressBarMateri"
                         style="?android:attr/progressBarStyleHorizontal"
                         android:layout_width="match_parent"
-                        android:layout_height="4dp"
-                        android:layout_marginTop="12dp"
-                        android:progress="0"
-                        android:progressTint="@color/nav_inactive" />
+                        android:layout_height="6dp"
+                        android:layout_marginTop="16dp"
+                        android:progressTint="@color/primary_green" />
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnMulaiMateri"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:backgroundTint="@color/grey_button"
-                        android:minHeight="0dp"
-                        android:paddingHorizontal="24dp"
-                        android:text="Mulai"
+                        android:text="Pelajari Materi"
                         android:textAllCaps="false"
-                        android:textColor="@color/text_black"
-                        android:textSize="12sp" />
-
+                        app:cornerRadius="8dp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Task 2: Kuis -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardTaskKuis"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
                 app:strokeWidth="0dp">
 
                 <LinearLayout
@@ -236,57 +261,88 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <TextView
-                        android:id="@+id/tvProgressKuis"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="2. Menyelesaikan Kuis"
-                        android:textColor="@color/text_black"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:background="@drawable/bg_icon_circle_green"
+                            android:padding="8dp"
+                            android:src="@drawable/ic_quiz"
+                            app:tint="@color/primary_green" />
+
+                        <TextView
+                            android:id="@+id/tvProgressKuis"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:text="0/1 Kuis selesai"
+                            android:textColor="@color/text_black"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvDescTaskKuis"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Uji pengetahuanmu dengan mengerjakan kuis terkait tantangan ini."
+                        android:textColor="@color/text_subtitle"
+                        android:textSize="13sp" />
 
                     <ProgressBar
                         android:id="@+id/progressBarKuis"
                         style="?android:attr/progressBarStyleHorizontal"
                         android:layout_width="match_parent"
-                        android:layout_height="4dp"
-                        android:layout_marginTop="12dp"
-                        android:progress="0"
-                        android:progressTint="@color/nav_inactive" />
+                        android:layout_height="6dp"
+                        android:layout_marginTop="16dp"
+                        android:progressTint="@color/primary_green" />
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnMulaiKuis"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:backgroundTint="@color/grey_button"
-                        android:minHeight="0dp"
-                        android:paddingHorizontal="24dp"
-                        android:text="Mulai"
+                        android:text="Kerjakan Kuis"
                         android:textAllCaps="false"
-                        android:textColor="@color/text_black"
-                        android:textSize="12sp" />
-
+                        app:cornerRadius="8dp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
-    <!-- Bottom Button -->
-    <Button
-        android:id="@+id/btnSelesai"
+    <!-- Bottom Button Container -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/bottomContainer"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_margin="16dp"
-        android:backgroundTint="@color/grey_button"
-        android:text="Selesai"
-        android:textAllCaps="false"
-        android:textColor="@color/text_black"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_height="wrap_content"
+        app:cardElevation="16dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:padding="16dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSelesai"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:backgroundTint="@color/primary_green"
+                android:text="Selesaikan Tantangan"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

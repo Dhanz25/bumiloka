@@ -14,15 +14,10 @@ class QuizSelesaiFragment : Fragment() {
     ): View? {
         return inflater.inflate(R.layout.fragment_quiz_selesai_, container, false)
     }
-    // Tambahkan bagian ini untuk memproses logika setelah tampilan dimuat
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // Tentukan berapa XP yang didapat saat menyelesaikan kuis ini
-        // Misalnya kita set mendapat 50 XP
-        val xpDidapat = 50
-
-        // Panggil helper untuk menambahkan XP ke database Firebase
-        AktivitasHelper.tambahPoint(requireContext(), xpDidapat)
+        // HAPUS: AktivitasHelper.tambahPoint(requireContext(), 50) 
+        // Agar poin hanya diambil dari settingan Admin di QuizMenang1Fragment
     }
 }

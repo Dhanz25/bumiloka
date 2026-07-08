@@ -1,26 +1,18 @@
 package com.faiz.bumiloka
 
 import android.content.Context
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 
 object UnlockLevelHelper {
 
-    /**
-     * Mengecek apakah semua misi di level tertentu sudah selesai.
-     * Logika ini bisa disesuaikan dengan kebutuhan (misal: cek SharedPreferences atau Firebase)
-     */
     fun checkAndUnlockNextLevel(context: Context, currentLevel: Int) {
-        // Maksimal level adalah 3, tidak perlu unlock level 4
         if (currentLevel >= 3) return
 
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val prefMisi = context.getSharedPreferences(
-            "MISI_${userId}_LEVEL_$currentLevel",
-            Context.MODE_PRIVATE
-        )
+        val prefMisi = context.getSharedPreferences("MISI_${userId}_LEVEL_$currentLevel", Context.MODE_PRIVATE)
         
-        // Misal syarat naik ke level berikutnya adalah 3 misi utama selesai
         val misi1 = prefMisi.getBoolean("misi1_selesai", false)
         val misi2 = prefMisi.getBoolean("misi2_selesai", false)
         val misi3 = prefMisi.getBoolean("misi3_selesai", false)
@@ -31,45 +23,31 @@ object UnlockLevelHelper {
     }
 
     private fun unlockNextLevel(context: Context, nextLevel: Int) {
-        // Jangan unlock melebihi level 3
         if (nextLevel > 3) return
 
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseDatabase.getInstance().reference.child("users").child(userId)
 
-        val db = FirebaseDatabase.getInstance()
-            .reference
-            .child("users")
-            .child(userId)
+        db.child("highestUnlockedLevel").get().addOnSuccessListener { snapshot ->
+            val highest = (snapshot.value as? Long)?.toInt() ?: 1
 
-        db.child("highestUnlockedLevel")
-            .get()
-            .addOnSuccessListener { snapshot ->
-
-                val highest = snapshot.getValue(Int::class.java) ?: 1
-
-                if (nextLevel > highest) {
-
-                    // ✅ update firebase
-                    db.child("highestUnlockedLevel").setValue(nextLevel)
-
-                    // ✅ pindah level aktif
-                    db.child("level").setValue(nextLevel)
-
-                    // ✅ simpan local instant
-                    val pref = context.getSharedPreferences(
-                        "LEVEL_SYSTEM",
-                        Context.MODE_PRIVATE
-                    )
-
-                    pref.edit()
-                        .putInt("current_level", nextLevel)
-                        .apply()
-                }
+            if (nextLevel > highest) {
+                // Hanya update level yang terbuka, jangan paksa ganti level aktif
+                db.child("highestUnlockedLevel").setValue(nextLevel)
+                
+                // Hapus baris ini agar user tidak tiba-tiba pindah level saat masih di fragment sebelumnya
+                // db.child("level").setValue(nextLevel)
+                // val pref = context.getSharedPreferences("LEVEL_SYSTEM", Context.MODE_PRIVATE)
+                // pref.edit().putInt("current_level", nextLevel).apply()
+                
+                Log.d("UnlockLevel", "Level $nextLevel berhasil dibuka!")
             }
+        }.addOnFailureListener { e ->
+            Log.e("UnlockLevel", "Gagal unlock level: ${e.message}")
+        }
     }
 
     fun isLevelUnlocked(level: Int, highestUnlocked: Int): Boolean {
-        // Pastikan level yang dicek tidak melebihi 3
         if (level > 3) return false
         return level <= highestUnlocked
     }

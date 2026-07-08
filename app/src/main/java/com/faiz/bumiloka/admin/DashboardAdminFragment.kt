@@ -53,6 +53,14 @@ class DashboardAdminFragment : Fragment() {
             navigateTo(TantanganFragment())
         }
 
+        binding.cardTantanganBonus.setOnClickListener {
+            navigateTo(BonusTantanganFragment())
+        }
+
+        binding.cardBadge.setOnClickListener {
+            navigateTo(BadgeAdminFragment())
+        }
+
         binding.cardStatistik.setOnClickListener {
             navigateTo(StatistikFragment())
         }
@@ -67,6 +75,8 @@ class DashboardAdminFragment : Fragment() {
             binding.tvCountEdukasi.text = "${stats["edukasi"] ?: 0} Materi"
             binding.tvCountKuis.text = "${stats["kuis"] ?: 0} Kuis"
             binding.tvCountTantangan.text = "${stats["tantangan"] ?: 0} Tantangan"
+            binding.tvCountBadge.text = "${stats["badges"] ?: 0} Lencana"
+            binding.tvCountTantanganBonus.text = "${stats["bonus_tantangan"] ?: 0} Bonus"
         }
     }
 

@@ -3,16 +3,21 @@ package com.faiz.bumiloka
 import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.google.firebase.auth.FirebaseAuth
 
 object AktivitasManager {
 
-    private const val PREF_NAME = "AKTIVITAS_PREF"
+    private const val PREF_BASE_NAME = "AKTIVITAS_PREF_"
     private const val KEY = "DATA_AKTIVITAS"
 
     private val gson = Gson()
 
-    fun tambahAktivitas(context: Context, title: String, type: String, points: Int) {
+    private fun getUserId(): String {
+        return FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+    }
 
+    fun tambahAktivitas(context: Context, title: String, type: String, points: Int) {
+        val userId = getUserId()
         val list = getAktivitas(context).toMutableList()
 
         val aktivitas = AktivitasModel(
@@ -23,12 +28,12 @@ object AktivitasManager {
         )
 
         list.add(0, aktivitas)
-
-        simpanAktivitas(context, list)
+        simpanAktivitas(context, list, userId)
     }
 
     fun getAktivitas(context: Context): List<AktivitasModel> {
-        val pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val userId = getUserId()
+        val pref = context.getSharedPreferences(PREF_BASE_NAME + userId, Context.MODE_PRIVATE)
         val json = pref.getString(KEY, null)
 
         return if (json != null) {
@@ -39,12 +44,8 @@ object AktivitasManager {
         }
     }
 
-
-    private fun simpanAktivitas(context: Context, list: List<AktivitasModel>) {
-        val pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+    private fun simpanAktivitas(context: Context, list: List<AktivitasModel>, userId: String) {
+        val pref = context.getSharedPreferences(PREF_BASE_NAME + userId, Context.MODE_PRIVATE)
         pref.edit().putString(KEY, gson.toJson(list)).apply()
     }
-
-    // ==========================
-
 }

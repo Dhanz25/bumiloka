@@ -1,30 +1,24 @@
 package com.faiz.bumiloka.data.repository
 
-import com.faiz.bumiloka.model.Edukasi
-import com.faiz.bumiloka.model.Kuis
-import com.faiz.bumiloka.model.SoalKuis
-import com.faiz.bumiloka.model.Tantangan
+import android.util.Log
+import com.faiz.bumiloka.model.*
 import com.google.firebase.database.*
 
 class AdminRepository {
     private val db = FirebaseDatabase.getInstance().reference
 
-    // EDUKASI
+    // --- EDUKASI ---
     fun getEdukasi(onResult: (List<Edukasi>) -> Unit) {
         db.child("edukasi").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val list = mutableListOf<Edukasi>()
                 snapshot.children.forEach { child ->
-                    if (child.value is Map<*, *>) {
-                        try {
-                            child.getValue(Edukasi::class.java)?.let {
-                                it.id = child.key ?: ""
-                                list.add(it)
-                            }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
+                    try {
+                        child.getValue(Edukasi::class.java)?.let {
+                            it.id = child.key ?: ""
+                            list.add(it)
                         }
-                    }
+                    } catch (e: Exception) { Log.e("AdminRepo", "Err Edukasi: ${e.message}") }
                 }
                 onResult(list)
             }
@@ -42,22 +36,18 @@ class AdminRepository {
         db.child("edukasi").child(id).removeValue().addOnCompleteListener { onComplete(it.isSuccessful) }
     }
 
-    // KUIS
+    // --- KUIS ---
     fun getKuis(onResult: (List<Kuis>) -> Unit) {
         db.child("kuis").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val list = mutableListOf<Kuis>()
                 snapshot.children.forEach { child ->
-                    if (child.value is Map<*, *>) {
-                        try {
-                            child.getValue(Kuis::class.java)?.let {
-                                it.id = child.key ?: ""
-                                list.add(it)
-                            }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
+                    try {
+                        child.getValue(Kuis::class.java)?.let {
+                            it.id = child.key ?: ""
+                            list.add(it)
                         }
-                    }
+                    } catch (e: Exception) { Log.e("AdminRepo", "Err Kuis: ${e.message}") }
                 }
                 onResult(list)
             }
@@ -68,14 +58,12 @@ class AdminRepository {
     fun saveKuis(kuis: Kuis, onComplete: (Boolean) -> Unit) {
         val kuisId = if (kuis.id.isEmpty()) db.child("kuis").push().key ?: "" else kuis.id
         kuis.id = kuisId
-        
         db.child("kuis").child(kuisId).setValue(kuis).addOnCompleteListener { onComplete(it.isSuccessful) }
     }
 
     fun saveKuisLengkap(kuis: Kuis, soalList: List<SoalKuis>, onComplete: (Boolean) -> Unit) {
         val kuisId = if (kuis.id.isEmpty()) db.child("kuis").push().key ?: "" else kuis.id
         kuis.id = kuisId
-        
         val updates = HashMap<String, Any>()
         updates["id"] = kuis.id
         updates["edukasiId"] = kuis.edukasiId
@@ -94,7 +82,6 @@ class AdminRepository {
             soalMap[soalId] = soal
         }
         updates["soal"] = soalMap
-
         db.child("kuis").child(kuisId).updateChildren(updates).addOnCompleteListener { onComplete(it.isSuccessful) }
     }
 
@@ -102,22 +89,18 @@ class AdminRepository {
         db.child("kuis").child(id).removeValue().addOnCompleteListener { onComplete(it.isSuccessful) }
     }
 
-    // TANTANGAN
+    // --- TANTANGAN UTAMA ---
     fun getTantangan(onResult: (List<Tantangan>) -> Unit) {
         db.child("tantangan").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val list = mutableListOf<Tantangan>()
                 snapshot.children.forEach { child ->
-                    if (child.value is Map<*, *>) {
-                        try {
-                            child.getValue(Tantangan::class.java)?.let {
-                                it.id = child.key ?: ""
-                                list.add(it)
-                            }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
+                    try {
+                        child.getValue(Tantangan::class.java)?.let {
+                            it.id = child.key ?: ""
+                            list.add(it)
                         }
-                    }
+                    } catch (e: Exception) { Log.e("AdminRepo", "Err Tantangan: ${e.message}") }
                 }
                 onResult(list)
             }
@@ -135,22 +118,81 @@ class AdminRepository {
         db.child("tantangan").child(id).removeValue().addOnCompleteListener { onComplete(it.isSuccessful) }
     }
 
-    // SOAL
+    // --- TANTANGAN BONUS ---
+    fun getBonusTantangan(onResult: (List<BonusChallengeModel>) -> Unit) {
+        db.child("bonus_tantangan").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val list = mutableListOf<BonusChallengeModel>()
+                snapshot.children.forEach { child ->
+                    try {
+                        child.getValue(BonusChallengeModel::class.java)?.let {
+                            it.id = child.key ?: ""
+                            list.add(it)
+                        }
+                    } catch (e: Exception) { Log.e("AdminRepo", "Err Bonus: ${e.message}") }
+                }
+                onResult(list)
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+    }
+
+    fun saveBonusTantangan(bonus: BonusChallengeModel, onResult: (Boolean, String?) -> Unit) {
+        val nodeRef = db.child("bonus_tantangan")
+        val finalRef = if (bonus.id.isEmpty()) nodeRef.push() else nodeRef.child(bonus.id)
+        if (bonus.id.isEmpty()) bonus.id = finalRef.key ?: ""
+        
+        finalRef.setValue(bonus).addOnCompleteListener { task ->
+            if (task.isSuccessful) onResult(true, null)
+            else onResult(false, task.exception?.message)
+        }
+    }
+
+    fun deleteBonusTantangan(id: String, onComplete: (Boolean) -> Unit) {
+        db.child("bonus_tantangan").child(id).removeValue().addOnCompleteListener { onComplete(it.isSuccessful) }
+    }
+
+    // --- BADGES ---
+    fun getBadges(onResult: (List<Badge>) -> Unit) {
+        db.child("badges").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val list = mutableListOf<Badge>()
+                snapshot.children.forEach { child ->
+                    try {
+                        child.getValue(Badge::class.java)?.let {
+                            it.id = child.key ?: ""
+                            list.add(it)
+                        }
+                    } catch (e: Exception) { Log.e("AdminRepo", "Err Badge: ${e.message}") }
+                }
+                onResult(list)
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+    }
+
+    fun saveBadge(badge: Badge, onComplete: (Boolean) -> Unit) {
+        val ref = if (badge.id.isEmpty()) db.child("badges").push() else db.child("badges").child(badge.id)
+        if (badge.id.isEmpty()) badge.id = ref.key ?: ""
+        ref.setValue(badge).addOnCompleteListener { onComplete(it.isSuccessful) }
+    }
+
+    fun deleteBadge(id: String, onComplete: (Boolean) -> Unit) {
+        db.child("badges").child(id).removeValue().addOnCompleteListener { onComplete(it.isSuccessful) }
+    }
+
+    // --- SOAL ---
     fun getSoal(kuisId: String, onResult: (List<SoalKuis>) -> Unit) {
         db.child("kuis").child(kuisId).child("soal").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val list = mutableListOf<SoalKuis>()
                 snapshot.children.forEach { child ->
-                    if (child.value is Map<*, *>) {
-                        try {
-                            child.getValue(SoalKuis::class.java)?.let {
-                                it.id = child.key ?: ""
-                                list.add(it)
-                            }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
+                    try {
+                        child.getValue(SoalKuis::class.java)?.let {
+                            it.id = child.key ?: ""
+                            list.add(it)
                         }
-                    }
+                    } catch (e: Exception) { e.printStackTrace() }
                 }
                 onResult(list)
             }
@@ -168,26 +210,15 @@ class AdminRepository {
         db.child("kuis").child(kuisId).child("soal").child(soalId).removeValue().addOnCompleteListener { onComplete(it.isSuccessful) }
     }
 
-    // STATISTIK
+    // --- STATISTIK ---
     fun getStatistik(onResult: (Map<String, Long>) -> Unit) {
         val stats = mutableMapOf<String, Long>()
-        val nodes = listOf("edukasi", "kuis", "users", "tantangan")
+        val nodes = listOf("edukasi", "kuis", "users", "tantangan", "badges", "bonus_tantangan")
         nodes.forEach { node ->
-            db.child(node).addValueEventListener(object : ValueEventListener {
+            db.child(node).addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     stats[node] = snapshot.childrenCount
-                    
-                    if (node == "kuis") {
-                        var totalSoal = 0L
-                        snapshot.children.forEach { kuisChild ->
-                            totalSoal += kuisChild.child("soal").childrenCount
-                        }
-                        stats["soal"] = totalSoal
-                    }
-
-                    if (stats.size >= 4) {
-                        onResult(stats)
-                    }
+                    if (stats.size >= nodes.size) onResult(stats)
                 }
                 override fun onCancelled(error: DatabaseError) {}
             })

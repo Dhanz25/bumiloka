@@ -8,29 +8,16 @@ import com.google.firebase.database.FirebaseDatabase
 
 object LevelHelper {
 
+    /**
+     * Mengambil level aktif yang sedang dipilih oleh user (untuk filter konten).
+     * Tidak lagi melakukan sinkronisasi otomatis dari Firebase agar tidak mengganggu flow user.
+     */
     fun getCurrentLevel(context: Context, callback: (Int) -> Unit) {
         val localLevel = getCurrentLevelLocal(context)
         callback(localLevel)
-
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-
-        val db = FirebaseDatabase.getInstance()
-            .reference
-            .child("users")
-            .child(userId)
-
-        db.child("level")
-            .get()
-            .addOnSuccessListener { snapshot ->
-                var firebaseLevel = snapshot.getValue(Int::class.java) ?: 1
-                if (firebaseLevel > 3) firebaseLevel = 3
-
-                if (firebaseLevel != localLevel) {
-                    val pref = context.getSharedPreferences("LEVEL_SYSTEM", Context.MODE_PRIVATE)
-                    pref.edit().putInt("current_level", firebaseLevel).apply()
-                    callback(firebaseLevel)
-                }
-            }
+        
+        // Sinkronisasi dari Firebase hanya dilakukan saat inisialisasi awal atau via sync manual
+        // Untuk sekarang, kita kembalikan saja localLevel agar filter tidak berubah tiba-tiba.
     }
 
     fun getHighestUnlockedLevel(callback: (Int) -> Unit) {
@@ -38,14 +25,21 @@ object LevelHelper {
         val db = FirebaseDatabase.getInstance().reference.child("users").child(userId)
         
         db.child("highestUnlockedLevel").get().addOnSuccessListener { snapshot ->
-            var level = snapshot.getValue(Int::class.java) ?: 1
-            if (level > 3) level = 3
-            callback(level)
+            val level = (snapshot.value as? Long)?.toInt() ?: 1
+            callback(if (level > 3) 3 else level)
         }.addOnFailureListener {
             callback(1)
         }
     }
 
+    fun getCurrentLevelLocal(context: Context): Int {
+        val pref = context.getSharedPreferences("LEVEL_SYSTEM", Context.MODE_PRIVATE)
+        return pref.getInt("current_level", 1)
+    }
+
+    /**
+     * Menyimpan level yang dipilih secara eksplisit oleh user.
+     */
     fun saveSelectedLevel(context: Context, level: Int, onComplete: () -> Unit = {}) {
         val targetLevel = if (level > 3) 3 else level
         val pref = context.getSharedPreferences("LEVEL_SYSTEM", Context.MODE_PRIVATE)
@@ -54,71 +48,6 @@ object LevelHelper {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseDatabase.getInstance().reference.child("users").child(userId)
         db.child("level").setValue(targetLevel).addOnSuccessListener { onComplete() }
-    }
-
-    fun getQuizTitle(level: Int, index: Int): String {
-        return when (level) {
-            1 -> when (index) {
-                1 -> "Quiz Peduli Lingkungan"
-                2 -> "Quiz Kelola Sampah"
-                3 -> "Quiz Hemat Air"
-                else -> "Quiz Lingkungan"
-            }
-            2 -> when (index) {
-                1 -> "Quiz Energi Terbarukan"
-                2 -> "Quiz Pemanasan Global"
-                3 -> "Quiz Ekosistem Laut"
-                else -> "Quiz Level 2"
-            }
-            3 -> when (index) {
-                1 -> "Quiz Biodiversity"
-                2 -> "Quiz Perubahan Iklim"
-                3 -> "Quiz Hutan Hujan"
-                else -> "Quiz Level 3"
-            }
-            else -> "Quiz Level $level - $index"
-        }
-    }
-
-    fun getQuizImage(level: Int, index: Int): Int {
-        return when (level) {
-            1 -> when (index) {
-                1 -> R.drawable.img_lingkungan
-                2 -> R.drawable.img_sampah
-                3 -> R.drawable.img_air
-                else -> R.drawable.img_lingkungan
-            }
-            else -> R.drawable.img
-        }
-    }
-
-    fun openQuizFragment(level: Int, index: Int, fragmentManager: FragmentManager) {
-        val fragment: Fragment = when (level) {
-            1 -> when (index) {
-                1 -> QuizSoalFragment.newInstance("1")
-                2 -> QuizSoal2Fragment.newInstance(2)
-                3 -> QuizSoal3Fragment.newInstance(3)
-                else -> QuizSoalFragment.newInstance("1")
-            }
-            2 -> when (index) {
-                1 -> QuizSoalFragment.newInstance("4")
-                2 -> QuizSoal2Fragment.newInstance(5)
-                3 -> QuizSoal3Fragment.newInstance(6)
-                else -> QuizSoalFragment.newInstance("4")
-            }
-            3 -> when (index) {
-                1 -> QuizSoalFragment.newInstance("7")
-                2 -> QuizSoal2Fragment.newInstance(8)
-                3 -> QuizSoal3Fragment.newInstance(9)
-                else -> QuizSoalFragment.newInstance("7")
-            }
-            else -> QuizSoalFragment.newInstance("1")
-        }
-
-        fragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
     }
 
     fun resetProgressPerLevel(context: Context, userId: String, nextLevel: Int, sisaXP: Int, onComplete: () -> Unit) {
@@ -136,8 +65,17 @@ object LevelHelper {
         db.updateChildren(updates).addOnSuccessListener { onComplete() }
     }
 
-    fun getCurrentLevelLocal(context: Context): Int {
-        val pref = context.getSharedPreferences("LEVEL_SYSTEM", Context.MODE_PRIVATE)
-        return pref.getInt("current_level", 1)
+    fun openQuizFragment(level: Int, index: Int, fragmentManager: FragmentManager) {
+        val quizId = when(level) {
+            1 -> index.toString()
+            2 -> (index + 3).toString()
+            3 -> (index + 6).toString()
+            else -> "1"
+        }
+        val fragment = QuizSoalFragment.newInstance(quizId, level)
+        fragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 }

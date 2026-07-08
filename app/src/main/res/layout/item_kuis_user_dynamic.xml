@@ -8,17 +8,20 @@
     app:cardElevation="4dp"
     app:cardBackgroundColor="@color/white">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:padding="16dp">
 
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardImage"
             android:layout_width="90dp"
             android:layout_height="90dp"
             app:cardCornerRadius="16dp"
-            app:cardElevation="0dp">
+            app:cardElevation="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
             <ImageView
                 android:id="@+id/imgQuiz"
                 android:layout_width="match_parent"
@@ -27,65 +30,60 @@
                 android:src="@drawable/img_lingkungan" />
         </com.google.android.material.card.MaterialCardView>
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/tvTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_gravity="center_vertical"
-            android:paddingStart="16dp">
+            android:layout_marginStart="16dp"
+            android:text="Judul Kuis"
+            android:textColor="@color/dark_green"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/cardImage"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-            <TextView
-                android:id="@+id/tvTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Judul Kuis"
-                android:textColor="@color/dark_green"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:text="Status: Belum Dikerjakan"
+            android:textColor="@color/grey_button"
+            android:textSize="13sp"
+            app:layout_constraintStart_toEndOf="@id/cardImage"
+            app:layout_constraintTop_toBottomOf="@id/tvTitle"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-            <TextView
-                android:id="@+id/tvStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Status: Belum Dikerjakan"
-                android:textColor="@color/grey_button"
-                android:textSize="13sp"
-                android:layout_marginTop="4dp" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAction"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kerjakan"
+            android:textSize="12sp"
+            android:paddingHorizontal="16dp"
+            app:cornerRadius="12dp"
+            app:backgroundTint="@color/nav_active"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="12dp"
-                android:gravity="end">
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTips"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="Tips"
+            android:textSize="12sp"
+            android:paddingHorizontal="16dp"
+            app:cornerRadius="12dp"
+            android:visibility="gone"
+            app:icon="@drawable/ic_tips"
+            app:iconSize="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btnAction" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnTips"
-                    style="@style/Widget.Material3.Button.TonalButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Tips"
-                    android:textSize="12sp"
-                    android:paddingHorizontal="16dp"
-                    app:cornerRadius="12dp"
-                    android:layout_marginEnd="8dp"
-                    android:visibility="gone"
-                    app:icon="@drawable/ic_tips"
-                    app:iconSize="16dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnAction"
-                    style="@style/Widget.Material3.Button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Kerjakan"
-                    android:textSize="12sp"
-                    android:paddingHorizontal="16dp"
-                    app:cornerRadius="12dp"
-                    app:backgroundTint="@color/nav_active" />
-
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

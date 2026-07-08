@@ -404,6 +404,7 @@
 
             <!-- Card Rekomendasi (PREMIUM DESIGN) -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardRekomendasi"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"

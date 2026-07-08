@@ -9,7 +9,7 @@
     tools:context=".ProfileFragment"
     android:paddingTop="24dp">
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:clipToPadding="false"
@@ -55,7 +55,6 @@
                     android:background="@drawable/bg_level1"
                     android:padding="24dp">
 
-                    <!-- Ornamen 1 (Top-Right) -->
                     <ImageView
                         android:id="@+id/ivOrnamenProfile1"
                         android:layout_width="150dp"
@@ -66,35 +65,30 @@
                         android:layout_marginEnd="-30dp"
                         android:alpha="0.2"
                         android:src="@drawable/ic_trophy"
-                        app:tint="@color/white"
-                        android:importantForAccessibility="no" />
+                        app:tint="@color/white" />
 
-                    <!-- Ornamen 2 (Bottom-Right) -->
                     <ImageView
                         android:id="@+id/ivOrnamenProfile2"
                         android:layout_width="120dp"
                         android:layout_height="120dp"
                         android:layout_alignParentEnd="true"
-                        android:layout_alignParentBottom="true"
-                        android:layout_marginEnd="10dp"
-                        android:layout_marginBottom="-30dp"
+                        android:layout_alignParentTop="true"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginEnd="40dp"
                         android:alpha="0.15"
                         android:src="@drawable/ic_medal"
-                        app:tint="@color/white"
-                        android:importantForAccessibility="no" />
+                        app:tint="@color/white" />
 
-                    <!-- Ornamen 3 (Center-Right Circle) -->
                     <ImageView
                         android:id="@+id/ivOrnamenProfile3"
                         android:layout_width="90dp"
                         android:layout_height="90dp"
                         android:layout_centerVertical="true"
                         android:layout_alignParentEnd="true"
-                        android:layout_marginEnd="40dp"
+                        android:layout_marginEnd="80dp"
                         android:alpha="0.1"
                         android:src="@drawable/bg_badge_circle"
-                        app:tint="@color/white"
-                        android:importantForAccessibility="no" />
+                        app:tint="@color/white" />
 
                     <LinearLayout
                         android:id="@+id/llHeaderProfile"
@@ -124,9 +118,9 @@
                                 android:id="@+id/tvProfileName"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Faizurrohim Ramadhani"
+                                android:text="Memuat..."
                                 android:textColor="@android:color/white"
-                                android:textSize="22sp"
+                                android:textSize="20sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -134,21 +128,19 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
-                                android:text="📍 Pejuang Lingkungan"
+                                android:text="📍 Pengamat Bumi"
                                 android:textColor="@android:color/white"
-                                android:textSize="14sp"
+                                android:textSize="13sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
 
-                    <!-- POINT CARD AREA (Rounded Rectangle) -->
                     <LinearLayout
                         android:id="@+id/llPointBanner"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/llHeaderProfile"
                         android:layout_marginTop="32dp"
-                        android:minWidth="400dp"
                         android:background="@drawable/bg_badge"
                         android:backgroundTint="#4DFFFFFF"
                         android:orientation="vertical"
@@ -166,7 +158,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="440"
+                            android:text="0"
                             android:textColor="@android:color/white"
                             android:textSize="32sp"
                             android:textStyle="bold" />
@@ -179,111 +171,110 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:layout_marginHorizontal="-4dp"
                 android:orientation="horizontal"
-                android:baselineAligned="false"
                 android:weightSum="3">
 
-                <!-- Point Stat -->
                 <LinearLayout
+                    android:id="@+id/btnStatPoin"
                     android:layout_width="0dp"
-                    android:layout_height="120dp"
+                    android:layout_height="110dp"
                     android:layout_weight="1"
                     android:layout_margin="4dp"
                     android:background="@drawable/bg_menu_flat"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:padding="12dp">
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:src="@drawable/ic_trophy"
-                        app:tint="#FFC107"
-                        android:importantForAccessibility="no" />
-                    <TextView
-                        android:id="@+id/tvTotalPoinGrid"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="440"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/dark_green"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Total Poin"
-                        android:textSize="11sp"
-                        android:textColor="@color/text_subtitle" />
+                    android:clickable="true"
+                    android:focusable="true">
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_trophy" app:tint="#FFC107" />
+                    <TextView android:id="@+id/tvTotalPoinGrid" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textSize="16sp" android:textStyle="bold" android:textColor="@color/dark_green"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Poin" android:textSize="10sp" android:textColor="@color/text_subtitle" />
                 </LinearLayout>
 
-                <!-- Mission Stat -->
                 <LinearLayout
+                    android:id="@+id/btnStatMisi"
                     android:layout_width="0dp"
-                    android:layout_height="120dp"
+                    android:layout_height="110dp"
                     android:layout_weight="1"
                     android:layout_margin="4dp"
                     android:background="@drawable/bg_menu_flat"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:padding="12dp">
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:src="@drawable/ic_target"
-                        app:tint="#2196F3"
-                        android:importantForAccessibility="no" />
-                    <TextView
-                        android:id="@+id/tvTotalMisi"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="1"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="#1976D2"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Misi Selesai"
-                        android:textSize="11sp"
-                        android:textColor="@color/text_subtitle" />
+                    android:clickable="true"
+                    android:focusable="true">
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_target" app:tint="#2196F3" />
+                    <TextView android:id="@+id/tvTotalMisi" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textSize="16sp" android:textStyle="bold" android:textColor="#1976D2"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Misi Selesai" android:textSize="10sp" android:textColor="@color/text_subtitle" />
                 </LinearLayout>
 
-                <!-- Badge Stat -->
                 <LinearLayout
+                    android:id="@+id/btnStatLencana"
                     android:layout_width="0dp"
-                    android:layout_height="120dp"
+                    android:layout_height="110dp"
                     android:layout_weight="1"
                     android:layout_margin="4dp"
                     android:background="@drawable/bg_menu_flat"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:padding="12dp">
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:src="@drawable/ic_leaf"
-                        app:tint="#4CAF50"
-                        android:importantForAccessibility="no" />
-                    <TextView
-                        android:id="@+id/tvTotalLencana"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="0"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="#388E3C"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Lencana"
-                        android:textSize="11sp"
-                        android:textColor="@color/text_subtitle" />
+                    android:clickable="true"
+                    android:focusable="true">
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_leaf" app:tint="#4CAF50" />
+                    <TextView android:id="@+id/tvTotalLencana" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textSize="16sp" android:textStyle="bold" android:textColor="#388E3C"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Lencana" android:textSize="10sp" android:textColor="@color/text_subtitle" />
                 </LinearLayout>
             </LinearLayout>
 
+            <!-- LENCANA SAYA SECTION -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:text="Lencana Saya"
+                android:textColor="@color/dark_green"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/white">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="110dp"
+                    android:padding="12dp">
+
+                    <HorizontalScrollView
+                        android:id="@+id/scrollBadges"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:scrollbars="none"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:id="@+id/containerEarnedBadges"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+                        </LinearLayout>
+                    </HorizontalScrollView>
+
+                    <TextView
+                        android:id="@+id/tvEmptyBadges"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="Belum ada lencana yang didapat"
+                        android:textColor="@color/text_subtitle"
+                        android:textSize="13sp" />
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- PENGATURAN SECTION -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -293,7 +284,6 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <!-- SETTINGS LIST -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -306,32 +296,15 @@
                 <LinearLayout
                     android:id="@+id/btnPengaturan"
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
+                    android:layout_height="56dp"
                     android:gravity="center_vertical"
                     android:paddingHorizontal="16dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:background="?attr/selectableItemBackground">
-                    <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:src="@drawable/ic_setting"
-                        app:tint="@color/dark_green"
-                        android:importantForAccessibility="no" />
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="14dp"
-                        android:text="Pengaturan Profil"
-                        android:textSize="15sp"
-                        android:textColor="@color/text_black"/>
-                    <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:src="@drawable/ic_arrow"
-                        app:tint="#CCCCCC"
-                        android:importantForAccessibility="no" />
+                    <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_setting" app:tint="@color/dark_green" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="14dp" android:text="Pengaturan Profil" android:textSize="14sp" />
+                    <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_arrow" app:tint="#CCCCCC" />
                 </LinearLayout>
 
                 <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F5F5F5" android:layout_marginHorizontal="16dp"/>
@@ -339,51 +312,16 @@
                 <LinearLayout
                     android:id="@+id/btnNotifikasi"
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
+                    android:layout_height="56dp"
                     android:gravity="center_vertical"
                     android:paddingHorizontal="16dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:background="?attr/selectableItemBackground">
-                    <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:src="@drawable/ic_bell"
-                        app:tint="@color/dark_green"
-                        android:importantForAccessibility="no" />
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="14dp"
-                        android:text="Notifikasi"
-                        android:textSize="15sp"
-                        android:textColor="@color/text_black"/>
-
-                    <FrameLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-                        <TextView
-                            android:id="@+id/tvNotificationBadge"
-                            android:layout_width="22dp"
-                            android:layout_height="22dp"
-                            android:background="@drawable/bg_badge_circle"
-                            android:backgroundTint="#D32F2F"
-                            android:text="2"
-                            android:textColor="@android:color/white"
-                            android:gravity="center"
-                            android:textSize="10sp"
-                            android:textStyle="bold"
-                            android:visibility="visible"/>
-                    </FrameLayout>
-
-                    <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:layout_marginStart="8dp"
-                        android:src="@drawable/ic_arrow"
-                        app:tint="#CCCCCC"
-                        android:importantForAccessibility="no" />
+                    <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_bell" app:tint="@color/dark_green" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="14dp" android:text="Notifikasi" android:textSize="14sp" />
+                    <TextView android:id="@+id/tvNotificationBadge" android:layout_width="20dp" android:layout_height="20dp" android:background="@drawable/bg_badge_circle" android:backgroundTint="#D32F2F" android:text="0" android:textColor="@android:color/white" android:gravity="center" android:textSize="9sp" android:textStyle="bold" android:visibility="gone"/>
+                    <ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_marginStart="8dp" android:src="@drawable/ic_arrow" app:tint="#CCCCCC" />
                 </LinearLayout>
 
                 <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F5F5F5" android:layout_marginHorizontal="16dp"/>
@@ -391,32 +329,15 @@
                 <LinearLayout
                     android:id="@+id/btnBantuan"
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
+                    android:layout_height="56dp"
                     android:gravity="center_vertical"
                     android:paddingHorizontal="16dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:background="?attr/selectableItemBackground">
-                    <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:src="@drawable/ic_help"
-                        app:tint="@color/dark_green"
-                        android:importantForAccessibility="no" />
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="14dp"
-                        android:text="Bantuan &amp; Dukungan"
-                        android:textSize="15sp"
-                        android:textColor="@color/text_black"/>
-                    <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:src="@drawable/ic_arrow"
-                        app:tint="#CCCCCC"
-                        android:importantForAccessibility="no" />
+                    <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_help" app:tint="@color/dark_green" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="14dp" android:text="Bantuan &amp; Dukungan" android:textSize="14sp" />
+                    <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_arrow" app:tint="#CCCCCC" />
                 </LinearLayout>
 
                 <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F5F5F5" android:layout_marginHorizontal="16dp"/>
@@ -424,29 +345,16 @@
                 <LinearLayout
                     android:id="@+id/btnLogout"
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
+                    android:layout_height="56dp"
                     android:gravity="center_vertical"
                     android:paddingHorizontal="16dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:background="?attr/selectableItemBackground">
-                    <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:src="@drawable/ic_logout"
-                        app:tint="#D32F2F"
-                        android:importantForAccessibility="no" />
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="14dp"
-                        android:text="Keluar"
-                        android:textColor="#D32F2F"
-                        android:textSize="15sp"
-                        android:textStyle="bold"/>
+                    <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_logout" app:tint="#D32F2F" />
+                    <TextView android:id="@+id/tvLogoutText" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="14dp" android:text="Keluar Akun" android:textColor="#D32F2F" android:textSize="14sp" android:textStyle="bold"/>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

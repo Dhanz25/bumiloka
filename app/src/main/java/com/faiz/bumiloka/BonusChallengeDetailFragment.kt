@@ -30,20 +30,24 @@ class BonusChallengeDetailFragment : Fragment(R.layout.fragment_bonus_challenge_
     private lateinit var btnBack: ImageButton
 
     companion object {
+        @JvmStatic
         fun newInstance(challengeId: String): BonusChallengeDetailFragment {
-            val fragment = BonusChallengeDetailFragment()
-            val args = Bundle()
-            args.putString("challenge_id", challengeId)
-            fragment.arguments = args
-            return fragment
+            return BonusChallengeDetailFragment().apply {
+                arguments = Bundle().apply { putString("challenge_id", challengeId) }
+            }
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         challengeId = arguments?.getString("challenge_id") ?: ""
 
+        initViews(view)
+        btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
+        loadChallengeData()
+    }
+
+    private fun initViews(view: View) {
         tvTitle = view.findViewById(R.id.tvTitle)
         tvDescription = view.findViewById(R.id.tvDescription)
         tvMateriName = view.findViewById(R.id.tvMateriName)
@@ -53,31 +57,26 @@ class BonusChallengeDetailFragment : Fragment(R.layout.fragment_bonus_challenge_
         ivQuizStatus = view.findViewById(R.id.ivQuizStatus)
         btnAction = view.findViewById(R.id.btnAction)
         btnBack = view.findViewById(R.id.btnBack)
-
-        btnBack.setOnClickListener {
-            parentFragmentManager.popBackStack()
-        }
-
-        loadChallengeData()
-        observeProgress()
     }
 
     private fun loadChallengeData() {
         BonusChallengeRepository.getActiveChallenges { challenges ->
+            if (!isAdded) return@getActiveChallenges
             challenge = challenges.find { it.id == challengeId }
             challenge?.let {
                 tvTitle.text = it.judul
                 tvDescription.text = it.deskripsi
-                tvMateriName.text = "Materi ${it.materiId}"
-                tvQuizName.text = "Quiz ${it.quizId}"
-                tvBadgeName.text = it.badgeId
-                updateUI()
+                tvMateriName.text = "Materi: ${it.materiId}"
+                tvQuizName.text = "Quiz: ${it.quizId}"
+                tvBadgeName.text = "Hadiah: ${it.badgeId}"
+                observeProgress()
             }
         }
     }
 
     private fun observeProgress() {
         BonusChallengeRepository.getChallengeProgress(challengeId) {
+            if (!isAdded) return@getChallengeProgress
             progress = it
             updateUI()
         }
@@ -93,75 +92,72 @@ class BonusChallengeDetailFragment : Fragment(R.layout.fragment_bonus_challenge_
         ivQuizStatus.setColorFilter(if (progress.quizDone) colorDone else colorNotDone)
 
         if (progress.completed) {
-            btnAction.text = "SELESAI"
+            btnAction.text = "SUDAH SELESAI ✓"
             btnAction.isEnabled = false
             btnAction.setBackgroundColor(colorNotDone)
         } else if (progress.materiDone && progress.quizDone) {
-            btnAction.text = "TANDAI SELESAI"
+            btnAction.text = "KLAIM HADIAH"
             btnAction.isEnabled = true
-            btnAction.setOnClickListener {
-                showSuccessDialog()
+            btnAction.setOnClickListener { 
+                // Gunakan BadgeHelper dengan popup
+                challenge?.let { c ->
+                    BadgeHelper.tambahBadge(requireContext(), c.badgeId, true)
+                    AktivitasHelper.tambahPoint(requireContext(), 100, "Tantangan Bonus")
+                    BonusChallengeRepository.markAsCompleted(challengeId) {
+                        if (isAdded) updateUI() 
+                    }
+                }
             }
         } else {
-            btnAction.text = "LANJUT"
+            btnAction.text = if (!progress.materiDone) "PELAJARI MATERI" else "KERJAKAN KUIS"
             btnAction.isEnabled = true
-            btnAction.setOnClickListener {
-                startChallengeFlow()
-            }
+            btnAction.setOnClickListener { startChallengeFlow() }
         }
     }
 
     private fun startChallengeFlow() {
         val currentChallenge = challenge ?: return
         if (!progress.materiDone) {
-            val fragment = MateriFragment.newInstance(currentChallenge.materiId)
-            val args = fragment.arguments ?: Bundle()
-            args.putBoolean("DARI_BONUS_CHALLENGE", true)
-            args.putString("BONUS_CHALLENGE_ID", challengeId)
-            args.putInt("BONUS_QUIZ_ID", currentChallenge.quizId)
-            fragment.arguments = args
+            val fragment = MateriFragment.newInstanceForChallenge(currentChallenge.materiId)
+            val bundle = fragment.arguments ?: Bundle()
+            bundle.putBoolean("IS_TANTANGAN_BONUS", true)
+            bundle.putString("challenge_id", challengeId)
+            bundle.putString("quiz_id", currentChallenge.quizId)
+            bundle.putString("badge_id", currentChallenge.badgeId)
+            bundle.putString("materi_id", currentChallenge.materiId)
+            fragment.arguments = bundle
             
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, fragment)
-                .addToBackStack(null)
+                .addToBackStack("BONUS_DETAIL")
                 .commit()
         } else if (!progress.quizDone) {
             openQuiz(currentChallenge.quizId)
         }
     }
 
-    private fun openQuiz(quizId: Int) {
+    private fun openQuiz(quizId: String) {
         LevelHelper.getCurrentLevel(requireContext()) { level ->
+            if (!isAdded) return@getCurrentLevel
             val fragment = when (quizId) {
-                1 -> QuizSoalFragment.newInstance(quizId.toString(), level)
-                2 -> QuizSoal2Fragment.newInstance(quizId)
-                3 -> QuizSoal3Fragment.newInstance(quizId)
-                else -> QuizSoalFragment.newInstance(quizId.toString(), level)
+                "2" -> QuizSoal2Fragment()
+                "3" -> QuizSoal3Fragment()
+                else -> QuizSoalFragment.newInstance(quizId, level)
             }
-            val args = fragment.arguments ?: Bundle()
-            args.putBoolean("DARI_BONUS_CHALLENGE", true)
-            args.putString("BONUS_CHALLENGE_ID", challengeId)
-            fragment.arguments = args
+            
+            val bundle = fragment.arguments ?: Bundle()
+            bundle.putBoolean("IS_TANTANGAN_BONUS", true)
+            bundle.putString("challenge_id", challengeId)
+            bundle.putString("quiz_id", quizId)
+            bundle.putString("badge_id", challenge?.badgeId ?: "")
+            bundle.putString("materi_id", challenge?.materiId ?: "")
+            bundle.putInt("LEVEL", level)
+            fragment.arguments = bundle
 
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, fragment)
-                .addToBackStack(null)
+                .addToBackStack("BONUS_DETAIL")
                 .commit()
         }
-    }
-
-    private fun showSuccessDialog() {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Selamat!")
-            .setMessage("Anda berhasil menyelesaikan tantangan.\n\nBadge yang diperoleh:\n${challenge?.badgeId}")
-            .setPositiveButton("OK") { _, _ ->
-                challenge?.let {
-                    BadgeHelper.tambahBadge(requireContext(), it.badgeId)
-                    BonusChallengeRepository.markAsCompleted(challengeId) {
-                        // Progress updated by listener
-                    }
-                }
-            }
-            .show()
     }
 }

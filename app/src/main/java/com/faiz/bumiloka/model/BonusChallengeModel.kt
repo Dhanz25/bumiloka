@@ -1,11 +1,14 @@
 package com.faiz.bumiloka.model
 
 data class BonusChallengeModel(
-    val id: String = "",
-    val judul: String = "",
-    val deskripsi: String = "",
-    val badgeId: String = "",
-    val materiId: Int = 0,
-    val quizId: Int = 0,
-    val aktif: Boolean = true
+    var id: String = "",
+    var judul: String = "",
+    var deskripsi: String = "",
+    var badgeId: String = "",
+    var materiId: String = "",       // Field materiId harus ada
+    var type: String = "COMMITMENT", // "COMMITMENT" atau "QUIZ"
+    var targetDays: Int = 1,
+    var quizId: String = "",         // quizId harus String
+    var aktif: Boolean = true,
+    var createdAt: Long = System.currentTimeMillis()
 )

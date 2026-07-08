@@ -1,291 +1,332 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_splash"
-    android:fitsSystemWindows="true"
-    android:fillViewport="true">
+    android:background="@drawable/bg_main_gradient"
+    android:fitsSystemWindows="true">
 
-    <LinearLayout
+    <!-- Header Section -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/headerMisi"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="16dp"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Header Section -->
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp">
-
-            <ImageView
-                android:id="@+id/btnBack"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:padding="4dp"
-                android:src="@drawable/ic_back_arrow"
-                app:tint="#1B5E20" />
-
-            <TextView
-                android:id="@+id/tvMisiHeader"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="MISI 1"
-                android:textColor="#1B5E20"
-                android:textSize="22sp"
-                android:textStyle="bold" />
-        </RelativeLayout>
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_circle_white"
+            android:elevation="4dp"
+            android:contentDescription="Kembali"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_back_arrow"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/dark_green" />
 
         <TextView
-            android:id="@+id/tvMisiSubHeader"
+            android:id="@+id/tvMisiHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MISI BELAJAR"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingBottom="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/headerMisi">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:gravity="center"
-            android:text="Level 1 (Benih Kehidupan)"
-            android:textColor="#4CAF50"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:padding="20dp">
 
-        <View
-            android:layout_width="60dp"
-            android:layout_height="4dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="24dp"
-            android:background="#81C784" />
-
-<!--        <Button-->
-<!--            android:id="@+id/btnResetMisi"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Reset Test"-->
-<!--            android:layout_marginTop="16dp"/>-->
-
-        <!-- Card 1: Explore Materials -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardMateri"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:strokeWidth="0dp">
-
-            <LinearLayout
+            <!-- Progress Overall Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardOverallProgress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#E8F5E9"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="16dp">
-
-                <ImageView
-                    android:id="@+id/iconMateri"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_marginEnd="16dp"
-                    android:src="@drawable/ic_leaf"
-                    app:tint="#2E7D32" />
+                android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="#CCFFFFFF"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/tvMisiSubHeader"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat Level..."
+                        android:textColor="@color/dark_green"
+                        android:textStyle="bold"
+                        android:textSize="16sp" />
+
+                    <ProgressBar
+                        android:id="@+id/pbOverallMisi"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="8dp"
+                        android:layout_marginTop="12dp"
+                        android:progress="0"
+                        android:progressTint="@color/primary_green" />
+
+                    <TextView
+                        android:id="@+id/tvProgressText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="0 dari 3 Misi Selesai"
+                        android:textColor="@color/text_subtitle"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Timeline Vertical Line -->
+            <View
+                android:layout_width="2dp"
+                android:layout_height="0dp"
+                android:background="@color/white"
+                android:alpha="0.4"
+                android:layout_marginStart="31dp"
+                app:layout_constraintTop_toBottomOf="@id/cardOverallProgress"
+                app:layout_constraintBottom_toBottomOf="@id/cardSkor"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <!-- STEP 1: EDUKASI -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardMateri"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginStart="16dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="0dp"
+                app:layout_constraintTop_toBottomOf="@id/cardOverallProgress"
+                app:layout_constraintStart_toEndOf="@id/guideStep"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <TextView
                         android:id="@+id/tvMisiTitle1"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Jelajahi Materi"
-                        android:textColor="#1B5E20"
-                        android:textSize="18sp"
+                        android:textColor="@color/text_black"
+                        android:textSize="17sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tvMisiDesc1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Pelajari materi dasar tentang peduli lingkungan sampai selesai."
-                        android:textColor="#33691E"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="10 Poin"
-                        android:textColor="#2E7D32"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
+                        android:text="Pelajari materi edukasi lingkungan untuk membuka tantangan selanjutnya."
+                        android:textColor="@color/text_subtitle"
+                        android:textSize="14sp"
+                        android:maxLines="3"
+                        android:ellipsize="end" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnMulaiMateri"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Mulai"
+                        android:textAllCaps="false"
+                        app:cornerRadius="8dp" />
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnMulaiMateri"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="Mulai"
-                    android:textAllCaps="false"
-                    app:backgroundTint="#4CAF50"
-                    app:cornerRadius="20dp" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+            <TextView
+                android:id="@+id/tvStepCircle1"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@drawable/bg_badge_circle"
+                android:gravity="center"
+                android:text="1"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="@id/cardMateri"
+                app:layout_constraintBottom_toBottomOf="@id/cardMateri"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="16dp" />
 
-        <!-- Card 2: Self Challenge -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardTantangan"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:strokeWidth="0dp">
-
-            <LinearLayout
-                android:id="@+id/layoutTantangan"
-                android:layout_width="match_parent"
+            <!-- STEP 2: TANTANGAN DIRI -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardTantangan"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:background="#C8E6C9"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="16dp">
-
-                <ImageView
-                    android:id="@+id/iconTantangan"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_marginEnd="16dp"
-                    android:src="@drawable/ic_quiz"
-                    app:tint="#1B5E20" />
+                android:layout_marginTop="24dp"
+                android:layout_marginStart="16dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="0dp"
+                app:layout_constraintTop_toBottomOf="@id/cardMateri"
+                app:layout_constraintStart_toEndOf="@id/guideStep"
+                app:layout_constraintEnd_toEndOf="parent">
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <TextView
                         android:id="@+id/tvMisiTitle2"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Tantangan Diri"
-                        android:textColor="#1B5E20"
-                        android:textSize="18sp"
+                        android:textColor="@color/text_black"
+                        android:textSize="17sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tvMisiDesc2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Uji pemahamanmu dengan mengerjakan kuis."
-                        android:textColor="#33691E"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="20 Poin"
-                        android:textColor="#2E7D32"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
+                        android:text="Uji pemahamanmu dengan menjawab kuis terkait materi."
+                        android:textColor="@color/text_subtitle"
+                        android:textSize="14sp"
+                        android:maxLines="3"
+                        android:ellipsize="end" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnTantangan"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Terkunci"
+                        android:textAllCaps="false"
+                        app:cornerRadius="8dp" />
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnTantangan"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="Mulai"
-                    android:textAllCaps="false"
-                    app:backgroundTint="#388E3C"
-                    app:cornerRadius="20dp" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+            <TextView
+                android:id="@+id/tvStepCircle2"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@drawable/bg_badge_circle"
+                android:alpha="0.5"
+                android:gravity="center"
+                android:text="2"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="@id/cardTantangan"
+                app:layout_constraintBottom_toBottomOf="@id/cardTantangan"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="16dp" />
 
-        <!-- Card 3: Achieve Minimum Score -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardSkor"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:strokeWidth="0dp">
-
-            <LinearLayout
-                android:id="@+id/layoutSkor"
-                android:layout_width="match_parent"
+            <!-- STEP 3: RAIH SKOR -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardSkor"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:background="#A5D6A7"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="16dp">
-
-                <ImageView
-                    android:id="@+id/iconSkor"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_marginEnd="16dp"
-                    android:src="@drawable/ic_target"
-                    app:tint="#1B5E20" />
+                android:layout_marginTop="24dp"
+                android:layout_marginStart="16dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="0dp"
+                app:layout_constraintTop_toBottomOf="@id/cardTantangan"
+                app:layout_constraintStart_toEndOf="@id/guideStep"
+                app:layout_constraintEnd_toEndOf="parent">
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <TextView
                         android:id="@+id/tvMisiTitle3"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Raih Minimal 75 Skor"
-                        android:textColor="#1B5E20"
-                        android:textSize="18sp"
+                        android:textColor="@color/text_black"
+                        android:textSize="17sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tvMisiDesc3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Dapatkan skor minimal 75 pada kuis untuk menyelesaikan misi ini."
-                        android:textColor="#33691E"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="30 Poin"
-                        android:textColor="#2E7D32"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
+                        android:text="Buktikan keahlianmu dengan mendapatkan skor tinggi di kuis."
+                        android:textColor="@color/text_subtitle"
+                        android:textSize="14sp"
+                        android:maxLines="3"
+                        android:ellipsize="end" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSkor"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Terkunci"
+                        android:textAllCaps="false"
+                        app:cornerRadius="8dp" />
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnSkor"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="Mulai"
-                    android:textAllCaps="false"
-                    app:backgroundTint="#2E7D32"
-                    app:cornerRadius="20dp" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+            <TextView
+                android:id="@+id/tvStepCircle3"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@drawable/bg_badge_circle"
+                android:alpha="0.5"
+                android:gravity="center"
+                android:text="3"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="@id/cardSkor"
+                app:layout_constraintBottom_toBottomOf="@id/cardSkor"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="16dp" />
 
-    </LinearLayout>
-</ScrollView>
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideStep"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="64dp" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -12,13 +12,18 @@ object BonusChallengeRepository {
     private val database = FirebaseDatabase.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
+    // PASTIKAN NAMA NODE SAMA DENGAN ADMIN: "bonus_tantangan"
+    private const val NODE_NAME = "bonus_tantangan"
+
     fun getActiveChallenges(onResult: (List<BonusChallengeModel>) -> Unit) {
-        database.getReference("bonus_challenges")
+        database.getReference(NODE_NAME)
             .orderByChild("aktif")
             .equalTo(true)
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val challenges = snapshot.children.mapNotNull { it.getValue(BonusChallengeModel::class.java)?.copy(id = it.key ?: "") }
+                    val challenges = snapshot.children.mapNotNull { child ->
+                        child.getValue(BonusChallengeModel::class.java)?.apply { id = child.key ?: "" }
+                    }
                     onResult(challenges)
                 }
                 override fun onCancelled(error: DatabaseError) {}

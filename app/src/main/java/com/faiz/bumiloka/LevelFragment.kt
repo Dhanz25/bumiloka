@@ -28,10 +28,10 @@ class LevelFragment : Fragment(R.layout.fragment_level) {
     }
 
     private fun loadLevels() {
-        LevelHelper.getHighestUnlockedLevel { highest ->
+        LevelHelper.getHighestUnlockedLevel { highest: Int ->
             // Pastikan highestUnlocked maksimal 3
             highestUnlocked = if (highest > 3) 3 else highest
-            LevelHelper.getCurrentLevel(requireContext()) { current ->
+            LevelHelper.getCurrentLevel(requireContext()) { current: Int ->
                 activeLevel = current
                 setupRecyclerView()
             }

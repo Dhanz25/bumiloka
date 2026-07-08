@@ -3,12 +3,9 @@ package com.faiz.bumiloka
 import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Base64
+import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.google.android.material.appbar.MaterialToolbar
@@ -22,6 +19,7 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
     private var sudahPilih = false
     private var selectedAnswer = -1
     private var kuisId: String? = null
+    private var poinReward: Int = 20 // Default poin
 
     private lateinit var tvQuestion: TextView
     private lateinit var tvNumber: TextView
@@ -34,19 +32,19 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
 
     companion object {
         fun newInstance(kuisId: String, level: Int = 1): QuizSoalFragment {
-            val fragment = QuizSoalFragment()
-            val args = Bundle()
-            args.putString("KUIS_ID", kuisId)
-            args.putInt("LEVEL", level)
-            fragment.arguments = args
-            return fragment
+            return QuizSoalFragment().apply {
+                arguments = Bundle().apply {
+                    putString("KUIS_ID", kuisId)
+                    putInt("LEVEL", level)
+                }
+            }
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        requireActivity().findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
+        activity?.findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
 
         kuisId = arguments?.getString("KUIS_ID")
         val level = arguments?.getInt("LEVEL") ?: 1
@@ -68,11 +66,11 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
         toolbar.setNavigationOnClickListener { showExitDialog() }
         btnNext.isEnabled = false
 
-        if (kuisId != null) {
-            fetchSoalFromFirebase(kuisId!!)
-        } else {
-            Toast.makeText(requireContext(), "ID Kuis tidak ditemukan", Toast.LENGTH_SHORT).show()
-            parentFragmentManager.popBackStack()
+        kuisId?.let { fetchKuisData(it) } ?: run {
+            if (isAdded) {
+                Toast.makeText(requireContext(), "ID Kuis tidak ditemukan", Toast.LENGTH_SHORT).show()
+                parentFragmentManager.popBackStack()
+            }
         }
 
         btnNext.setOnClickListener {
@@ -90,32 +88,51 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
         }
     }
 
-    private fun fetchSoalFromFirebase(id: String) {
+    private fun fetchKuisData(id: String) {
+        if (!isAdded) return
         progressBar.visibility = View.VISIBLE
-        val db = FirebaseDatabase.getInstance().getReference("kuis").child(id).child("soal")
+        // Ambil seluruh data kuis untuk mendapatkan poinReward
+        val db = FirebaseDatabase.getInstance().getReference("kuis").child(id)
         
         db.get().addOnSuccessListener { snapshot ->
             if (!isAdded) return@addOnSuccessListener
             progressBar.visibility = View.GONE
+            
+            // Ambil poinReward dari Firebase (Kuis metadata)
+            poinReward = snapshot.child("poinReward").getValue(Int::class.java) ?: 20
+            
+            val soalSnapshot = snapshot.child("soal")
             val listSoal = mutableListOf<Question>()
             
-            snapshot.children.forEach { child ->
-                val s = child.getValue(SoalKuis::class.java)
-                s?.let {
-                    val opsi = listOf(it.opsiA, it.opsiB, it.opsiC, it.opsiD)
-                    val correctIndex = when (it.jawabanBenar.uppercase()) {
-                        "A" -> 0
-                        "B" -> 1
-                        "C" -> 2
-                        "D" -> 3
-                        else -> 0
+            soalSnapshot.children.forEach { child ->
+                try {
+                    val map = child.value as? Map<*, *> ?: return@forEach
+                    val pert = map["pertanyaan"]?.toString() ?: ""
+                    val oA = map["opsiA"]?.toString() ?: ""
+                    val oB = map["opsiB"]?.toString() ?: ""
+                    val oC = map["opsiC"]?.toString() ?: ""
+                    val oD = map["opsiD"]?.toString() ?: ""
+                    val jaw = map["jawabanBenar"]?.toString() ?: "A"
+                    val img = map["imageUrl"]?.toString() ?: ""
+
+                    val opsiOriginal = listOf(oA, oB, oC, oD)
+                    val correctText = when (jaw.uppercase()) {
+                        "A" -> oA
+                        "B" -> oB
+                        "C" -> oC
+                        "D" -> oD
+                        else -> oA
                     }
-                    listSoal.add(Question(it.pertanyaan, opsi, correctIndex, it.imageUrl))
-                }
+                    
+                    val opsiShuffled = opsiOriginal.shuffled()
+                    val correctIndex = opsiShuffled.indexOf(correctText)
+                    
+                    listSoal.add(Question(pert, opsiShuffled, correctIndex, img))
+                } catch (e: Exception) { Log.e("QuizSoal", "Error parsing soal: ${e.message}") }
             }
 
             if (listSoal.isNotEmpty()) {
-                questions = listSoal
+                questions = listSoal.shuffled()
                 loadQuestion()
             } else {
                 Toast.makeText(requireContext(), "Kuis ini belum memiliki soal", Toast.LENGTH_SHORT).show()
@@ -130,33 +147,23 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
     }
 
     private fun loadQuestion() {
-        if (questions.isEmpty()) return
+        if (!isAdded || questions.isEmpty()) return
         
         val q = questions[currentQuestion]
         tvNumber.text = "Soal ${currentQuestion + 1}/${questions.size}"
         tvQuestion.text = q.question
         
-        // Handle Image
         if (!q.imageUrl.isNullOrEmpty()) {
             ivQuestionImage.visibility = View.VISIBLE
-            if (q.imageUrl.length > 100) {
-                try {
-                    val imageBytes = Base64.decode(q.imageUrl, Base64.DEFAULT)
-                    Glide.with(this)
-                        .asBitmap()
-                        .load(imageBytes)
-                        .placeholder(R.drawable.img_lingkungan)
-                        .into(ivQuestionImage)
-                } catch (e: Exception) {
-                    ivQuestionImage.setImageResource(R.drawable.img_lingkungan)
-                }
+            if (q.imageUrl.length > 100 || q.imageUrl.startsWith("http")) {
+                val source = if (q.imageUrl.length > 100 && !q.imageUrl.startsWith("http")) 
+                    Base64.decode(q.imageUrl, Base64.DEFAULT) else q.imageUrl
+                Glide.with(this).load(source).placeholder(R.drawable.img_lingkungan).into(ivQuestionImage)
             } else {
-                val resId = resources.getIdentifier(q.imageUrl, "drawable", requireContext().packageName)
+                val resId = resources.getIdentifier(q.imageUrl, "drawable", activity?.packageName ?: "")
                 ivQuestionImage.setImageResource(if (resId != 0) resId else R.drawable.img_lingkungan)
             }
-        } else {
-            ivQuestionImage.visibility = View.GONE
-        }
+        } else { ivQuestionImage.visibility = View.GONE }
 
         for (i in options.indices) {
             options[i].text = "${('A' + i)}. ${q.options[i]}"
@@ -169,6 +176,7 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
     }
 
     private fun pilihJawaban(index: Int) {
+        if (!isAdded) return
         for (option in options) option.setBackgroundResource(R.drawable.bg_option)
         selectedAnswer = index
         sudahPilih = true
@@ -177,6 +185,7 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
     }
 
     private fun pindahKeHasil(level: Int) {
+        if (!isAdded) return
         val totalSoal = questions.size
         val finalScore = if (totalSoal > 0) (skor.toDouble() / (totalSoal * 10) * 100).toInt() else 0
         
@@ -186,39 +195,37 @@ class QuizSoalFragment : Fragment(R.layout.fragment_quiz_soal_) {
             putInt("SKOR", finalScore)
             putString("KUIS_ID", kuisId)
             putInt("LEVEL", level)
+            putInt("POIN_REWARD", poinReward) // Kirim poinReward ke fragment hasil
             
-            // Pass metadata tantangan jika ada
-            arguments?.getString("challenge_id")?.let { putString("challenge_id", it) }
-            arguments?.getString("badge_id")?.let { putString("badge_id", it) }
-            arguments?.getString("quiz_id")?.let { putString("quiz_id", it) }
-            arguments?.getString("materi_id")?.let { putString("materi_id", it) }
-            arguments?.getBoolean("IS_TANTANGAN_BONUS")?.let { putBoolean("IS_TANTANGAN_BONUS", it) }
+            arguments?.let { args ->
+                putString("challenge_id", args.getString("challenge_id"))
+                putString("badge_id", args.getString("badge_id"))
+                putString("quiz_id", args.getString("quiz_id"))
+                putString("materi_id", args.getString("materi_id"))
+                putBoolean("IS_TANTANGAN_BONUS", args.getBoolean("IS_TANTANGAN_BONUS", false))
+                putBoolean("DARI_MISI", args.getBoolean("DARI_MISI", false))
+            }
         }
 
         val fragment = QuizMenang1Fragment()
         fragment.arguments = bundle
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)
             .commit()
     }
 
     private fun showExitDialog() {
+        if (!isAdded) return
         val dialogView = layoutInflater.inflate(R.layout.popup_konfirmasikeluar, null)
         val dialog = AlertDialog.Builder(requireContext()).setView(dialogView).setCancelable(false).create()
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
         dialogView.findViewById<Button>(R.id.btnBatal).setOnClickListener { dialog.dismiss() }
         dialogView.findViewById<Button>(R.id.btnKeluar).setOnClickListener {
             dialog.dismiss()
-            parentFragmentManager.popBackStack()
+            if (isAdded) parentFragmentManager.popBackStack()
         }
         dialog.show()
     }
 
-    data class Question(
-        val question: String,
-        val options: List<String>,
-        val correctAnswer: Int,
-        val imageUrl: String? = null
-    )
+    data class Question(val question: String, val options: List<String>, val correctAnswer: Int, val imageUrl: String? = null)
 }

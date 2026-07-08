@@ -1,13 +1,17 @@
 package com.faiz.bumiloka
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
-import android.view.Gravity
 import android.view.LayoutInflater
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.widget.Button
+import android.widget.Toast
 import com.faiz.bumiloka.data.local.NotificationDatabase
 import com.faiz.bumiloka.data.model.NotificationEntity
 import kotlinx.coroutines.CoroutineScope
@@ -47,10 +51,14 @@ object AktivitasHelper {
         val db = FirebaseDatabase.getInstance().reference.child("users").child(userId)
 
         db.get().addOnSuccessListener { snapshot ->
-            if (snapshot.exists()) {
+            if (!snapshot.exists()) return@addOnSuccessListener
+            
+            try {
                 var currentLevel = safeToInt(snapshot.child("level").value).let { if (it <= 0) 1 else it }
                 var currentXP = safeToInt(snapshot.child("xp").value)
                 var totalPoint = safeToInt(snapshot.child("totalPoint").value)
+
+                Log.d("AktivitasHelper", "XP Awal: $currentXP, Tambahan: $tambahanXP dari $sumber")
 
                 currentXP += tambahanXP
                 totalPoint += tambahanXP
@@ -62,6 +70,8 @@ object AktivitasHelper {
                     naikLevel = true
                 }
 
+                Log.d("AktivitasHelper", "XP Akhir: $currentXP, Level Baru: $currentLevel, Naik Level: $naikLevel")
+
                 val updates = mapOf(
                     "level" to currentLevel,
                     "xp" to currentXP,
@@ -69,86 +79,68 @@ object AktivitasHelper {
                 )
 
                 db.updateChildren(updates).addOnSuccessListener {
-                    if (showNotification) {
-                        if (naikLevel) {
-                            saveLocalNotification(
-                                ctx,
-                                "Naik Level!",
-                                "Luar biasa! Kamu mendapatkan +$tambahanXP XP dan sekarang mencapai Level $currentLevel!",
-                                "Reward"
-                            )
-                        } else {
-                            saveLocalNotification(
-                                ctx,
-                                "Poin Didapat!",
-                                "Selamat! Kamu mendapatkan +$tambahanXP XP dari $sumber.",
-                                "Reward"
-                            )
+                    // ✅ Catat aktivitas ke riwayat aktivitas user
+                    AktivitasManager.tambahAktivitas(ctx, "Mendapatkan +$tambahanXP XP dari $sumber", "XP", tambahanXP)
+
+                    // Tampilkan Toast agar user tahu berapa XP yang didapat
+                    Handler(Looper.getMainLooper()).post {
+                        if (!naikLevel) {
+                            Toast.makeText(ctx, "+$tambahanXP XP ($currentXP/100)", Toast.LENGTH_SHORT).show()
                         }
+                    }
+
+                    if (showNotification) {
+                        val msg = if (naikLevel) "Luar biasa! Kamu mencapai Level $currentLevel!" 
+                                 else "Selamat! Kamu mendapatkan +$tambahanXP XP dari $sumber."
+                        saveLocalNotification(ctx, if (naikLevel) "Naik Level!" else "Poin Didapat!", msg, "Reward")
                     }
                 }
 
                 if (naikLevel) {
-                    showLevelUpPopup(ctx, userId, currentLevel, currentXP)
+                    if (ctx is Activity && !ctx.isFinishing) {
+                        showLevelUpPopup(ctx, userId, currentLevel, currentXP)
+                    }
                 }
-            }
+            } catch (e: Exception) { Log.e("AktivitasHelper", "Error: ${e.message}") }
         }
     }
 
     private fun showLevelUpPopup(context: Context, userId: String, nextLevel: Int, sisaXP: Int) {
-        val notifView = LayoutInflater.from(context).inflate(R.layout.popup_naiklevel, null)
-        val notifDialog = AlertDialog.Builder(context)
-            .setView(notifView)
-            .setCancelable(false)
-            .create()
+        try {
+            val inflater = LayoutInflater.from(context)
+            val notifView = inflater.inflate(R.layout.popup_naiklevel, null)
+            val notifDialog = AlertDialog.Builder(context)
+                .setView(notifView)
+                .setCancelable(false)
+                .create()
 
-        notifDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-        notifDialog.show()
-        notifDialog.window?.setGravity(Gravity.CENTER)
+            notifDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+            notifDialog.show()
 
-        val btnLanjut = notifView.findViewById<Button>(R.id.btnLanjutPopup)
-        btnLanjut?.setOnClickListener {
-            notifDialog.dismiss()
-            LevelHelper.resetProgressPerLevel(context, userId, nextLevel, sisaXP) {
-                val intent = Intent(context, MainActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                context.startActivity(intent)
+            notifView.findViewById<Button>(R.id.btnLanjutPopup)?.setOnClickListener {
+                notifDialog.dismiss()
+                LevelHelper.resetProgressPerLevel(context, userId, nextLevel, sisaXP) {
+                    val intent = Intent(context, MainActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    context.startActivity(intent)
+                }
             }
-        }
+        } catch (e: Exception) { Log.e("AktivitasHelper", "Dialog Error: ${e.message}") }
     }
 
-    fun tambahMisiSelesai(context: Context?, showNotification: Boolean = true) {
+    fun tambahMisiSelesai(context: Context?, sumber: String = "Misi", showNotification: Boolean = true) {
+        val ctx = context ?: return
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseDatabase.getInstance().reference.child("users").child(userId)
 
         db.child("misiTercapai").get().addOnSuccessListener { snapshot ->
             val currentMisi = safeToInt(snapshot.value)
             db.child("misiTercapai").setValue(currentMisi + 1).addOnSuccessListener {
+                // ✅ Catat aktivitas misi selesai
+                AktivitasManager.tambahAktivitas(ctx, "Menyelesaikan $sumber", "MISI", 0)
+                
                 if (showNotification) {
-                    context?.let {
-                        saveLocalNotification(it, "Misi Selesai", "Satu misi lagi telah kamu selesaikan. Terus semangat!", "Aktivitas")
-                    }
-                }
-            }
-        }
-    }
-
-    fun tambahLencana(context: Context?, idLencana: String, namaLencana: String = "Lencana Baru", showNotification: Boolean = true) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val db = FirebaseDatabase.getInstance().reference.child("users").child(userId)
-
-        db.child("lencana_dimiliki").child(idLencana).get().addOnSuccessListener { snapshot ->
-            if (!snapshot.exists()) {
-                db.child("lencana_dimiliki").child(idLencana).setValue(true)
-                db.child("totalLencana").get().addOnSuccessListener { totalSnap ->
-                    val currentTotal = safeToInt(totalSnap.value)
-                    db.child("totalLencana").setValue(currentTotal + 1).addOnSuccessListener {
-                        if (showNotification) {
-                            context?.let {
-                                saveLocalNotification(it, "Lencana Baru!", "Selamat! Kamu telah mendapatkan lencana: $namaLencana.", "Reward")
-                            }
-                        }
-                    }
+                    saveLocalNotification(ctx, "Misi Selesai", "$sumber telah kamu selesaikan.", "Aktivitas")
                 }
             }
         }

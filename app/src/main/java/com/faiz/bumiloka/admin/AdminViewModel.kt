@@ -4,10 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.faiz.bumiloka.data.repository.AdminRepository
-import com.faiz.bumiloka.model.Edukasi
-import com.faiz.bumiloka.model.Kuis
-import com.faiz.bumiloka.model.SoalKuis
-import com.faiz.bumiloka.model.Tantangan
+import com.faiz.bumiloka.model.*
 
 class AdminViewModel : ViewModel() {
     private val repository = AdminRepository()
@@ -21,65 +18,49 @@ class AdminViewModel : ViewModel() {
     private val _tantanganList = MutableLiveData<List<Tantangan>>()
     val tantanganList: LiveData<List<Tantangan>> = _tantanganList
 
+    private val _bonusTantanganList = MutableLiveData<List<BonusChallengeModel>>()
+    val bonusTantanganList: LiveData<List<BonusChallengeModel>> = _bonusTantanganList
+
+    private val _badgeList = MutableLiveData<List<Badge>>()
+    val badgeList: LiveData<List<Badge>> = _badgeList
+
     private val _soalList = MutableLiveData<List<SoalKuis>>()
     val soalList: LiveData<List<SoalKuis>> = _soalList
 
     private val _statistik = MutableLiveData<Map<String, Long>>()
     val statistik: LiveData<Map<String, Long>> = _statistik
 
-    fun fetchEdukasi() {
-        repository.getEdukasi { _edukasiList.postValue(it) }
-    }
+    // --- EDUKASI ---
+    fun fetchEdukasi() { repository.getEdukasi { _edukasiList.postValue(it) } }
+    fun saveEdukasi(edukasi: Edukasi, onComplete: (Boolean) -> Unit) { repository.saveEdukasi(edukasi, onComplete) }
+    fun deleteEdukasi(id: String, onComplete: (Boolean) -> Unit) { repository.deleteEdukasi(id, onComplete) }
 
-    fun saveEdukasi(edukasi: Edukasi, onComplete: (Boolean) -> Unit) {
-        repository.saveEdukasi(edukasi, onComplete)
-    }
+    // --- KUIS ---
+    fun fetchKuis() { repository.getKuis { _kuisList.postValue(it) } }
+    fun saveKuis(kuis: Kuis, onComplete: (Boolean) -> Unit) { repository.saveKuis(kuis, onComplete) }
+    fun deleteKuis(id: String, onComplete: (Boolean) -> Unit) { repository.deleteKuis(id, onComplete) }
+    fun saveKuisLengkap(kuis: Kuis, soalList: List<SoalKuis>, onComplete: (Boolean) -> Unit) { repository.saveKuisLengkap(kuis, soalList, onComplete) }
 
-    fun deleteEdukasi(id: String, onComplete: (Boolean) -> Unit) {
-        repository.deleteEdukasi(id, onComplete)
-    }
+    // --- TANTANGAN UTAMA ---
+    fun fetchTantangan() { repository.getTantangan { _tantanganList.postValue(it) } }
+    fun saveTantangan(tantangan: Tantangan, onComplete: (Boolean) -> Unit) { repository.saveTantangan(tantangan, onComplete) }
+    fun deleteTantangan(id: String, onComplete: (Boolean) -> Unit) { repository.deleteTantangan(id, onComplete) }
 
-    fun fetchKuis() {
-        repository.getKuis { _kuisList.postValue(it) }
-    }
+    // --- TANTANGAN BONUS ---
+    fun fetchBonusTantangan() { repository.getBonusTantangan { _bonusTantanganList.postValue(it) } }
+    fun saveBonusTantangan(bonus: BonusChallengeModel, onResult: (Boolean, String?) -> Unit) { repository.saveBonusTantangan(bonus, onResult) }
+    fun deleteBonusTantangan(id: String, onComplete: (Boolean) -> Unit) { repository.deleteBonusTantangan(id, onComplete) }
 
-    fun saveKuis(kuis: Kuis, onComplete: (Boolean) -> Unit) {
-        repository.saveKuis(kuis, onComplete)
-    }
+    // --- BADGES ---
+    fun fetchBadges() { repository.getBadges { _badgeList.postValue(it) } }
+    fun saveBadge(badge: Badge, onComplete: (Boolean) -> Unit) { repository.saveBadge(badge, onComplete) }
+    fun deleteBadge(id: String, onComplete: (Boolean) -> Unit) { repository.deleteBadge(id, onComplete) }
 
-    fun saveKuisLengkap(kuis: Kuis, soalList: List<SoalKuis>, onComplete: (Boolean) -> Unit) {
-        repository.saveKuisLengkap(kuis, soalList, onComplete)
-    }
+    // --- SOAL ---
+    fun fetchSoal(kuisId: String) { repository.getSoal(kuisId) { _soalList.postValue(it) } }
+    fun saveSoal(kuisId: String, soal: SoalKuis, onComplete: (Boolean) -> Unit) { repository.saveSoal(kuisId, soal, onComplete) }
+    fun deleteSoal(kuisId: String, soalId: String, onComplete: (Boolean) -> Unit) { repository.deleteSoal(kuisId, soalId, onComplete) }
 
-    fun deleteKuis(id: String, onComplete: (Boolean) -> Unit) {
-        repository.deleteKuis(id, onComplete)
-    }
-
-    fun fetchTantangan() {
-        repository.getTantangan { _tantanganList.postValue(it) }
-    }
-
-    fun saveTantangan(tantangan: Tantangan, onComplete: (Boolean) -> Unit) {
-        repository.saveTantangan(tantangan, onComplete)
-    }
-
-    fun deleteTantangan(id: String, onComplete: (Boolean) -> Unit) {
-        repository.deleteTantangan(id, onComplete)
-    }
-
-    fun fetchSoal(kuisId: String) {
-        repository.getSoal(kuisId) { _soalList.postValue(it) }
-    }
-
-    fun saveSoal(kuisId: String, soal: SoalKuis, onComplete: (Boolean) -> Unit) {
-        repository.saveSoal(kuisId, soal, onComplete)
-    }
-
-    fun deleteSoal(kuisId: String, soalId: String, onComplete: (Boolean) -> Unit) {
-        repository.deleteSoal(kuisId, soalId, onComplete)
-    }
-
-    fun fetchStatistik() {
-        repository.getStatistik { _statistik.postValue(it) }
-    }
+    // --- STATISTIK ---
+    fun fetchStatistik() { repository.getStatistik { _statistik.postValue(it) } }
 }

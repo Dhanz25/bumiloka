@@ -20,72 +20,52 @@ class MisiRaihSkorFragment : Fragment(R.layout.fragment_misi_raih_skor) {
         val btnBack = view.findViewById<ImageView>(R.id.btnBack)
         val btnMulaiKuis = view.findViewById<MaterialButton>(R.id.btnMulaiKuis)
         val tvDesc = view.findViewById<TextView>(R.id.tvMisiRaihSkorDesc)
+        val ivIcon = view.findViewById<ImageView>(R.id.ivMisiIcon)
 
+        btnBack.setOnClickListener { if (isAdded) parentFragmentManager.popBackStack() }
+
+        val ctx = context ?: return
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
 
-        btnBack.setOnClickListener {
-            parentFragmentManager.popBackStack()
-        }
+        LevelHelper.getCurrentLevel(ctx) { currentLevel ->
+            if (!isAdded) return@getCurrentLevel
 
-        LevelHelper.getCurrentLevel(requireContext()) { currentLevel ->
             val prefKuis = requireActivity().getSharedPreferences("KUIS_${userId}_LEVEL_$currentLevel", Context.MODE_PRIVATE)
-            val prefMisi = requireActivity().getSharedPreferences("MISI_${userId}_LEVEL_$currentLevel", Context.MODE_PRIVATE)
-
-            val nilai = prefKuis.getInt("quiz3_nilai", 0)
             
-            // Update UI deskripsi sesuai level
-            tvDesc?.text = "Dapatkan skor minimal 75 pada Kuis 3 di Level $currentLevel untuk menyelesaikan misi ini."
+            val temaMisi = when(currentLevel) {
+                1 -> "Hemat Air"
+                2 -> "Kelola Ekosistem"
+                3 -> "Pelestarian Alam"
+                else -> "Lingkungan"
+            }
+            
+            tvDesc?.text = "Dapatkan skor minimal 75 pada Kuis 3 ($temaMisi) di Level $currentLevel untuk menyelesaikan misi ini."
+            
+            when(currentLevel) {
+                1 -> ivIcon?.setImageResource(R.drawable.img_air)
+                2 -> ivIcon?.setImageResource(R.drawable.img_sampah)
+                3 -> ivIcon?.setImageResource(R.drawable.img_lingkungan)
+            }
 
-            // ================= LOGIKA =================
             btnMulaiKuis.setOnClickListener {
-
+                if (!isAdded) return@setOnClickListener
                 val currentNilai = prefKuis.getInt("quiz3_nilai", 0)
 
                 if (currentNilai >= 75) {
-
-                    // ✅ TAMBAH DI SINI (MASUK KE RIWAYAT)
-                    AktivitasManager.tambahAktivitas(
-                        requireContext(),
-                        "Menyelesaikan Misi Raih Skor Level $currentLevel",
-                        "Misi",
-                        20
-                    )
-
-                    // simpan status misi selesai
-                    prefMisi.edit().putBoolean("misi3_selesai", true).apply()
-
-                    // 🔥 tampilkan popup
-                    val viewDialog = layoutInflater.inflate(R.layout.popup_raihskor, null)
-
-                    val dialog = AlertDialog.Builder(requireContext())
-                        .setView(viewDialog)
-                        .setCancelable(false)
-                        .create()
-
-                    dialog.show()
-
-                    dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-                    dialog.window?.setDimAmount(0.6f)
-
-                    val anim = AnimationUtils.loadAnimation(requireContext(), R.anim.pop_up_scale)
-                    viewDialog.startAnimation(anim)
-
-                    val btnLanjut = viewDialog.findViewById<Button>(R.id.btnLanjut)
-
-                    btnLanjut.setOnClickListener {
-                        dialog.dismiss()
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.fragment_container, MisiFragment())
-                            .commit()
+                    TantanganStatusHelper.syncAllProgress(context, currentLevel, "QUIZ", "3", currentNilai)
+                    AktivitasManager.tambahAktivitas(requireContext(), "Menyelesaikan Misi Skor Tinggi Level $currentLevel", "Misi", 40)
+                    showSuccessPopup()
+                } else {
+                    val targetKuisId = (3 * (currentLevel - 1) + 3).toString()
+                    val fragment = when(currentLevel) {
+                        1 -> QuizSoal3Fragment.newInstance(currentLevel)
+                        else -> QuizSoalFragment.newInstance(targetKuisId, currentLevel)
                     }
 
-                } else {
-
-                    val fragment = QuizSoal3Fragment()
-
-                    fragment.arguments = Bundle().apply {
+                    fragment.arguments = (fragment.arguments ?: Bundle()).apply {
                         putBoolean("DARI_MISI", true)
                         putInt("LEVEL", currentLevel)
+                        putString("QUIZ_TYPE", if (currentLevel == 1) "QUIZ3" else "QUIZ_DYNAMIC")
                     }
 
                     parentFragmentManager.beginTransaction()
@@ -94,6 +74,21 @@ class MisiRaihSkorFragment : Fragment(R.layout.fragment_misi_raih_skor) {
                         .commit()
                 }
             }
+        }
+    }
+
+    private fun showSuccessPopup() {
+        if (!isAdded) return
+        val dialogView = layoutInflater.inflate(R.layout.popup_raihskor, null)
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView).setCancelable(false).create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.show()
+
+        dialogView.findViewById<Button>(R.id.btnLanjut).setOnClickListener {
+            dialog.dismiss()
+            if (isAdded) parentFragmentManager.popBackStack()
         }
     }
 }

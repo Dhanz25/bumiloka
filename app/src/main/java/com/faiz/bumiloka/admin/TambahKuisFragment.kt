@@ -144,7 +144,6 @@ class TambahKuisFragment : Fragment() {
                     val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, titles)
                     binding.spinnerEdukasi.setAdapter(adapter)
                     
-                    // Jika mode edit, set teks yang sesuai
                     if (selectedEdukasiId.isNotEmpty()) {
                         val currentEdu = edukasiList.find { it.id == selectedEdukasiId }
                         currentEdu?.let { binding.spinnerEdukasi.setText(it.title, false) }
@@ -231,7 +230,7 @@ class TambahKuisFragment : Fragment() {
     private fun applyTemplateSampah() {
         binding.etJudul.setText("Quiz Sampah")
         binding.etDeskripsi.setText("Uji pengetahuanmu tentang pengelolaan sampah.")
-        binding.etPoinReward.setText("100")
+        binding.etPoinReward.setText("20") // PERBAIKAN: Default 20 poin saja agar tidak langsung naik level
         binding.spinnerLevel.setText("1", false)
         binding.etJumlahSoal.setText("10")
         

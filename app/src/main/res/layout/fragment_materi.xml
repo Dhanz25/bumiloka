@@ -3,12 +3,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:fitsSystemWindows="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_utama">
 
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#E8F5E9"
@@ -31,6 +31,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
+        android:paddingBottom="100dp"
+        android:clipToPadding="false"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
@@ -137,21 +139,29 @@
                         tools:text="Konten seksi 3..."/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
-
-            <Button
-                android:id="@+id/btnMulaiKuis"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="32dp"
-                android:backgroundTint="#1B5E20"
-                android:text="Mulai Kuis"
-                android:textColor="@color/white"
-                android:textStyle="bold"
-                app:cornerRadius="30dp"
-                android:elevation="4dp"/>
-
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <!-- Tombol Sticky Footer -->
+    <LinearLayout
+        android:id="@+id/bottomActionArea"
+        style="@style/StickyBottomAction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnMulaiKuis"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:backgroundTint="#1B5E20"
+            android:text="Mulai Kuis"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:cornerRadius="28dp"
+            android:elevation="4dp"/>
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

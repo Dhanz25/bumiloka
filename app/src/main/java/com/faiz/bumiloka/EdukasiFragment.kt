@@ -60,8 +60,9 @@ class EdukasiFragment : Fragment() {
     }
 
     private fun loadEdukasiFromFirebase(level: Int) {
+        if (!isAdded) return
         progressBar.visibility = View.VISIBLE
-        db.orderByChild("level").equalTo(level.toDouble()).addValueEventListener(object : ValueEventListener {
+        db.orderByChild("level").equalTo(level.toDouble()).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (!isAdded) return
                 progressBar.visibility = View.GONE
@@ -107,43 +108,32 @@ class EdukasiFragment : Fragment() {
             title.text = data.title
             deskripsi.text = data.description
             
-            // Perbaikan pemuatan gambar untuk mendukung Galeri (Base64) dan Drawable
             if (!data.imageUrl.isNullOrEmpty()) {
                 if (data.imageUrl.length > 100) {
-                    // Jika teks panjang, asumsikan Base64 dari galeri
                     try {
                         val imageBytes = Base64.decode(data.imageUrl, Base64.DEFAULT)
-                        Glide.with(this)
-                            .asBitmap()
-                            .load(imageBytes)
-                            .placeholder(R.drawable.img_lingkungan)
-                            .into(image)
-                    } catch (e: Exception) {
-                        image.setImageResource(R.drawable.img_lingkungan)
-                    }
+                        Glide.with(this).asBitmap().load(imageBytes).placeholder(R.drawable.img_lingkungan).into(image)
+                    } catch (e: Exception) { image.setImageResource(R.drawable.img_lingkungan) }
                 } else {
-                    // Jika teks pendek, asumsikan nama drawable
                     val resId = resources.getIdentifier(data.imageUrl, "drawable", requireContext().packageName)
-                    if (resId != 0) {
-                        image.setImageResource(resId)
-                    } else {
-                        image.setImageResource(R.drawable.img_lingkungan)
-                    }
+                    image.setImageResource(if (resId != 0) resId else R.drawable.img_lingkungan)
                 }
             } else {
                 image.setImageResource(R.drawable.img_lingkungan)
             }
 
-            cardView.setOnClickListener { bukaMateri(data.id) }
+            cardView.setOnClickListener { bukaMateri(data.id, data.kuisId, userLevel) }
             containerMateri.addView(cardView)
         }
     }
 
-    private fun bukaMateri(edukasiId: String) {
+    private fun bukaMateri(edukasiId: String, kuisId: String, level: Int) {
         val dariTantangan = arguments?.getBoolean("DARI_TANTANGAN", false) ?: false
         val fragment = MateriFragment()
         val args = Bundle()
         args.putString("edukasi_id", edukasiId)
+        args.putString("quiz_id", kuisId)
+        args.putInt("LEVEL", level) // PASS LEVEL KE MATERI
         args.putBoolean("DARI_TANTANGAN", dariTantangan)
         fragment.arguments = args
         parentFragmentManager.beginTransaction()
